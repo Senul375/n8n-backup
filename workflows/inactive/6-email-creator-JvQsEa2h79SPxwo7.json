@@ -1,0 +1,1346 @@
+{
+  "updatedAt": "2026-05-23T18:46:11.219Z",
+  "createdAt": "2026-04-21T17:50:25.389Z",
+  "id": "JvQsEa2h79SPxwo7",
+  "name": "6. Email creator",
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "a7dd8bc9-b29b-4ffe-8042-404ea42a7c3e",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "79e5a160-aef0-40e3-ae8e-e14223ac2017",
+              "name": "first_name",
+              "value": "={{ $json.first_name }}",
+              "type": "string"
+            },
+            {
+              "id": "6c9ba4df-7d71-4231-b6b3-904518d0525b",
+              "name": "company_name",
+              "value": "={{ $json.name }}",
+              "type": "string"
+            },
+            {
+              "id": "21c2fdfd-6397-445e-9ace-f28d969be7ce",
+              "name": "page",
+              "value": "={{ $json.page }}",
+              "type": "string"
+            },
+            {
+              "id": "f89187d8-7344-4a06-99b3-fa112ab68ae0",
+              "name": "website_problem",
+              "value": "={{ $json.website_problem }}",
+              "type": "string"
+            },
+            {
+              "id": "fc35eed8-7efe-4c61-aa43-e5dcfe2995c1",
+              "name": "recognizable_reason",
+              "value": "={{ $json.recognizable_reason }}",
+              "type": "string"
+            },
+            {
+              "id": "8f55dfbe-eb3e-4808-8a07-3df27c4ffc07",
+              "name": "review",
+              "value": "=free prototype",
+              "type": "string"
+            },
+            {
+              "id": "fc39c9f4-1d85-4042-ba5b-458302354d7b",
+              "name": "asset_exits",
+              "value": "=yes",
+              "type": "string"
+            },
+            {
+              "id": "03fc7f5c-10bf-4f89-a913-27fc43a0581c",
+              "name": "review_time",
+              "value": "2 minutes",
+              "type": "string"
+            },
+            {
+              "id": "5f0010a9-50f5-4f76-8bf0-b312b9506c1c",
+              "name": "micro_yes",
+              "value": "Want me to send the free prototype?",
+              "type": "string"
+            },
+            {
+              "id": "35dc8333-7aa1-4cc0-8a54-8914c77baa5c",
+              "name": "your_name",
+              "value": "Senul",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        704,
+        0
+      ],
+      "id": "61f702dc-44d9-4f03-accc-2ca980391683",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=You are writing Follow Up 1 for a cold email sequence. The pitch has already been sent with no reply.\n\nINPUTS:\n- Client first name: {{ $('Get row(s) in sheet1').first().json.first_name }}\n- Company name: {{ $('Get row(s) in sheet1').first().json.name }}\n- Website: {{ $('Get row(s) in sheet1').first().json.website }}\n- Website problem: {{ $('Get row(s) in sheet1').first().json.website_problem }}\n- Specific issues (pipe-separated): {{ $('Get row(s) in sheet1').first().json.recognizable_reason }}\n- Consequence: {{ $('Get row(s) in sheet1').first().json.consequence_mechanics }}\n- Sender name: {{ $('Edit Fields').first().json.your_name }}\n- Pitch email: {{ $('pitch parsed').first().json.subject }} {{ $('pitch parsed').first().json.body }}\n\nTASK:\nStay on the exact same issue from the pitch. Do not switch topics or generalise. Sharpen the consequence — show what is actually happening to their business because of this specific issue. Use a completely fresh angle from the pitch.\n\nRULES:\n- Do NOT copy or repeat any wording from the pitch\n- Do NOT reference or summarise the pitch\n- Do NOT use agency or corporate words: prototype, mockup, demo, optimise, streamline, leverage, innovative, solution, enhance, seamlessly, or similar\n- Do NOT use brochure phrases: creates friction, impacts revenue, missed opportunities, poor first impression, or similar\n- Do NOT use hedging words: could, might, may, potentially, possibly, some, many, or similar\n- Never assume where visitors go after leaving — just say they leave\n- Subject line must be different to the pitch subject line\n- Under 70 words total (body only, not counting subject)\n- Subject line: exactly 3 or 4 words\n- Plain business voice, sound natural and human\n- Structure: greeting → one sentence sharpening the consequence of the same issue → one sentence on what that means for their business → CTA\n- CTA must be exactly: \"Want me to send the example?\"\n- Sign off: Best, [sender name]\n\nOUTPUT:\nReturn only valid JSON in this exact format, nothing else, no markdown, no explanation:\n{\"subject\": \"...\", \"body\": \"...\"}"
+            }
+          ]
+        },
+        "jsonOutput": true,
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        1552,
+        0
+      ],
+      "id": "0691c4ce-5911-4264-8b38-46208ef67998",
+      "name": "Follow Up 1",
+      "retryOnFail": true,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "J1l2ZUht2A09BOqf",
+          "name": "ak - gemini api key paid version"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=You are writing Follow Up 2 for a cold email sequence. The pitch and Follow Up 1 have already been sent with no reply.\n\nINPUTS:\n- Client first name: {{ $('Get row(s) in sheet1').first().json.first_name }}\n- Company name: {{ $('Get row(s) in sheet1').first().json.name }}\n- Sender name: {{ $('Edit Fields').first().json.your_name }}\n\nTASK:\nWrite a very short, direct Follow Up 2. No preamble, no context, no reference to previous emails. Just a straight ask.\n\nRULES:\n- Never say \"circling back\", \"following up\", \"just checking in\" or any line that is about you\n- Never use the word prototype, mockup, or demo — use \"example\" instead\n- Under 40 words total (body only, not counting subject)\n- Subject line: exactly 3 or 4 words\n- Sound like a real person sending a quick nudge\n- No corporate or AI-sounding words\n- Sign off: Best, [sender name]\n\nOUTPUT:\nReturn only valid JSON in this exact format, nothing else, no markdown, no explanation:\n{\"subject\": \"...\", \"body\": \"...\"}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {
+          "maxOutputTokens": 1800
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        2192,
+        0
+      ],
+      "id": "61b52281-b6ca-496d-b8a3-d6f11089e9c0",
+      "name": "Follow Up 2",
+      "retryOnFail": true,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "J1l2ZUht2A09BOqf",
+          "name": "ak - gemini api key paid version"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 1,
+        "unit": "minutes"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        832,
+        0
+      ],
+      "id": "f7fab951-bca2-4b17-a970-4bb03419de80",
+      "name": "Wait",
+      "webhookId": "7ab78674-07d8-4c80-9247-c673753dffb5"
+    },
+    {
+      "parameters": {
+        "amount": 3,
+        "unit": "minutes"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1408,
+        0
+      ],
+      "id": "2e01767e-60f1-457e-b4f8-231fba01902f",
+      "name": "Wait1",
+      "webhookId": "89be4df0-9276-4dab-b0f4-0ea2dc81379f"
+    },
+    {
+      "parameters": {
+        "amount": 1,
+        "unit": "minutes"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2032,
+        0
+      ],
+      "id": "aaeca934-8845-45d5-9c47-32387b63025e",
+      "name": "Wait2",
+      "webhookId": "bb087120-16a5-408d-b873-ae0d6cff2cbf"
+    },
+    {
+      "parameters": {
+        "amount": 2,
+        "unit": "minutes"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2640,
+        0
+      ],
+      "id": "05fd3e16-4cd5-4d2e-8a08-2e4b03ec76e2",
+      "name": "Wait3",
+      "webhookId": "da88bae6-0372-428c-b7ba-06ac61f40ed4"
+    },
+    {
+      "parameters": {
+        "amount": 1,
+        "unit": "minutes"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        3200,
+        0
+      ],
+      "id": "8879e8bc-5b44-43c5-a940-d58417766c46",
+      "name": "Wait4",
+      "webhookId": "f251f5e2-0fe1-41d4-96b9-1e5125383d21"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1aRf_l4brlJ0DxFF9N1RDtIRBfYu7FdovX03jmGV0eSU",
+          "mode": "list",
+          "cachedResultName": "Step 5 - Round 2 - Find Issues",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1aRf_l4brlJ0DxFF9N1RDtIRBfYu7FdovX03jmGV0eSU/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1aRf_l4brlJ0DxFF9N1RDtIRBfYu7FdovX03jmGV0eSU/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "row_number": "={{ $('Get row(s) in sheet1').item.json.row_number }}",
+            "pitch": "={{ $('pitch parsed').item.json.body }}",
+            "follow up 1 ": "={{ $('follow up 1 parsed').item.json.body }}",
+            "follow up 2": "={{ $('follow up 2 parsed').item.json.body }}",
+            "follow up 3": "={{ $('Code in JavaScript').item.json.body }}",
+            "email created": "true",
+            "pitch_subject_line": "={{ $('pitch parsed').item.json.subject }}",
+            "follow up 1 subject line": "={{ $('follow up 1 parsed').item.json.subject }}",
+            "follow up 2 subject line": "={{ $('follow up 2 parsed').item.json.subject }}",
+            "follow up 3 subject line": "={{ $('Code in JavaScript').item.json.subject }}"
+          },
+          "matchingColumns": [
+            "row_number"
+          ],
+          "schema": [
+            {
+              "id": "name",
+              "displayName": "name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "place id",
+              "displayName": "place id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "nationalPhoneNumber",
+              "displayName": "nationalPhoneNumber",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Issue",
+              "displayName": "Issue",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "rating",
+              "displayName": "rating",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "website",
+              "displayName": "website",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "format adrees",
+              "displayName": "format adrees",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "google search email",
+              "displayName": "google search email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "hunter email",
+              "displayName": "hunter email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "twitter",
+              "displayName": "twitter",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "first_name",
+              "displayName": "first_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "last_name",
+              "displayName": "last_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "department",
+              "displayName": "department",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "job title",
+              "displayName": "job title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "verfication",
+              "displayName": "verfication",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "linkedn",
+              "displayName": "linkedn",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "internationalPhoneNumber",
+              "displayName": "internationalPhoneNumber",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "page",
+              "displayName": "page",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "website_problem",
+              "displayName": "website_problem",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "recognizable_reason",
+              "displayName": "recognizable_reason",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "consequence_mechanics",
+              "displayName": "consequence_mechanics",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "review",
+              "displayName": "review",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "asset_exits",
+              "displayName": "asset_exits",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "review_time",
+              "displayName": "review_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "micro_yes",
+              "displayName": "micro_yes",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "subject_lable",
+              "displayName": "subject_lable",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "pitch_subject_line",
+              "displayName": "pitch_subject_line",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "pitch",
+              "displayName": "pitch",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "follow up 1 subject line",
+              "displayName": "follow up 1 subject line",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "follow up 1 ",
+              "displayName": "follow up 1 ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "follow up 2 subject line",
+              "displayName": "follow up 2 subject line",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "follow up 2",
+              "displayName": "follow up 2",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "follow up 3 subject line",
+              "displayName": "follow up 3 subject line",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "follow up 3",
+              "displayName": "follow up 3",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "stop_30",
+              "displayName": "stop_30",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "issues",
+              "displayName": "issues",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "thread_id",
+              "displayName": "thread_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "message_id",
+              "displayName": "message_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "research_done",
+              "displayName": "research_done",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "done",
+              "displayName": "done",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "checked_reply",
+              "displayName": "checked_reply",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "status ",
+              "displayName": "status ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "infor aded",
+              "displayName": "infor aded",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "email created",
+              "displayName": "email created",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "sent the email to alex",
+              "displayName": "sent the email to alex",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Email fixed in word",
+              "displayName": "Email fixed in word",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "send the email to the lead",
+              "displayName": "send the email to the lead",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Pitch email sent",
+              "displayName": "Pitch email sent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Follow up 1 sent",
+              "displayName": "Follow up 1 sent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Follow up 2 sent",
+              "displayName": "Follow up 2 sent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Follow up 3 sent",
+              "displayName": "Follow up 3 sent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "isuue found",
+              "displayName": "isuue found",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        3360,
+        0
+      ],
+      "id": "52426e8d-532a-4989-bc88-536052ab8b20",
+      "name": "Update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "XurJbcuuPZn14SYW",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=You are writing a cold outreach email for a small agency contacting a dental clinic about a website issue.\n\nINPUTS:\n- Client first name: {{ $('Edit Fields').first().json.first_name }}\n- Company name: {{ $('Edit Fields').first().json.company_name }}\n- Website: {{ $('Edit Fields').first().json.page }}\n- Website problem: {{ $('Get row(s) in sheet1').first().json.website_problem }}\n- Specific issues (pipe-separated): {{ $('Get row(s) in sheet1').first().json.recognizable_reason }}\n- Consequence: {{ $('Get row(s) in sheet1').first().json.consequence_mechanics }}\n- Sender name: {{ $('Edit Fields').first().json.your_name }}\n\nTASK:\nFrom the pipe-separated list in \"specific issues\", pick the single strongest one — the most immediately visible and functional problem. Write a cold pitch email based on that issue only.\n\nRULES:\n- Describe exactly what a visitor sees or experiences when they hit the issue — not a vague summary\n- Plain business voice, no marketing tone, no hype\n- Under 70 words total (body only, not counting subject)\n- Subject line: exactly 3 or 4 words\n- Never use agency or corporate words: prototype, mockup, demo, optimise, streamline, leverage, innovative, solution, enhance, seamlessly, or similar\n- Never use brochure phrases: creates friction, impacts revenue, missed opportunities, poor first impression, damages trust, or similar\n- Never use hedging words: could, might, may, potentially, possibly, some, many, or similar — state consequences as fact\n- Never assume where visitors go after leaving — just say they leave\n- Structure: greeting → one sentence describing exactly what the visitor sees → one sentence on what that costs them → CTA\n- CTA must be: \"Want me to show you what [specific element] looks like with that fixed?\"\n- Sign off: Best, [sender name]\n\nOUTPUT:\nReturn only valid JSON in this exact format, nothing else, no markdown, no explanation:\n{\"subject\": \"...\", \"body\": \"...\"}"
+            }
+          ]
+        },
+        "jsonOutput": true,
+        "builtInTools": {},
+        "options": {
+          "maxOutputTokens": 3000
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        976,
+        0
+      ],
+      "id": "6c516990-a291-457c-ae12-7e45181a85e8",
+      "name": "pitch",
+      "retryOnFail": true,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "J1l2ZUht2A09BOqf",
+          "name": "ak - gemini api key paid version"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=You are writing the final follow up email in a cold email sequence. This is Follow Up 3 — the last message.\n\nINPUTS:\n- Client first name: {{ $('Get row(s) in sheet1').first().json.first_name }}\n- Sender name: {{ $('Edit Fields').first().json.your_name }}\n\nTASK:\nWrite the final follow up. It must always follow this exact structure — do not change it:\n\n\"Last one from me.\n\nWould you like me to send the example over?\n\nBest, [sender name]\"\n\nRULES:\n- Use this exact body structure every time, no variations\n- Subject line: exactly 3 or 4 words\n- Subject line must NOT say \"Final Follow Up\", \"Last Email\", or anything that signals you're giving up — use something action-forward like \"Send the example over?\"\n- Never use the word prototype, mockup, or demo\n- No explanation, no context, no reference to the issue\n\nOUTPUT:\nReturn only valid JSON in this exact format, nothing else, no markdown, no explanation:\n{\"subject\": \"...\", \"body\": \"...\"}"
+            },
+            {}
+          ]
+        },
+        "jsonOutput": true,
+        "builtInTools": {},
+        "options": {
+          "maxOutputTokens": 1600
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        2784,
+        0
+      ],
+      "id": "cbe2370f-d1c4-47b3-9785-de472fd3d44f",
+      "name": "follow up 3",
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 3000,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "J1l2ZUht2A09BOqf",
+          "name": "ak - gemini api key paid version"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = items[0].json.content.parts[0].text;\nconst parsed = JSON.parse(raw);\n\nreturn [{\n  json: {\n    subject: parsed.subject,\n    body: parsed.body\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1248,
+        0
+      ],
+      "id": "ecdc12d5-1fd7-4eb6-9a01-deec836d16e1",
+      "name": "pitch parsed"
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = items[0].json.content.parts[0].text;\nconst parsed = JSON.parse(raw);\n\nreturn [{\n  json: {\n    subject: parsed.subject,\n    body: parsed.body\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1856,
+        0
+      ],
+      "id": "d42132df-2049-49ea-a178-a96d4ce51d69",
+      "name": "follow up 1 parsed"
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = items[0].json.content.parts[0].text;\nconst parsed = JSON.parse(raw);\n\nreturn [{\n  json: {\n    subject: parsed.subject,\n    body: parsed.body\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2480,
+        0
+      ],
+      "id": "28ce8a58-150e-472b-beab-47a46065a2dd",
+      "name": "follow up 2 parsed"
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = items[0].json.content.parts[0].text;\nconst parsed = JSON.parse(raw);\n\nreturn [{\n  json: {\n    subject: parsed.subject,\n    body: parsed.body\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3056,
+        0
+      ],
+      "id": "657d2a54-1f76-4ac7-8bfb-a9d9f9957d0f",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        560,
+        0
+      ],
+      "id": "322ca45c-822f-4677-b63d-833b863809c6",
+      "name": "Limit"
+    },
+    {
+      "parameters": {
+        "amount": 3,
+        "unit": "minutes"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        3520,
+        0
+      ],
+      "id": "a2cadc24-4f91-4f36-8a1e-a0f449f7c36d",
+      "name": "Wait5",
+      "webhookId": "5cd39074-95ef-4a57-bb41-e65609196fa1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "1bec65dd-1726-4dec-8e2e-cc377f0f11fe",
+              "leftValue": "={{ $json.website_problem }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "590bc177-66fe-4c2f-8bf9-93dc311c3eb5",
+              "leftValue": "={{ $json.recognizable_reason }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "a5bcf7de-f194-49da-a2a0-8c5db26f6261",
+              "leftValue": "={{ $json.consequence_mechanics }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "74019933-622d-4ad9-91a5-53523b06ffeb",
+              "leftValue": "={{ $json.review }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.3,
+      "position": [
+        352,
+        0
+      ],
+      "id": "d6476c73-c151-4b24-a319-f7aaccce5119",
+      "name": "Filter"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1aRf_l4brlJ0DxFF9N1RDtIRBfYu7FdovX03jmGV0eSU",
+          "mode": "list",
+          "cachedResultName": "Step 5 - Round 2 - Find Issues",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1aRf_l4brlJ0DxFF9N1RDtIRBfYu7FdovX03jmGV0eSU/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1aRf_l4brlJ0DxFF9N1RDtIRBfYu7FdovX03jmGV0eSU/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "isuue found",
+              "lookupValue": "done"
+            },
+            {
+              "lookupColumn": "email created"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        144,
+        0
+      ],
+      "id": "e3d684ab-181c-4bd8-8331-7365b03f395b",
+      "name": "Get row(s) in sheet1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "XurJbcuuPZn14SYW",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Follow Up 1": {
+      "main": [
+        [
+          {
+            "node": "follow up 1 parsed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Follow Up 2": {
+      "main": [
+        [
+          {
+            "node": "follow up 2 parsed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "pitch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "Follow Up 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait2": {
+      "main": [
+        [
+          {
+            "node": "Follow Up 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait3": {
+      "main": [
+        [
+          {
+            "node": "follow up 3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait4": {
+      "main": [
+        [
+          {
+            "node": "Update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "pitch": {
+      "main": [
+        [
+          {
+            "node": "pitch parsed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "follow up 3": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "pitch parsed": {
+      "main": [
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "follow up 1 parsed": {
+      "main": [
+        [
+          {
+            "node": "Wait2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "follow up 2 parsed": {
+      "main": [
+        [
+          {
+            "node": "Wait3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Wait4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Wait5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait5": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter": {
+      "main": [
+        [
+          {
+            "node": "Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet1": {
+      "main": [
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "versionId": "41bde81e-e861-487c-b008-86f347b7ca9d",
+  "activeVersionId": null,
+  "triggerCount": 0,
+  "shared": [
+    {
+      "updatedAt": "2026-04-21T17:50:25.393Z",
+      "createdAt": "2026-04-21T17:50:25.393Z",
+      "role": "workflow:owner",
+      "workflowId": "JvQsEa2h79SPxwo7",
+      "projectId": "5GBCFFrIrIkPnjdc"
+    }
+  ],
+  "activeVersion": null,
+  "tags": []
+}
