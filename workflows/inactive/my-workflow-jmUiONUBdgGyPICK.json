@@ -1,0 +1,587 @@
+{
+  "updatedAt": "2026-04-22T17:30:49.725Z",
+  "createdAt": "2026-04-22T17:30:49.725Z",
+  "id": "jmUiONUBdgGyPICK",
+  "name": "My workflow",
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "5c661e21-70bf-41af-a51a-4dd8eb9905bb",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "79e5a160-aef0-40e3-ae8e-e14223ac2017",
+              "name": "first_name",
+              "value": "={{ $json.first_name }}",
+              "type": "string"
+            },
+            {
+              "id": "6c9ba4df-7d71-4231-b6b3-904518d0525b",
+              "name": "company_name",
+              "value": "={{ $json.name }}",
+              "type": "string"
+            },
+            {
+              "id": "21c2fdfd-6397-445e-9ace-f28d969be7ce",
+              "name": "page",
+              "value": "={{ $json.page }}",
+              "type": "string"
+            },
+            {
+              "id": "f89187d8-7344-4a06-99b3-fa112ab68ae0",
+              "name": "website_problem",
+              "value": "={{ $json.page }}",
+              "type": "string"
+            },
+            {
+              "id": "fc35eed8-7efe-4c61-aa43-e5dcfe2995c1",
+              "name": "recognizable_reason",
+              "value": "={{ $json.recognizable_reason }}",
+              "type": "string"
+            },
+            {
+              "id": "8f55dfbe-eb3e-4808-8a07-3df27c4ffc07",
+              "name": "review",
+              "value": "=free prototype",
+              "type": "string"
+            },
+            {
+              "id": "fc39c9f4-1d85-4042-ba5b-458302354d7b",
+              "name": "asset_exits",
+              "value": "=yes",
+              "type": "string"
+            },
+            {
+              "id": "03fc7f5c-10bf-4f89-a913-27fc43a0581c",
+              "name": "review_time",
+              "value": "2 minutes",
+              "type": "string"
+            },
+            {
+              "id": "5f0010a9-50f5-4f76-8bf0-b312b9506c1c",
+              "name": "micro_yes",
+              "value": "Want me to send the free prototype?",
+              "type": "string"
+            },
+            {
+              "id": "35dc8333-7aa1-4cc0-8a54-8914c77baa5c",
+              "name": "your_name",
+              "value": "Senul",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        368,
+        0
+      ],
+      "id": "a7c67ce9-1e5f-4cd4-9ba3-b831fd4d870a",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Write one cold outreach pitch email.\n\nRules:\n- plain business voice\n- no marketing tone\n- no hype\n- one friction only\n- one page only\n- one ask only\n- safe to forward internally\n- subject must be 3 or 4 words\n- subject must match the ask\n\nUse these inputs:\nfirst_name: {{ $json.first_name }}\npage: {{ $json.page }}\nwebsite_problem: {{ $json.website_problem }}\nrecognizable_reason: {{ $json.recognizable_reason }}\nreview_time: {{ $json.review_time }}\nmicro_yes: {{ $json.micro_yes }}\nyour_name: {{ $json.your_name }}\n\nWrite exactly this structure:\n\nHi {{ $json.first_name }},\n\nI noticed {{ $json.website_problem }} on {{ $json.page }},\n\nBecause {{ $json.recognizable_reason }},\n\nI put together a free prototype. It takes {{ $json.review_time }} to review.\n\n{{ $json.micro_yes }}\n\n{{ $json.your_name }}\n\nReturn JSON only:\n{\n  \"pitch_subject\": \"\",\n  \"pitch_email\": \"\"\n}"
+            }
+          ]
+        },
+        "jsonOutput": true,
+        "builtInTools": {},
+        "options": {
+          "maxOutputTokens": 2000
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        544,
+        0
+      ],
+      "id": "89e9221d-1e32-43fe-a86a-ef760bde0efd",
+      "name": "Message a model",
+      "retryOnFail": true,
+      "waitBetweenTries": 2000
+    },
+    {
+      "parameters": {
+        "jsCode": "const previous = $input.first().json;\nconst raw = previous?.content?.parts?.[0]?.text ?? '';\nlet text = String(raw).trim();\n\nlet obj;\n\ntry {\n  obj = JSON.parse(text);\n} catch (e) {\n  return [{\n    json: {\n      ...previous,\n      error: 'Could not parse JSON',\n      raw_text: text\n    }\n  }];\n}\n\nif (obj.pitch_email) {\n  obj.pitch_email = obj.pitch_email\n    .replace(/\\\\n/g, '\\n')\n    .replace(/\\n\\s*\\n/g, '\\n\\n')\n    .trim();\n}\n\nreturn [{\n  json: {\n    ...previous,\n    ...obj\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        848,
+        0
+      ],
+      "id": "2add8516-5506-4542-8b42-6c0833b047d0",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1hMN3ZLquV0_rVFvYPKs4D_-EdK8aFOm65CZsjpcod_I",
+          "mode": "list",
+          "cachedResultName": "Dental Leads - Step 5 - Find issues",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1hMN3ZLquV0_rVFvYPKs4D_-EdK8aFOm65CZsjpcod_I/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 755342276,
+          "mode": "list",
+          "cachedResultName": "Sheet2",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1hMN3ZLquV0_rVFvYPKs4D_-EdK8aFOm65CZsjpcod_I/edit#gid=755342276"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "research_done",
+              "lookupValue": "true"
+            }
+          ]
+        },
+        "options": {
+          "returnFirstMatch": true
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        192,
+        0
+      ],
+      "id": "a06a7b42-5b4c-40d2-a011-9aa712cadfa6",
+      "name": "Get row(s) in sheet1"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=You are writing follow-up email 1 for a cold outreach sequence.\n\nYou must follow these rules exactly:\n\nRULES:\n- must be shorter than the first email\n- must use the SAME issue\n- must use the SAME page\n- must use the SAME micro yes\n- must NOT introduce new problems\n- must NOT change the context\n- must NOT mention calls, pricing, or implementation\n- must be calm and neutral\n- must feel safe to forward internally\n- must stay in plain business tone\n\nSTRUCTURE:\n\nHi {{ $node[\"Edit Fields\"].json[\"first_name\"] }},\n\nJust following up on this,\n\nI pointed out {{ $node[\"Edit Fields\"].json[\"website_problem\"] }} on {{ $node[\"Edit Fields\"].json[\"page\"] }},\n\nBecause {{ $node[\"Edit Fields\"].json[\"recognizable_reason\"] }},\n\nIt can make it harder for someone to take the next step.\n\nI put together a free prototype. It takes {{ $node[\"Edit Fields\"].json[\"review_time\"] }} to review.\n\n{{ $node[\"Edit Fields\"].json[\"micro_yes\"] }}\n\n{{ $node[\"Edit Fields\"].json[\"your_name\"] }}\n\nOUTPUT JSON ONLY:\n{\n  \"followup1_subject\": \"\",\n  \"followup1_email\": \"\"\n}"
+            }
+          ]
+        },
+        "jsonOutput": true,
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        1024,
+        0
+      ],
+      "id": "039751d2-2a53-46ed-92b4-9c13240d51f9",
+      "name": "Follow Up 1",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const previous = $input.first().json;\nconst raw = previous?.content?.parts?.[0]?.text ?? '';\nlet text = String(raw).trim();\n\nlet obj;\n\ntry {\n  obj = JSON.parse(text);\n} catch (e) {\n  return [{\n    json: {\n      ...previous,\n      error: 'Could not parse JSON',\n      raw_text: text\n    }\n  }];\n}\n\nif (obj.followup1_email) {\n  obj.followup1_email = obj.followup1_email\n    .replace(/\\\\n/g, '\\n')\n    .replace(/\\n\\s*\\n/g, '\\n\\n')\n    .trim();\n}\n\nreturn [{\n  json: {\n    ...previous,\n    ...obj\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1232,
+        0
+      ],
+      "id": "c7597b37-39ed-4c68-a15e-77dc727ac575",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=You are writing follow-up email 2 for a cold outreach sequence.\n\nYou must follow these rules exactly:\n\nRULES:\n- must be shorter than follow-up 1\n- must keep the SAME issue\n- must keep the SAME page\n- must keep the SAME micro yes\n- must NOT introduce new problems\n- must NOT introduce new reasons\n- must NOT mention calls, pricing, or implementation\n- must stay calm and professional\n- must reduce everything to one friction and one outcome\n- must feel safe to forward internally\n- plain business tone only\n\nSTRUCTURE:\n\nHi {{ $node[\"Edit Fields\"].json[\"first_name\"] }},\n\nLast note on this,\n\nI’m referring to {{ $node[\"Edit Fields\"].json[\"website_problem\"] }} on {{ $node[\"Edit Fields\"].json[\"page\"] }}.\n\nIt can make the next step less likely on mobile.\n\nI put together a free prototype. It takes {{ $node[\"Edit Fields\"].json[\"review_time\"] }} to review.\n\n{{ $node[\"Edit Fields\"].json[\"micro_yes\"] }}\n\n{{ $node[\"Edit Fields\"].json[\"your_name\"] }}\n\nOUTPUT JSON ONLY:\n{\n  \"followup2_subject\": \"\",\n  \"followup2_email\": \"\"\n}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {
+          "maxOutputTokens": 1600
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        1312,
+        0
+      ],
+      "id": "ed32655f-5157-4543-908d-30b12624fb81",
+      "name": "Follow Up 2",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const previous = $input.first().json;\nconst raw = previous?.content?.parts?.[0]?.text ?? '';\nlet text = String(raw).trim();\n\n// remove code fences if Gemini adds them\ntext = text.replace(/```json/gi, '').replace(/```/g, '').trim();\n\nlet obj;\n\ntry {\n  obj = JSON.parse(text);\n} catch (e) {\n  return [{\n    json: {\n      ...previous,\n      error: 'Could not parse JSON',\n      raw_text: text\n    }\n  }];\n}\n\nif (obj.followup2_email) {\n  obj.followup2_email = obj.followup2_email\n    .replace(/\\\\n/g, '\\n')\n    .replace(/\\n\\s*\\n/g, '\\n\\n')\n    .trim();\n}\n\nreturn [{\n  json: {\n    ...previous,\n    ...obj\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1552,
+        0
+      ],
+      "id": "fff7e08f-d541-42dc-8a2c-47393c310ce8",
+      "name": "Code in JavaScript2"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.0-flash-lite-001",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.0-flash-lite-001"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=You are writing follow-up email 3 for a cold outreach sequence.\n\nYou must follow these rules exactly:\n\nRULES:\n- must be shorter than follow-up 2\n- must keep the SAME issue\n- must keep the SAME page\n- must keep the SAME micro yes\n- must NOT introduce new problems\n- must NOT introduce new reasons\n- must NOT mention calls, pricing, or implementation\n- must sound calm and professional\n- must include a clear boundary that this is the last note\n- must reduce everything to one friction and one outcome\n- plain business tone only\n\nSTRUCTURE:\n\nHi {{ $node[\"Edit Fields\"].json[\"first_name\"] }},\n\nI’ll stop here after this note.\n\nI’m referring to {{ $node[\"Edit Fields\"].json[\"website_problem\"] }} on {{ $node[\"Edit Fields\"].json[\"page\"] }}.\n\nI put together a free prototype. It takes {{ $node[\"Edit Fields\"].json[\"review_time\"] }} to review.\n\n{{ $node[\"Edit Fields\"].json[\"micro_yes\"] }}\n\n{{ $node[\"Edit Fields\"].json[\"your_name\"] }}\n\nOUTPUT JSON ONLY:\n{\n  \"followup3_subject\": \"\",\n  \"followup3_email\": \"\"\n}"
+            },
+            {}
+          ]
+        },
+        "jsonOutput": true,
+        "builtInTools": {},
+        "options": {
+          "maxOutputTokens": 1600
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        1664,
+        0
+      ],
+      "id": "a6b76340-efc2-4eb5-97dc-8cf666bbe101",
+      "name": "Message a model1"
+    }
+  ],
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Follow Up 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Follow Up 1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Follow Up 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Follow Up 2": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript2": {
+      "main": [
+        [
+          {
+            "node": "Message a model1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": {
+    "Get row(s) in sheet1": [
+      {
+        "json": {
+          "row_number": 2,
+          "name": "Covent Garden Dental Practice",
+          "place id": "ChIJcZkSvswEdkgRMA6kWf7v318",
+          "nationalPhoneNumber": "020 7836 9161",
+          "email": "pranay@cgdp.com",
+          "Issue": "",
+          "rating": 4.8,
+          "website": "cgdp.com",
+          "format adrees": "",
+          "google search email": "info@cgdp.com",
+          "hunter email": "pranay@cgdp.com",
+          "twitter": "",
+          "first_name": "Pranay",
+          "last_name": "Sharma",
+          "department": "Director",
+          "job title": "Director",
+          "verfication": "{\"date\":null,\"status\":null}",
+          "linkedn": "http://www.linkedin.com/pub/pranay-sharma/19/420/867",
+          "internationalPhoneNumber": "′ +44 20 7836 9161",
+          "page": "https://www.cgdp.com/",
+          "website_problem": "Functional, but some elements lose usability or impact on mobile.",
+          "recognizable_reason": "The map in 'We're Here For You' is too small on mobile to be useful. | Icons in the 'Award Winning Dental Care' section are tiny and hard to discern on mobile. | The 'Hot Off The Chair' section becomes a very long, unengaging list on mobile.",
+          "consequence_mechanics": "The sticky header and hamburger menu provide good navigation on mobile. | CTAs are clear and well-placed on both desktop and mobile.",
+          "review": "",
+          "asset_exits": "",
+          "review_time": "",
+          "micro_yes": "Implement a larger, interactive map or a direct link to Google Maps on mobile. | Increase the size or re-design the icons for better visibility on mobile devices. | Consider a carousel or a more compact display for blog posts on mobile to improve engagement.",
+          "subject_lable": "",
+          "pitch": "",
+          "follow up 1 ": "",
+          "follow up 2": "",
+          "follow up 3": "",
+          "stop_30": "",
+          "issues": "",
+          "thread_id": "",
+          "message_id": "",
+          "research_done": true,
+          "done": false,
+          "checked_reply": false,
+          "status ": ""
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ],
+    "Edit Fields": [
+      {
+        "json": {
+          "first_name": "Pranay",
+          "company_name": "Covent Garden Dental Practice",
+          "page": "https://www.cgdp.com/",
+          "website_problem": "https://www.cgdp.com/",
+          "recognizable_reason": "The map in 'We're Here For You' is too small on mobile to be useful. | Icons in the 'Award Winning Dental Care' section are tiny and hard to discern on mobile. | The 'Hot Off The Chair' section becomes a very long, unengaging list on mobile.",
+          "review": "free prototype",
+          "asset_exits": "yes",
+          "review_time": "2 minutes",
+          "micro_yes": "Want me to send the free prototype?",
+          "your_name": "Senul"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ],
+    "Message a model": [
+      {
+        "json": {
+          "content": {
+            "parts": [
+              {
+                "text": "{\n  \"pitch_subject\": \"Free Prototype Review\",\n  \"pitch_email\": \"Hi Pranay,\\n\\nI noticed https://www.cgdp.com/ on https://www.cgdp.com/,\\n\\nBecause The map in 'We're Here For You' is too small on mobile to be useful. | Icons in the 'Award Winning Dental Care' section are tiny and hard to discern on mobile. | The 'Hot Off The Chair' section becomes a very long, unengaging list on mobile.,\\n\\nI put together a free prototype. It takes 2 minutes to review.\\n\\nWant me to send the free prototype?\\n\\nSenul\"\n}"
+              }
+            ],
+            "role": "model"
+          },
+          "finishReason": "STOP",
+          "index": 0
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ],
+    "Follow Up 1": [
+      {
+        "json": {
+          "content": {
+            "parts": [
+              {
+                "text": "{\n  \"followup1_subject\": \"Following up on your website\",\n  \"followup1_email\": \"Hi Pranay,\\n\\nJust following up on this,\\n\\nI pointed out https://www.cgdp.com/ on https://www.cgdp.com/,\\n\\nBecause The map in 'We're Here For You' is too small on mobile to be useful. | Icons in the 'Award Winning Dental Care' section are tiny and hard to discern on mobile. | The 'Hot Off The Chair' section becomes a very long, unengaging list on mobile.,\\n\\nIt can make it harder for someone to take the next step.\\n\\nI put together a free prototype. It takes 2 minutes to review.\\n\\nWant me to send the free prototype?\\n\\nSenul\"\n}"
+              }
+            ],
+            "role": "model"
+          },
+          "finishReason": "STOP",
+          "index": 0
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ],
+    "Code in JavaScript1": [
+      {
+        "json": {
+          "content": {
+            "parts": [
+              {
+                "text": "{\n  \"followup1_subject\": \"Following up on your website\",\n  \"followup1_email\": \"Hi Pranay,\\n\\nJust following up on this,\\n\\nI pointed out https://www.cgdp.com/ on https://www.cgdp.com/,\\n\\nBecause The map in 'We're Here For You' is too small on mobile to be useful. | Icons in the 'Award Winning Dental Care' section are tiny and hard to discern on mobile. | The 'Hot Off The Chair' section becomes a very long, unengaging list on mobile.,\\n\\nIt can make it harder for someone to take the next step.\\n\\nI put together a free prototype. It takes 2 minutes to review.\\n\\nWant me to send the free prototype?\\n\\nSenul\"\n}"
+              }
+            ],
+            "role": "model"
+          },
+          "finishReason": "STOP",
+          "index": 0,
+          "followup1_subject": "Following up on your website",
+          "followup1_email": "Hi Pranay,\n\nJust following up on this,\n\nI pointed out https://www.cgdp.com/ on https://www.cgdp.com/,\n\nBecause The map in 'We're Here For You' is too small on mobile to be useful. | Icons in the 'Award Winning Dental Care' section are tiny and hard to discern on mobile. | The 'Hot Off The Chair' section becomes a very long, unengaging list on mobile.,\n\nIt can make it harder for someone to take the next step.\n\nI put together a free prototype. It takes 2 minutes to review.\n\nWant me to send the free prototype?\n\nSenul"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ],
+    "Follow Up 2": [
+      {
+        "json": {
+          "content": {
+            "parts": [
+              {
+                "text": "```json\n{\n  \"followup2_subject\": \"CGDP.com mobile\",\n  \"followup2_email\": \"Hi Pranay,\\n\\nLast note on this,\\n\\nI’m referring to https://www.cgdp.com/ on https://www.cgdp.com/.\\nIt can make the next step less likely on mobile.\\n\\nI put together a free prototype. It takes 2 minutes to review.\\n\\nWant me to send the free prototype?\\n\\nSenul\"\n}\n```"
+              }
+            ],
+            "role": "model"
+          },
+          "finishReason": "STOP",
+          "index": 0
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ],
+    "Code in JavaScript2": [
+      {
+        "json": {
+          "content": {
+            "parts": [
+              {
+                "text": "```json\n{\n  \"followup2_subject\": \"CGDP.com mobile\",\n  \"followup2_email\": \"Hi Pranay,\\n\\nLast note on this,\\n\\nI’m referring to https://www.cgdp.com/ on https://www.cgdp.com/.\\nIt can make the next step less likely on mobile.\\n\\nI put together a free prototype. It takes 2 minutes to review.\\n\\nWant me to send the free prototype?\\n\\nSenul\"\n}\n```"
+              }
+            ],
+            "role": "model"
+          },
+          "finishReason": "STOP",
+          "index": 0,
+          "followup2_subject": "CGDP.com mobile",
+          "followup2_email": "Hi Pranay,\n\nLast note on this,\n\nI’m referring to https://www.cgdp.com/ on https://www.cgdp.com/.\nIt can make the next step less likely on mobile.\n\nI put together a free prototype. It takes 2 minutes to review.\n\nWant me to send the free prototype?\n\nSenul"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "versionId": "348d289d-8f85-4449-949e-22586adde351",
+  "activeVersionId": null,
+  "triggerCount": 0,
+  "shared": [
+    {
+      "updatedAt": "2026-04-22T17:30:49.729Z",
+      "createdAt": "2026-04-22T17:30:49.729Z",
+      "role": "workflow:owner",
+      "workflowId": "jmUiONUBdgGyPICK",
+      "projectId": "5GBCFFrIrIkPnjdc"
+    }
+  ],
+  "activeVersion": null,
+  "tags": []
+}
