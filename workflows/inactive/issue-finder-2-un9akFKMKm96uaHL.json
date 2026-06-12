@@ -1,0 +1,737 @@
+{
+  "updatedAt": "2026-05-02T10:54:05.601Z",
+  "createdAt": "2026-04-23T16:17:29.956Z",
+  "id": "un9akFKMKm96uaHL",
+  "name": "issue finder 2",
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "0d9739d7-f654-45ca-bdbf-31ef8456eb1c",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1hMN3ZLquV0_rVFvYPKs4D_-EdK8aFOm65CZsjpcod_I",
+          "mode": "list",
+          "cachedResultName": "Dental Leads - Step 5 - Find issues",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1hMN3ZLquV0_rVFvYPKs4D_-EdK8aFOm65CZsjpcod_I/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 755342276,
+          "mode": "list",
+          "cachedResultName": "Sheet2",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1hMN3ZLquV0_rVFvYPKs4D_-EdK8aFOm65CZsjpcod_I/edit#gid=755342276"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "research_done",
+              "lookupValue": "false"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        208,
+        0
+      ],
+      "id": "5e7278de-5bc3-4310-adc3-a39f06982285",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "0FL696nlRWtKKj3n",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.website.startsWith('http') ? $json.website : 'https://' + $json.website }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        640,
+        0
+      ],
+      "id": "bfda8251-83c8-4028-925e-a3b618e225e3",
+      "name": "Fetch website",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "url": "=https://image.thum.io/get/{{ $('Get row(s) in sheet').item.json.website.startsWith('http') ? $('Get row(s) in sheet').item.json.website : 'https://' + $('Get row(s) in sheet').item.json.website }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        832,
+        0
+      ],
+      "id": "8c74ce92-1b88-4169-824d-fc5d712f258c",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "jsCode": "const binaryData = await this.helpers.getBinaryDataBuffer(0, 'data');\nconst base64 = binaryData.toString('base64');\nconst html = $('Fetch website').first().json.data || \"Site did not load\";\n\nconst body = {\n  contents: [{\n    role: \"user\",\n    parts: [\n      { text: \"You are a professional web analyst. Analyse this dental clinic website and identify ONLY major issues — not small suggestions. Major means: the site doesn't load, broken layout, no mobile support, no clear call-to-action, outdated design, missing contact form, no trust signals, no SSL. Ignore anything minor. For each major issue return exactly this format:\\n\\nISSUE: [name of the issue]\\nRECOGNISABLE: [what you can see on the site that shows this]\\nMONEY CONSEQUENCE: [how this is likely costing the business money]\\n\\nSeparate each issue with ---\\n\\nIf there are no major issues, return: NO MAJOR ISSUES FOUND\" },\n      { inline_data: { mime_type: \"image/gif\", data: base64 } },\n      { text: \"Page HTML (first 3000 characters): \" + html.substring(0, 3000) }\n    ]\n  }]\n};\n\nconst result = await this.helpers.httpRequest({\n  method: \"POST\",\n  url: \"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=AIzaSyBjKLGifD7EK-_uW5A0j5zSPjWJwmaIDSg\",\n  headers: { \"Content-Type\": \"application/json\" },\n  body: body,\n  json: true,\n  ignoreHttpStatusErrors: true\n});\n\nconst text = result.candidates[0].content.parts[0].text;\n\nconst issues = [];\nconst recognisable = [];\nconst consequences = [];\n\nconst blocks = text.split('---');\nfor (const block of blocks) {\n  const issueMatch = block.match(/ISSUE:\\s*(.+)/);\n  const recogMatch = block.match(/RECOGNISABLE:\\s*(.+)/);\n  const moneyMatch = block.match(/MONEY CONSEQUENCE:\\s*(.+)/);\n  if (issueMatch) issues.push(issueMatch[1].trim());\n  if (recogMatch) recognisable.push(recogMatch[1].trim());\n  if (moneyMatch) consequences.push(moneyMatch[1].trim());\n}\n\nreturn [{ json: {\n  issues_found: issues.join(' | '),\n  how_recognisable: recognisable.join(' | '),\n  money_consequence: consequences.join(' | '),\n  raw_response: text\n} }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1040,
+        0
+      ],
+      "id": "124d2451-a2cd-4a5e-90c4-270a799328ee",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1hMN3ZLquV0_rVFvYPKs4D_-EdK8aFOm65CZsjpcod_I",
+          "mode": "list",
+          "cachedResultName": "Dental Leads - Step 5 - Find issues",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1hMN3ZLquV0_rVFvYPKs4D_-EdK8aFOm65CZsjpcod_I/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 755342276,
+          "mode": "list",
+          "cachedResultName": "Sheet2",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1hMN3ZLquV0_rVFvYPKs4D_-EdK8aFOm65CZsjpcod_I/edit#gid=755342276"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "website_problem": "={{ $json.issues_found }}",
+            "recognizable_reason": "={{ $json.how_recognisable }}",
+            "consequence_mechanics": "={{ $json.money_consequence }}",
+            "review": "={{ $json.raw_response }}",
+            "row_number": "={{ $('Get row(s) in sheet').item.json.row_number }}",
+            "research_done": "true"
+          },
+          "matchingColumns": [
+            "row_number"
+          ],
+          "schema": [
+            {
+              "id": "name",
+              "displayName": "name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "place id",
+              "displayName": "place id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "nationalPhoneNumber",
+              "displayName": "nationalPhoneNumber",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Issue",
+              "displayName": "Issue",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "rating",
+              "displayName": "rating",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "website",
+              "displayName": "website",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "format adrees",
+              "displayName": "format adrees",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "google search email",
+              "displayName": "google search email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "hunter email",
+              "displayName": "hunter email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "twitter",
+              "displayName": "twitter",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "first_name",
+              "displayName": "first_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "last_name",
+              "displayName": "last_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "department",
+              "displayName": "department",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "job title",
+              "displayName": "job title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "verfication",
+              "displayName": "verfication",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "linkedn",
+              "displayName": "linkedn",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "internationalPhoneNumber",
+              "displayName": "internationalPhoneNumber",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "page",
+              "displayName": "page",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "website_problem",
+              "displayName": "website_problem",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "recognizable_reason",
+              "displayName": "recognizable_reason",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "consequence_mechanics",
+              "displayName": "consequence_mechanics",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "review",
+              "displayName": "review",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "asset_exits",
+              "displayName": "asset_exits",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "review_time",
+              "displayName": "review_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "micro_yes",
+              "displayName": "micro_yes",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "subject_lable",
+              "displayName": "subject_lable",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "pitch_subject_line",
+              "displayName": "pitch_subject_line",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "pitch",
+              "displayName": "pitch",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "follow up 1 subject line",
+              "displayName": "follow up 1 subject line",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "follow up 1 ",
+              "displayName": "follow up 1 ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "follow up 2 subject line",
+              "displayName": "follow up 2 subject line",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "follow up 2",
+              "displayName": "follow up 2",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "follow up 3 subject line",
+              "displayName": "follow up 3 subject line",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "follow up 3",
+              "displayName": "follow up 3",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "stop_30",
+              "displayName": "stop_30",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "issues",
+              "displayName": "issues",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "thread_id",
+              "displayName": "thread_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "message_id",
+              "displayName": "message_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "research_done",
+              "displayName": "research_done",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "done",
+              "displayName": "done",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "checked_reply",
+              "displayName": "checked_reply",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "status ",
+              "displayName": "status ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "infor aded",
+              "displayName": "infor aded",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email created",
+              "displayName": "email created",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1248,
+        0
+      ],
+      "id": "18d142e4-7a3c-4f1a-9cab-3fb37a25c5f0",
+      "name": "Update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "0FL696nlRWtKKj3n",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        416,
+        0
+      ],
+      "id": "96202cce-c275-46d7-9e08-975ec2c9c1b2",
+      "name": "Limit"
+    },
+    {
+      "parameters": {
+        "amount": 1,
+        "unit": "minutes"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1408,
+        0
+      ],
+      "id": "122fcbee-951d-4e3e-b825-3aad590469d4",
+      "name": "Wait",
+      "webhookId": "0e9913e7-e8e0-4d9a-9831-116968fd9858"
+    }
+  ],
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch website": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit": {
+      "main": [
+        [
+          {
+            "node": "Fetch website",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "versionId": "f8ffd89c-8c95-48ca-a439-d85f448b6dea",
+  "activeVersionId": null,
+  "triggerCount": 0,
+  "shared": [
+    {
+      "updatedAt": "2026-04-23T16:17:29.960Z",
+      "createdAt": "2026-04-23T16:17:29.960Z",
+      "role": "workflow:owner",
+      "workflowId": "un9akFKMKm96uaHL",
+      "projectId": "5GBCFFrIrIkPnjdc"
+    }
+  ],
+  "activeVersion": null,
+  "tags": []
+}
