@@ -1,0 +1,332 @@
+{
+  "updatedAt": "2026-05-26T21:57:18.317Z",
+  "createdAt": "2026-05-20T19:34:01.120Z",
+  "id": "BSectAUeB3IcZu9J",
+  "name": "Decision Maker Picker",
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "eefeccd6-9189-4415-96cb-c0c132a9891b",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1HkGWrZJYkn7bT1TEqY8soJHEpRphRJAOyKxpavQbtv4",
+          "mode": "list",
+          "cachedResultName": "Step 2 - Round 2 - Get Places",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1HkGWrZJYkn7bT1TEqY8soJHEpRphRJAOyKxpavQbtv4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1HkGWrZJYkn7bT1TEqY8soJHEpRphRJAOyKxpavQbtv4/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "person searched",
+              "lookupValue": "done"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        208,
+        0
+      ],
+      "id": "debcacda-feaa-43ae-96a2-c779dc5191ae",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "XurJbcuuPZn14SYW",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1H-jTq1WzFzSev7yPBs8lEPbdMheJ3S3TbwKlBT5lRJE",
+          "mode": "list",
+          "cachedResultName": "mass outreach - dental",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1H-jTq1WzFzSev7yPBs8lEPbdMheJ3S3TbwKlBT5lRJE/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1H-jTq1WzFzSev7yPBs8lEPbdMheJ3S3TbwKlBT5lRJE/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "nationalPhoneNumber": "={{ $json.nationalPhoneNumber }}",
+            "internationalPhoneNumber": "={{ $json.internationalPhoneNumber }}",
+            "rating": "={{ $json.rating }}",
+            "websiteUri": "={{ $json.websiteUri }}",
+            "company name": "={{ $json.displayName }}",
+            "place id": "={{ $json.id }}",
+            "person name": "={{ $json['person searched'] }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "company name",
+              "displayName": "company name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "place id",
+              "displayName": "place id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "nationalPhoneNumber",
+              "displayName": "nationalPhoneNumber",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "internationalPhoneNumber",
+              "displayName": "internationalPhoneNumber",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "formattedAddress",
+              "displayName": "formattedAddress",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "rating",
+              "displayName": "rating",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "websiteUri",
+              "displayName": "websiteUri",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "person name",
+              "displayName": "person name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "tital",
+              "displayName": "tital",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "persons email",
+              "displayName": "persons email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "linkedn",
+              "displayName": "linkedn",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "instagram",
+              "displayName": "instagram",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "twitter",
+              "displayName": "twitter",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "facebook",
+              "displayName": "facebook",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "hunter searched",
+              "displayName": "hunter searched",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        624,
+        0
+      ],
+      "id": "3ed89df3-d625-4cf9-8a44-cc4c8ae6dcad",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "XurJbcuuPZn14SYW",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Priority order — add/adjust titles as needed\nconst priority = [\n  \"ceo\", \"chief executive\", \"founder\", \"co-founder\", \"owner\",\n  \"managing director\", \"md\", \"director\",\n  \"vp\", \"vice president\",\n  \"head of\", \"chief marketing\", \"cmo\", \"cto\", \"coo\", \"cfo\",\n  \"manager\", \"lead\", \"senior\"\n];\n\nfunction getScore(position) {\n  if (!position) return 999;\n  const p = position.toLowerCase();\n  for (let i = 0; i < priority.length; i++) {\n    if (p.includes(priority[i])) return i;\n  }\n  return 998;\n}\n\n// Group by websiteUri (primary), fallback to company name\nconst companies = {};\n\nfor (const item of items) {\n  const domain = item.json[\"websiteUri\"]?.trim().toLowerCase() || \"\";\n  const company = item.json[\"company name\"]?.trim().toLowerCase() || \"\";\n  const key = domain || company;\n\n  if (!key) continue;\n\n  if (!companies[key]) {\n    companies[key] = [];\n  }\n  companies[key].push(item.json);\n}\n\n// Pick best decision maker from each company\nconst result = [];\n\nfor (const key of Object.keys(companies)) {\n  const people = companies[key];\n\n  people.sort((a, b) => {\n    const scoreA = getScore(a[\"job title\"] || a[\"department\"] || \"\");\n    const scoreB = getScore(b[\"job title\"] || b[\"department\"] || \"\");\n    return scoreA - scoreB;\n  });\n\n  result.push({ json: people[0] });\n}\n\nreturn result;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        416,
+        0
+      ],
+      "id": "7c7a5062-f758-48a5-89a0-170c5370d73e",
+      "name": "Code in JavaScript"
+    }
+  ],
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "versionId": "78888e43-1cdf-4995-bfbf-913804752f9a",
+  "activeVersionId": null,
+  "triggerCount": 0,
+  "shared": [
+    {
+      "updatedAt": "2026-05-20T19:34:01.124Z",
+      "createdAt": "2026-05-20T19:34:01.124Z",
+      "role": "workflow:owner",
+      "workflowId": "BSectAUeB3IcZu9J",
+      "projectId": "5GBCFFrIrIkPnjdc"
+    }
+  ],
+  "activeVersion": null,
+  "tags": []
+}
