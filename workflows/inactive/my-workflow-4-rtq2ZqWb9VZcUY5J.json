@@ -1,0 +1,340 @@
+{
+  "updatedAt": "2026-05-22T20:26:12.675Z",
+  "createdAt": "2026-05-22T20:15:59.378Z",
+  "id": "rtq2ZqWb9VZcUY5J",
+  "name": "My workflow 4",
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "b3e6ef5a-e00c-441e-8cd7-f6fb65abedd5",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1WUxr8FJtbHJp8VaBfwCbonSCKDCYXMW9ivvFIbQ3Xnw",
+          "mode": "list",
+          "cachedResultName": "Step 3 - Round 2 - Get Pesonal Info",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1WUxr8FJtbHJp8VaBfwCbonSCKDCYXMW9ivvFIbQ3Xnw/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 312522232,
+          "mode": "list",
+          "cachedResultName": "Copy of Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1WUxr8FJtbHJp8VaBfwCbonSCKDCYXMW9ivvFIbQ3Xnw/edit#gid=312522232"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        208,
+        0
+      ],
+      "id": "d07215c3-8658-40ac-a5bd-fa0a563d1b74",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "XurJbcuuPZn14SYW",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "fa19e2ce-7d92-4171-a9e1-e061afbfae91",
+              "leftValue": "={{ $json.websiteUri.length }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        416,
+        0
+      ],
+      "id": "abb56907-beec-499e-8ede-6a7f8c4723f4",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1WUxr8FJtbHJp8VaBfwCbonSCKDCYXMW9ivvFIbQ3Xnw",
+          "mode": "list",
+          "cachedResultName": "Step 3 - Round 2 - Get Pesonal Info",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1WUxr8FJtbHJp8VaBfwCbonSCKDCYXMW9ivvFIbQ3Xnw/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 908068299,
+          "mode": "list",
+          "cachedResultName": "Sheet2",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1WUxr8FJtbHJp8VaBfwCbonSCKDCYXMW9ivvFIbQ3Xnw/edit#gid=908068299"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "company name": "={{ $json['company name'] }}",
+            "place id": "={{ $json['place id'] }}",
+            "nationalPhoneNumber": "={{ $json.nationalPhoneNumber }}",
+            "internationalPhoneNumber": "={{ $json.internationalPhoneNumber }}",
+            "formattedAddress": "={{ $json.formattedAddress }}",
+            "rating": "={{ $json.rating }}",
+            "websiteUri": "={{ $json.websiteUri }}",
+            "person name": "={{ $json['person name'] }}",
+            "tital": "={{ $json.tital }}",
+            "persons email": "={{ $json['persons email'] }}",
+            "linkedn": "={{ $json.linkedn }}",
+            "instagram": "={{ $json.instagram }}",
+            "twitter": "={{ $json.twitter }}",
+            "facebook": "={{ $json.facebook }}",
+            "hunter searched": "={{ $json['hunter searched'] }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "company name",
+              "displayName": "company name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "place id",
+              "displayName": "place id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "nationalPhoneNumber",
+              "displayName": "nationalPhoneNumber",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "internationalPhoneNumber",
+              "displayName": "internationalPhoneNumber",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "formattedAddress",
+              "displayName": "formattedAddress",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "rating",
+              "displayName": "rating",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "websiteUri",
+              "displayName": "websiteUri",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "person name",
+              "displayName": "person name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "tital",
+              "displayName": "tital",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "persons email",
+              "displayName": "persons email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "linkedn",
+              "displayName": "linkedn",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "instagram",
+              "displayName": "instagram",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "twitter",
+              "displayName": "twitter",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "facebook",
+              "displayName": "facebook",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "hunter searched",
+              "displayName": "hunter searched",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        736,
+        -112
+      ],
+      "id": "353a0925-48ba-4ac3-b7c4-677f54ebd9e5",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "XurJbcuuPZn14SYW",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "versionId": "4adf4a96-4299-4a44-aef1-d209d575eded",
+  "activeVersionId": null,
+  "triggerCount": 0,
+  "shared": [
+    {
+      "updatedAt": "2026-05-22T20:15:59.380Z",
+      "createdAt": "2026-05-22T20:15:59.380Z",
+      "role": "workflow:owner",
+      "workflowId": "rtq2ZqWb9VZcUY5J",
+      "projectId": "5GBCFFrIrIkPnjdc"
+    }
+  ],
+  "activeVersion": null,
+  "tags": []
+}
