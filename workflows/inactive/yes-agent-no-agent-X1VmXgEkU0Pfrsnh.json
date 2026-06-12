@@ -1,0 +1,2010 @@
+{
+  "updatedAt": "2026-05-28T13:07:52.569Z",
+  "createdAt": "2026-05-27T13:46:05.792Z",
+  "id": "X1VmXgEkU0Pfrsnh",
+  "name": "yes agent / no agent",
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -3392,
+        272
+      ],
+      "id": "3b3d084c-7851-45f9-b3b4-a2ce9f1ab1a3",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "40a70526-659d-4756-8a9e-f6ce1b459051",
+              "leftValue": "={{ $('get leeds').item.json['website url'] }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -2736,
+        272
+      ],
+      "id": "99be0910-0b9a-4d8b-82a1-d127a3dd63d0",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "jsCode": "return items.map(item => {\n  let raw = String(item.json['website url'] ?? '');\n  \n  if (!raw || raw === 'undefined' || raw === 'null') {\n    return {\n      json: {\n        row_number: item.json.row_number,\n        website_clean: '',\n        website_domain: ''\n      }\n    };\n  }\n\n  raw = raw\n    .replace(/\\u00A0/g, ' ')\n    .replace(/\\u200B/g, '')\n    .replace(/\\u200C/g, '')\n    .replace(/\\u200D/g, '')\n    .replace(/\\uFEFF/g, '')\n    .trim();\n\n  const tokenMatch = raw.match(/https?:\\/\\/[^\\s]+|[a-z0-9.-]+\\.[a-z]{2,}(\\/[^\\s]*)?/i);\n  const token = (tokenMatch ? tokenMatch[0] : raw).trim();\n\n  let host = '';\n  const m1 = token.match(/^https?:\\/\\/([^\\/?#\\s]+)/i);\n  if (m1 && m1[1]) {\n    host = m1[1];\n  } else {\n    const m2 = token.match(/^([a-z0-9.-]+\\.[a-z]{2,})(?:[\\/?#]|$)/i);\n    if (m2 && m2[1]) host = m2[1];\n  }\n\n  const website_domain = host.replace(/^www\\./i, '').toLowerCase();\n  const website_clean = website_domain ? `https://${website_domain}/` : '';\n\n  return {\n    json: {\n      row_number: item.json.row_number,\n      website_clean,\n      website_domain\n    }\n  };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2160,
+        176
+      ],
+      "id": "8a70a626-7966-4205-9943-74a5f61388ba",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "url": "={{ ($json.website_clean || '').trim().replace(/\\/$/, '').replace(/^https?:\\/\\/(www\\.)?/, 'https://www.') + '/sitemap_index.xml' }}",
+        "options": {
+          "allowUnauthorizedCerts": true,
+          "response": {
+            "response": {
+              "neverError": true,
+              "responseFormat": "text"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -1952,
+        176
+      ],
+      "id": "a7658f7d-b380-45c6-b733-8e454b8ef3cd",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "jsCode": "// n8n Code node\n\nconst body = $json.data || '';\nconst sizeBytes = Buffer.byteLength(body, 'utf8');\n\n// hard size cutoff: 1.5 MB\nconst MAX_SIZE = 1.5 * 1024 * 1024;\n\n// normalize\nconst text = body.slice(0, 5000).toLowerCase();\n\n// garbage checks\nconst looksLikeHtml =\n  text.includes('<!doctype html') ||\n  text.includes('<html') ||\n  text.includes('<head') ||\n  text.includes('<body');\n\nif (sizeBytes > MAX_SIZE || looksLikeHtml) {\n  return [{ status: 2 }];\n}\n\n// sitemap checks\nconst looksLikeSitemap =\n  text.includes('<?xml') &&\n  (text.includes('<sitemapindex') ||\n   text.includes('<urlset') ||\n   text.includes('<url><loc>'));\n\nif (looksLikeSitemap) {\n  return [{ status: 1 }];\n}\n\n// default: treat as garbage\nreturn [{ status: 2 }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1744,
+        176
+      ],
+      "id": "09d22032-8273-45a0-b53d-b1c7f934e807",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "a5fcd2ca-4ca3-405b-8a9f-a5dd3342b9c2",
+              "leftValue": "={{ $json.status }}",
+              "rightValue": 1,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -1536,
+        208
+      ],
+      "id": "842d28f7-ebf8-4c16-8959-cafca50a120d",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7f591297-ebbd-4b37-be7f-15daf154bcd5",
+              "name": "project_id",
+              "value": "n8n-trw-492316",
+              "type": "string"
+            },
+            {
+              "id": "cd1d9181-a1d8-4b92-8552-60d119019008",
+              "name": "client_email",
+              "value": "ais-gemini-key-65cdff008b1c4f0@862176994722.iam.gserviceaccount.com",
+              "type": "string"
+            },
+            {
+              "id": "c70f7502-f57c-4eef-ab21-4267ae341d4b",
+              "name": "location_id",
+              "value": "global",
+              "type": "string"
+            },
+            {
+              "id": "81f917be-f9e8-4d2b-9a88-2c9f6b61402d",
+              "name": "api_endpoint",
+              "value": "global-alplatform.googleapis.com",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1216,
+        80
+      ],
+      "id": "65b95e98-780f-4995-966e-f10d0e7ac9c0",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.output }}",
+                    "rightValue": 1,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    },
+                    "id": "651fba10-11f5-4734-8d8d-2e9f28b3ff9b"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "NO AI chat box"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "a7fa9212-8ad0-47ae-8c8a-f725c4e089ce",
+                    "leftValue": "={{ $json.output }}",
+                    "rightValue": 2,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "there is an AI chat box"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -352,
+        80
+      ],
+      "id": "6d6a6d3b-6686-4da7-bb4e-04c2299e2073",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "url": "={{ $('Parse json').item.json.sitemap_index }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -912,
+        1184
+      ],
+      "id": "2c4f7916-4284-4527-b3bb-1583aa985651",
+      "name": "HTTP Request3"
+    },
+    {
+      "parameters": {
+        "jsCode": "const xml = $json.data || '';\n\nconst locs = [...xml.matchAll(/<loc>(.*?)<\\/loc>/gi)].map(m => m[1].trim());\n\nconst isSitemapIndex = /<sitemapindex/i.test(xml);\nconst isUrlSet = /<urlset/i.test(xml);\n\nreturn [{\n  json: {\n    sitemap_index: $('Parse json').item.json.sitemap_index ?? null,\n    mode: isSitemapIndex ? 1 : isUrlSet ? 2 : null,\n    url_1: isUrlSet ? (locs[0] || null) : null,\n    url_2: isUrlSet ? (locs[1] || null) : null,\n    url_3: isUrlSet ? (locs[2] || null) : null,\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -736,
+        1168
+      ],
+      "id": "4293e930-d22a-4060-8f07-2094edb1f747",
+      "name": "Code in JavaScript4"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://aiplatform.googleapis.com/v1/projects/{{ $('Edit Fields').first().json.project_id }}/locations/global/publishers/google/models/gemini-3.1-pro-preview:streamGenerateContent",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('get auth 2 token').item.json.access_token }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"contents\": [\n    {\n      \"role\": \"user\",\n      \"parts\": [\n        {\n          \"text\": {{\n            JSON.stringify(\n              \"You are a technical research analyst processing XML sitemap data for a business website.\\n\" +\n              \"Use ONLY the provided sitemap data.\\n\" +\n              \"Do NOT use prior knowledge, assumptions, or external information.\\n\" +\n              \"If required information cannot be determined from the sitemap data, return null.\\n\\n\" +\n              \"Business Website data:\\n\" +\n              $('HTTP Request3').item.json.data + \"\\n\\n\" +\n              \"Instructions:\\n\" +\n              \"Analyze the provided response and determine whether it is:\\n\" +\n              \"- a sitemap index (contains links to other sitemap XML files),\\n\" +\n              \"- a page-level sitemap (contains actual page URLs),\\n\" +\n              \"- or an invalid / non-sitemap response.\\n\\n\" +\n              \"Decision Rules:\\n\" +\n              \"1) If the response is a sitemap index:\\n\" +\n              \"   - Select ONE best page-level sitemap URL from the XML.\\n\" +\n              \"   - Prefer page-sitemap.xml.\\n\" +\n              \"   - If page-sitemap.xml does not exist, choose the best equivalent page-level sitemap.\\n\" +\n              \"   - Output this exact JSON shape:\\n\" +\n              \"     {\\\"sitemap_index\\\":\\\"<chosen page sitemap url>\\\",\\\"mode\\\":1,\\\"url_1\\\":null,\\\"url_2\\\":null,\\\"url_3\\\":null}\\n\\n\" +\n              \"2) If the response is already a page-level sitemap:\\n\" +\n              \"   - Select EXACTLY three URLs from the provided URLs only.\\n\" +\n              \"   - url_1 = homepage if present, otherwise best main page.\\n\" +\n              \"   - url_2 = primary service/offer page.\\n\" +\n              \"   - url_3 = trust/differentiation page such as about, contact, faq, testimonials, team, why-us.\\n\" +\n              \"   - Output this exact JSON shape:\\n\" +\n              \"     {\\\"sitemap_index\\\":null,\\\"mode\\\":2,\\\"url_1\\\":\\\"<url>\\\",\\\"url_2\\\":\\\"<url>\\\",\\\"url_3\\\":\\\"<url>\\\"}\\n\\n\" +\n              \"3) If the response is invalid, blocked, HTML, or not a sitemap:\\n\" +\n              \"   - Output this exact JSON shape:\\n\" +\n              \"     {\\\"sitemap_index\\\":null,\\\"mode\\\":0,\\\"url_1\\\":null,\\\"url_2\\\":null,\\\"url_3\\\":null}\\n\\n\" +\n              \"Output Requirements (STRICT):\\n\" +\n              \"- Output MUST be valid JSON.\\n\" +\n              \"- Output MUST be ONE JSON object ONLY.\\n\" +\n              \"- Do NOT include markdown, code fences, or extra text.\\n\" +\n              \"- Do NOT include arrays.\\n\" +\n              \"- Use null exactly as shown.\\n\" +\n              \"- All keys MUST be present exactly: sitemap_index, mode, url_1, url_2, url_3\"\n            )\n          }}\n        }\n      ]\n    }\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -576,
+        1168
+      ],
+      "id": "c13b1a70-6b6b-433f-991a-5a3184a6344c",
+      "name": "HTTP Request4"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Combine ALL Gemini text chunks into one string, then parse JSON\n\nconst items = $input.all();\n\nlet text = '';\n\n// Read every item -> every candidate -> every part\nfor (const it of items) {\n  const candidates = it.json?.candidates ?? [];\n\n  for (const candidate of candidates) {\n    const parts = candidate?.content?.parts ?? [];\n\n    for (const p of parts) {\n      if (typeof p?.text === 'string') {\n        text += p.text;\n      }\n    }\n  }\n}\n\ntext = text.trim();\n\n// Remove code fences if present\ntext = text.replace(/```json/gi, '').replace(/```/g, '').trim();\n\n// Extract first JSON object\nconst match = text.match(/\\{[\\s\\S]*\\}/);\n\nif (!match) {\n  return [{\n    json: {\n      sitemap_index: null,\n      mode: null,\n      url_1: null,\n      url_2: null,\n      url_3: null,\n      _raw: text\n    }\n  }];\n}\n\nlet jsonStr = match[0].trim();\n\nlet obj;\ntry {\n  obj = JSON.parse(jsonStr);\n} catch (e) {\n  // small repair for trailing commas\n  jsonStr = jsonStr.replace(/,\\s*([}\\]])/g, '$1');\n  obj = JSON.parse(jsonStr);\n}\n\nreturn [{\n  json: {\n    sitemap_index: typeof obj.sitemap_index === 'string' ? obj.sitemap_index : null,\n    mode: obj.mode ?? null,\n    url_1: typeof obj.url_1 === 'string' ? obj.url_1 : null,\n    url_2: typeof obj.url_2 === 'string' ? obj.url_2 : null,\n    url_3: typeof obj.url_3 === 'string' ? obj.url_3 : null,\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -416,
+        1168
+      ],
+      "id": "73da3117-1db0-4dd8-9696-1178159edf44",
+      "name": "Code in JavaScript5"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://aiplatform.googleapis.com/v1/projects/{{ $('Edit Fields').first().json.project_id }}/locations/global/publishers/google/models/gemini-2.5-flash:generateContent",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('get auth 2 token').first().json.access_token }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"contents\": [\n    {\n      \"role\": \"user\",\n      \"parts\": [\n        {\n          \"text\": \"You are reviewing THREE website pages. For EACH page, compare the DESKTOP and MOBILE screenshots of the same URL.\\nReturn JSON ONLY.\\nOutput MUST be ONE JSON object with this shape:\\n{\\n  \\\"pages\\\": [\\n    {\\n      \\\"url\\\": \\\"...\\\",\\n      \\\"verdict\\\": \\\"...\\\",\\n      \\\"issues\\\": [],\\n      \\\"quick_wins\\\": [],\\n      \\\"copy_notes\\\": [],\\n      \\\"ux_notes\\\": []\\n    }\\n  ]\\n}\\n\\nRules:\\n- Be blunt, specific, actionable.\\n- Each array should contain short bullet strings.\\n- pages array MUST contain exactly 3 objects in the same order as the URLs below.\\n\\nURL 1: {{ $json.results[0].url }}\\nURL 2: {{ $json.results[1].url }}\\nURL 3: {{ $json.results[2].url }}\"\n        },\n        {\n          \"file_data\": {\n            \"mime_type\": \"image/png\",\n            \"file_uri\": \"{{ $json.results[0].desktop.replace('https://storage.googleapis.com/', 'gs://') }}\"\n          }\n        },\n        {\n          \"file_data\": {\n            \"mime_type\": \"image/png\",\n            \"file_uri\": \"{{ $json.results[0].mobile.replace('https://storage.googleapis.com/', 'gs://') }}\"\n          }\n        },\n        {\n          \"file_data\": {\n            \"mime_type\": \"image/png\",\n            \"file_uri\": \"{{ $json.results[1].desktop.replace('https://storage.googleapis.com/', 'gs://') }}\"\n          }\n        },\n        {\n          \"file_data\": {\n            \"mime_type\": \"image/png\",\n            \"file_uri\": \"{{ $json.results[1].mobile.replace('https://storage.googleapis.com/', 'gs://') }}\"\n          }\n        },\n        {\n          \"file_data\": {\n            \"mime_type\": \"image/png\",\n            \"file_uri\": \"{{ $json.results[2].desktop.replace('https://storage.googleapis.com/', 'gs://') }}\"\n          }\n        },\n        {\n          \"file_data\": {\n            \"mime_type\": \"image/png\",\n            \"file_uri\": \"{{ $json.results[2].mobile.replace('https://storage.googleapis.com/', 'gs://') }}\"\n          }\n        }\n      ]\n    }\n  ],\n  \"generationConfig\": {\n    \"temperature\": 0.2\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -112,
+        1168
+      ],
+      "id": "b5bb39c6-6626-4e48-94da-6460a447ee08",
+      "name": "HTTP Request6"
+    },
+    {
+      "parameters": {
+        "jsCode": "// n8n Code node: Parse Gemini pages output\n\nconst raw = $input.first().json?.candidates?.[0]?.content?.parts?.[0]?.text ?? '';\n\nlet text = String(raw).trim();\n\n// Remove code fences\ntext = text.replace(/```json/gi, '').replace(/```/g, '').trim();\n\n// Extract JSON object\nconst match = text.match(/\\{[\\s\\S]*\\}/);\nif (!match) {\n  return [\n    {\n      json: {\n        error: 'No JSON object found',\n        raw_text: text\n      }\n    }\n  ];\n}\n\nlet obj;\n\ntry {\n  obj = JSON.parse(match[0]);\n} catch (e) {\n  const fixedStr = match[0].replace(/,\\s*([}\\]])/g, '$1');\n  obj = JSON.parse(fixedStr);\n}\n\nconst pages = Array.isArray(obj.pages) ? obj.pages : [];\n\nreturn pages.map((page) => ({\n  json: {\n    url: page.url || null,\n    verdict: page.verdict || null,\n    issues: Array.isArray(page.issues) ? page.issues : [],\n    quick_wins: Array.isArray(page.quick_wins) ? page.quick_wins : [],\n    copy_notes: Array.isArray(page.copy_notes) ? page.copy_notes : [],\n    ux_notes: Array.isArray(page.ux_notes) ? page.ux_notes : []\n  }\n}));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        48,
+        1168
+      ],
+      "id": "1e757048-9567-42cd-9aba-eda25f9892cd",
+      "name": "Code in JavaScript6"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1-gVddh8f8OkLNNPl6MY6pKjD73wqGf6b0m8zNjOYUpA",
+          "mode": "list",
+          "cachedResultName": "Step 1 - Recruitment agency",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-gVddh8f8OkLNNPl6MY6pKjD73wqGf6b0m8zNjOYUpA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 2124205879,
+          "mode": "list",
+          "cachedResultName": "no duplicate huntor emails",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-gVddh8f8OkLNNPl6MY6pKjD73wqGf6b0m8zNjOYUpA/edit#gid=2124205879"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "row_number": "={{ $('get leeds').item.json.row_number }}",
+            "AI chat box": "Yes"
+          },
+          "matchingColumns": [
+            "row_number"
+          ],
+          "schema": [
+            {
+              "id": "company name",
+              "displayName": "company name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "place id",
+              "displayName": "place id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "national phone number ",
+              "displayName": "national phone number ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "rating",
+              "displayName": "rating",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "website url",
+              "displayName": "website url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "format address",
+              "displayName": "format address",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "huntor email",
+              "displayName": "huntor email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "twitter",
+              "displayName": "twitter",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "first name",
+              "displayName": "first name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "last name",
+              "displayName": "last name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "department",
+              "displayName": "department",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "job title",
+              "displayName": "job title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "lindkedn",
+              "displayName": "lindkedn",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "AI chat box",
+              "displayName": "AI chat box",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -160,
+        256
+      ],
+      "id": "e6d92c23-6c9c-420f-989e-a0b887cc2445",
+      "name": "Update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "XurJbcuuPZn14SYW",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://aiplatform.googleapis.com/v1/projects/{{ $('Edit Fields').first().json.project_id }}/locations/global/publishers/google/models/gemini-2.5-flash:generateContent",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('get auth 2 token').first().json.access_token }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"contents\": [\n    {\n      \"role\": \"user\",\n      \"parts\": [\n        {\n          \"text\": \"You are reviewing THREE website pages. For EACH page, compare the DESKTOP and MOBILE screenshots of the same URL.\\nReturn JSON ONLY.\\nOutput MUST be ONE JSON object with this shape:\\n{\\n  \\\"pages\\\": [\\n    {\\n      \\\"url\\\": \\\"...\\\",\\n      \\\"verdict\\\": \\\"...\\\",\\n      \\\"issues\\\": [],\\n      \\\"quick_wins\\\": [],\\n      \\\"copy_notes\\\": [],\\n      \\\"ux_notes\\\": []\\n    }\\n  ]\\n}\\n\\nRules:\\n- Be blunt, specific, actionable.\\n- Each array should contain short bullet strings.\\n- pages array MUST contain exactly 3 objects in the same order as the URLs below.\\n\\nURL 1: {{ $('get screenshots1').first().json.results[0].url }}\\nURL 2: {{ $('get screenshots1').first().json.results[1].url }}\\nURL 3: {{ $('get screenshots1').first().json.results[2].url }}\"\n        },\n        {\n          \"file_data\": {\n            \"mime_type\": \"image/png\",\n            \"file_uri\": \"{{ $('get screenshots1').first().json.results[0].desktop.replace('https://storage.googleapis.com/', 'gs://') }}\"\n          }\n        },\n        {\n          \"file_data\": {\n            \"mime_type\": \"image/png\",\n            \"file_uri\": \"{{ $('get screenshots1').first().json.results[0].mobile.replace('https://storage.googleapis.com/', 'gs://') }}\"\n          }\n        },\n        {\n          \"file_data\": {\n            \"mime_type\": \"image/png\",\n            \"file_uri\": \"{{ $('get screenshots1').first().json.results[1].desktop.replace('https://storage.googleapis.com/', 'gs://') }}\"\n          }\n        },\n        {\n          \"file_data\": {\n            \"mime_type\": \"image/png\",\n            \"file_uri\": \"{{ $('get screenshots1').first().json.results[1].mobile.replace('https://storage.googleapis.com/', 'gs://') }}\"\n          }\n        },\n        {\n          \"file_data\": {\n            \"mime_type\": \"image/png\",\n            \"file_uri\": \"{{ $('get screenshots1').first().json.results[2].desktop.replace('https://storage.googleapis.com/', 'gs://') }}\"\n          }\n        },\n        {\n          \"file_data\": {\n            \"mime_type\": \"image/png\",\n            \"file_uri\": \"{{ $('get screenshots1').first().json.results[2].mobile.replace('https://storage.googleapis.com/', 'gs://') }}\"\n          }\n        }\n      ]\n    }\n  ],\n  \"generationConfig\": {\n    \"temperature\": 0.2\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        464,
+        1168
+      ],
+      "id": "9055db5b-550a-4c62-a6e5-0a5901e5f203",
+      "name": "HTTP Request7"
+    },
+    {
+      "parameters": {
+        "jsCode": "const out = [];\n\nfor (let index = 0; index < items.length; index++) {\n  const item = items[index];\n\n  const raw =\n    item.json?.candidates?.[0]?.content?.parts?.find(p => p.text)?.text ??\n    item.json?.candidates?.[0]?.content?.parts?.[0]?.text ??\n    item.json?.text ??\n    '';\n\n  let text = String(raw).trim();\n\n  // Strip code fences\n  text = text.replace(/```json/gi, '').replace(/```/g, '').trim();\n\n  // Extract JSON object\n  const match = text.match(/\\{[\\s\\S]*\\}/);\n  if (!match) {\n    out.push({\n      json: {\n        error: 'No JSON object found',\n        raw_text: text\n      },\n      pairedItem: index\n    });\n    continue;\n  }\n\n  let obj;\n  try {\n    obj = JSON.parse(match[0].trim());\n  } catch (e) {\n    try {\n      const fixedStr = match[0].trim().replace(/,\\s*([}\\]])/g, '$1');\n      obj = JSON.parse(fixedStr);\n    } catch (e2) {\n      out.push({\n        json: {\n          error: 'JSON parse failed',\n          raw_text: text,\n          parse_error: String(e2.message || e2)\n        },\n        pairedItem: index\n      });\n      continue;\n    }\n  }\n\n  const pages = Array.isArray(obj.pages) ? obj.pages : [];\n\n  for (const p of pages) {\n    out.push({\n      json: {\n        page: p.url ?? null,\n        website_problem: p.verdict ?? null,\n        recognizable_reason: Array.isArray(p.issues) ? p.issues.join(' | ') : null,\n        consequence_mechanics: Array.isArray(p.ux_notes) ? p.ux_notes.join(' | ') : null,\n        preview_asset_exists: null,\n        review_time: null,\n        micro_yes: Array.isArray(p.quick_wins) ? p.quick_wins.join(' | ') : null,\n        subject_label: null,\n        sources: item.json?.groundingMetadata?.webSearchQueries ?? []\n      },\n      pairedItem: index\n    });\n  }\n}\n\nreturn out;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        672,
+        1168
+      ],
+      "id": "cbe7072a-ee48-4e3c-abf0-04e1058b5c09",
+      "name": "Code in JavaScript7"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1-gVddh8f8OkLNNPl6MY6pKjD73wqGf6b0m8zNjOYUpA",
+          "mode": "list",
+          "cachedResultName": "Step 1 - Recruitment agency",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-gVddh8f8OkLNNPl6MY6pKjD73wqGf6b0m8zNjOYUpA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 2124205879,
+          "mode": "list",
+          "cachedResultName": "no duplicate huntor emails",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-gVddh8f8OkLNNPl6MY6pKjD73wqGf6b0m8zNjOYUpA/edit#gid=2124205879"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "row_number": "={{ $('get leeds').item.json.row_number }}",
+            "AI chat box": "No"
+          },
+          "matchingColumns": [
+            "row_number"
+          ],
+          "schema": [
+            {
+              "id": "company name",
+              "displayName": "company name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "place id",
+              "displayName": "place id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "national phone number ",
+              "displayName": "national phone number ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "rating",
+              "displayName": "rating",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "website url",
+              "displayName": "website url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "format address",
+              "displayName": "format address",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "huntor email",
+              "displayName": "huntor email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "twitter",
+              "displayName": "twitter",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "first name",
+              "displayName": "first name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "last name",
+              "displayName": "last name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "department",
+              "displayName": "department",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "job title",
+              "displayName": "job title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "lindkedn",
+              "displayName": "lindkedn",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "AI chat box",
+              "displayName": "AI chat box",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        80,
+        64
+      ],
+      "id": "6c31ea86-b288-49f7-8a85-b7c135d670d0",
+      "name": "Update row in sheet1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "XurJbcuuPZn14SYW",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 3
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -2096,
+        416
+      ],
+      "id": "4fffa90d-a78b-43fa-a056-5e9242296157",
+      "name": "Wait",
+      "webhookId": "37ae8251-c59d-4f58-b3cf-cd1f97a681ba"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1-gVddh8f8OkLNNPl6MY6pKjD73wqGf6b0m8zNjOYUpA",
+          "mode": "list",
+          "cachedResultName": "Step 1 - Recruitment agency",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-gVddh8f8OkLNNPl6MY6pKjD73wqGf6b0m8zNjOYUpA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 2124205879,
+          "mode": "list",
+          "cachedResultName": "no duplicate huntor emails",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-gVddh8f8OkLNNPl6MY6pKjD73wqGf6b0m8zNjOYUpA/edit#gid=2124205879"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "row_number": "={{ $('get leeds').item.json.row_number }}",
+            "AI chat box": "issue"
+          },
+          "matchingColumns": [
+            "row_number"
+          ],
+          "schema": [
+            {
+              "id": "company name",
+              "displayName": "company name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "place id",
+              "displayName": "place id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "national phone number ",
+              "displayName": "national phone number ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "rating",
+              "displayName": "rating",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "website url",
+              "displayName": "website url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "format address",
+              "displayName": "format address",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "huntor email",
+              "displayName": "huntor email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "twitter",
+              "displayName": "twitter",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "first name",
+              "displayName": "first name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "last name",
+              "displayName": "last name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "department",
+              "displayName": "department",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "job title",
+              "displayName": "job title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "lindkedn",
+              "displayName": "lindkedn",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "AI chat box",
+              "displayName": "AI chat box",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -1888,
+        416
+      ],
+      "id": "d3d99758-d164-4858-9f87-9b745206db12",
+      "name": "Update row in sheet2",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "XurJbcuuPZn14SYW",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 3
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -1312,
+        448
+      ],
+      "id": "c300b671-b529-47a7-8e49-ccaadaf8ae1f",
+      "name": "Wait1",
+      "webhookId": "37ae8251-c59d-4f58-b3cf-cd1f97a681ba"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1-gVddh8f8OkLNNPl6MY6pKjD73wqGf6b0m8zNjOYUpA",
+          "mode": "list",
+          "cachedResultName": "Step 1 - Recruitment agency",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-gVddh8f8OkLNNPl6MY6pKjD73wqGf6b0m8zNjOYUpA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 2124205879,
+          "mode": "list",
+          "cachedResultName": "no duplicate huntor emails",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-gVddh8f8OkLNNPl6MY6pKjD73wqGf6b0m8zNjOYUpA/edit#gid=2124205879"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "row_number": "={{ $('get leeds').item.json.row_number }}",
+            "AI chat box": "issue"
+          },
+          "matchingColumns": [
+            "row_number"
+          ],
+          "schema": [
+            {
+              "id": "company name",
+              "displayName": "company name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "place id",
+              "displayName": "place id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "national phone number ",
+              "displayName": "national phone number ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "rating",
+              "displayName": "rating",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "website url",
+              "displayName": "website url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "format address",
+              "displayName": "format address",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "huntor email",
+              "displayName": "huntor email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "twitter",
+              "displayName": "twitter",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "first name",
+              "displayName": "first name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "last name",
+              "displayName": "last name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "department",
+              "displayName": "department",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "job title",
+              "displayName": "job title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "lindkedn",
+              "displayName": "lindkedn",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "AI chat box",
+              "displayName": "AI chat box",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -1136,
+        448
+      ],
+      "id": "96bb0a06-e749-4adf-a400-339694122e07",
+      "name": "Update row in sheet3",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "XurJbcuuPZn14SYW",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1-gVddh8f8OkLNNPl6MY6pKjD73wqGf6b0m8zNjOYUpA",
+          "mode": "list",
+          "cachedResultName": "Recruitment agency",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-gVddh8f8OkLNNPl6MY6pKjD73wqGf6b0m8zNjOYUpA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 2124205879,
+          "mode": "list",
+          "cachedResultName": "no duplicate huntor emails",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-gVddh8f8OkLNNPl6MY6pKjD73wqGf6b0m8zNjOYUpA/edit#gid=2124205879"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "AI chat box"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -3200,
+        272
+      ],
+      "id": "70364873-80b4-4a7d-80b1-f6adc6be2ee8",
+      "name": "get leeds",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "XurJbcuuPZn14SYW",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://oauth2.googleapis.com/token",
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "grant_type",
+              "value": "urn:ietf:params:oauth:grant-type:jwt-bearer"
+            },
+            {
+              "name": "assertion",
+              "value": "={{ $json.token }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -976,
+        80
+      ],
+      "id": "7bb20dc7-9a66-4fd5-938f-23346cef5860",
+      "name": "get auth 2 token"
+    },
+    {
+      "parameters": {
+        "jsCode": "const pageContent = $('HTTP Request').first().json.data ?? '';\nconst html = String(pageContent);\n\nconst prompt =\n  \"You are a technical analyst reviewing the raw HTML source code of a business website page.\\n\" +\n  \"Your ONLY job is to determine whether the page has an AI chatbot, live chat widget, or AI agent installed.\\n\" +\n  \"Use ONLY the provided HTML. Do NOT use prior knowledge or assumptions.\\n\\n\" +\n  \"HTML Content: \" + html.replace(/\\s+/g, ' ').trim().slice(0, 12000) + \"\\n\\n\" +\n  \"Instructions:\\n\" +\n  \"Scan the HTML for any indicators of a chatbot or live chat widget. These include but are not limited to:\\n\" +\n  \"- Script tags or src URLs referencing: intercom, drift, zendesk, zopim, hubspot, tidio, crisp, livechatinc, freshchat, freshworks, tawk, botpress, landbot, manychat, chatbase, voiceflow, typebot, kommunicate, olark, purechat, smartsupp, gorgias, re-engage, helpscout, front, kustomer\\n\" +\n  \"- Div IDs or class names containing: chat, bot, widget, messenger, support-chat, live-chat, ai-agent\\n\" +\n  \"- Any iframe or script referencing a third-party chat domain\\n\" +\n  \"- Custom AI agent scripts or embed codes\\n\\n\" +\n  \"Decision Rules:\\n\" +\n  \"1) If a chatbot or live chat widget IS detected:\\n\" +\n  \"   - has_ai_agent = true\\n\" +\n  \"   - agent_type = name of the platform if identifiable (e.g. Intercom, Tidio, Custom) or 'Unknown' if not\\n\" +\n  \"   - confidence = 'high' if script/src clearly references a known platform, 'medium' if inferred from class/div names only\\n\\n\" +\n  \"2) If NO chatbot or live chat widget is detected:\\n\" +\n  \"   - has_ai_agent = false\\n\" +\n  \"   - agent_type = null\\n\" +\n  \"   - confidence = 'high'\\n\\n\" +\n  \"Output MUST be this exact JSON shape (all keys required):\\n\" +\n  \"{\\\"has_ai_agent\\\":<true|false>,\\\"agent_type\\\":\\\"<string|null>\\\",\\\"confidence\\\":\\\"<high|medium>\\\"}\\n\\n\" +\n  \"Output Requirements (STRICT):\\n\" +\n  \"- Output MUST be valid JSON.\\n\" +\n  \"- Output MUST be ONE JSON object ONLY.\\n\" +\n  \"- Do NOT include markdown, code fences, or extra text.\\n\" +\n  \"- All keys MUST be present: has_ai_agent, agent_type, confidence\\n\";\n\nconst escapedPrompt = prompt\n  .replace(/\\\\/g, '\\\\\\\\')\n  .replace(/\"/g, '\\\\\"')\n  .replace(/\\r?\\n/g, '\\\\\\\\n');\n\nreturn [\n  {\n    json: {\n      prompt: escapedPrompt\n    }\n  }\n]\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1328,
+        96
+      ],
+      "id": "9030dd42-5213-4f05-97ff-9bb544a0c8ed",
+      "name": "parse json"
+    },
+    {
+      "parameters": {
+        "useJson": true,
+        "claimsJson": "={\n  \"iss\": \"{{ $json.client_email }}\",\n  \"scope\": \"https://www.googleapis.com/auth/cloud-platform\",\n  \"aud\": \"https://oauth2.googleapis.com/token\",\n  \"exp\": {{ Math.floor(Date.now() / 1000) + 3500 }},\n  \"iat\": {{ Math.floor(Date.now() / 1000) }}\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.jwt",
+      "typeVersion": 1,
+      "position": [
+        -1104,
+        80
+      ],
+      "id": "a283bbeb-e240-4c17-b0c8-8f16585983db",
+      "name": "get google token",
+      "credentials": {
+        "jwtAuth": {
+          "id": "U6vG3WFEPqvwY5p2",
+          "name": "JWT Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://aiplatform.googleapis.com/v1/projects/{{ $('Edit Fields').item.json.project_id }}/locations/global/publishers/google/models/gemini-3.1-pro-preview:streamGenerateContent",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $json.access_token }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"contents\": [\n    {\n      \"role\": \"user\",\n      \"parts\": [\n        { \"text\": \"{{ $('parse json').item.json.prompt }}\" }\n      ]\n    }\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -768,
+        80
+      ],
+      "id": "19a79a73-f008-43dd-b348-c10e19508bb1",
+      "name": "Gemini"
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = $input.first().json;\nconst response = Array.isArray(raw) ? raw[0] : raw;\n\nconst text = response?.candidates?.[0]?.content?.parts?.[0]?.text ?? '';\n\nlet result = { has_ai_agent: null };\n\ntry {\n  const cleaned = text.replace(/```json|```/g, '').trim();\n  result = JSON.parse(cleaned);\n} catch (e) {}\n\nconst output = result.has_ai_agent === true ? 2 : 1;\n\nreturn [\n  {\n    json: {\n      output\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -560,
+        80
+      ],
+      "id": "fe8d6473-c400-4c24-a005-5627e33fb229",
+      "name": "Parse json"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://34.60.224.98:3333/screenshot",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"urls\": [\n    \"{{ $('Parse json').item.json.url_1 }}\",\n    \"{{ $('Parse json').item.json.url_2 }}\",\n    \"{{ $('Parse json').item.json.url_3 }}\"\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -3008,
+        1168
+      ],
+      "id": "7219a2e9-c22e-425e-bef3-e1b3ee45e8e1",
+      "name": "get screenshots"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://aiplatform.googleapis.com/v1/projects/{{ $('Edit Fields').first().json.project_id }}/locations/global/publishers/google/models/gemini-2.5-flash:generateContent",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('get auth 2 token').first().json.access_token }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"contents\": [\n    {\n      \"role\": \"user\",\n      \"parts\": [\n        {\n          \"text\": \"You are reviewing THREE website pages. For EACH page, compare the DESKTOP and MOBILE screenshots of the same URL.\\nReturn JSON ONLY.\\nOutput MUST be ONE JSON object with this shape:\\n{\\n  \\\"pages\\\": [\\n    {\\n      \\\"url\\\": \\\"...\\\",\\n      \\\"verdict\\\": \\\"...\\\",\\n      \\\"issues\\\": [],\\n      \\\"quick_wins\\\": [],\\n      \\\"copy_notes\\\": [],\\n      \\\"ux_notes\\\": []\\n    }\\n  ]\\n}\\n\\nRules:\\n- Be blunt, specific, actionable.\\n- Each array should contain short bullet strings.\\n- pages array MUST contain exactly 3 objects in the same order as the URLs below.\\n\\nURL 1: {{ $('get screenshots').first().json.results[0].url }}\\nURL 2: {{ $('get screenshots').first().json.results[1].url }}\\nURL 3: {{ $('get screenshots').first().json.results[2].url }}\"\n        },\n        {\n          \"fileData\": {\n            \"mimeType\": \"image/png\",\n            \"fileUri\": \"{{ 'gs://' + $('get screenshots').first().json.results[0].desktop.replace('https://storage.googleapis.com/', '') }}\"\n          }\n        },\n        {\n          \"fileData\": {\n            \"mimeType\": \"image/png\",\n            \"fileUri\": \"{{ 'gs://' + $('get screenshots').first().json.results[0].mobile.replace('https://storage.googleapis.com/', '') }}\"\n          }\n        },\n        {\n          \"fileData\": {\n            \"mimeType\": \"image/png\",\n            \"fileUri\": \"{{ 'gs://' + $('get screenshots').first().json.results[1].desktop.replace('https://storage.googleapis.com/', '') }}\"\n          }\n        },\n        {\n          \"fileData\": {\n            \"mimeType\": \"image/png\",\n            \"fileUri\": \"{{ 'gs://' + $('get screenshots').first().json.results[1].mobile.replace('https://storage.googleapis.com/', '') }}\"\n          }\n        },\n        {\n          \"fileData\": {\n            \"mimeType\": \"image/png\",\n            \"fileUri\": \"{{ 'gs://' + $('get screenshots').first().json.results[2].desktop.replace('https://storage.googleapis.com/', '') }}\"\n          }\n        },\n        {\n          \"fileData\": {\n            \"mimeType\": \"image/png\",\n            \"fileUri\": \"{{ 'gs://' + $('get screenshots').first().json.results[2].mobile.replace('https://storage.googleapis.com/', '') }}\"\n          }\n        }\n      ]\n    }\n  ],\n  \"generationConfig\": {\n    \"temperature\": 0.2,\n    \"responseMimeType\": \"application/json\"\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -2864,
+        1168
+      ],
+      "id": "549ff095-5f4c-4b47-bb31-5ca9d8282793",
+      "name": "review screenshots"
+    },
+    {
+      "parameters": {
+        "jsCode": "// n8n Code node: Parse Vertex JSON for pages[]\n\nconst raw =\n  $input.first().json?.candidates?.[0]?.content?.parts?.[0]?.text ??\n  $input.first().json?.text ??\n  '';\n\nlet text = String(raw).trim();\n\n// Strip code fences\ntext = text.replace(/```json/gi, '').replace(/```/g, '').trim();\n\n// Extract JSON object\nconst match = text.match(/\\{[\\s\\S]*\\}/);\nif (!match) {\n  return [{ json: { error: 'No JSON object found', raw_text: text } }];\n}\n\nlet obj;\ntry {\n  obj = JSON.parse(match[0].trim());\n} catch (e) {\n  const fixedStr = match[0].trim().replace(/,\\s*([}\\]])/g, '$1');\n  obj = JSON.parse(fixedStr);\n}\n\n// Make sure pages exists\nconst pages = Array.isArray(obj.pages) ? obj.pages : [];\n\n// Return one item per page\nreturn pages.map(page => ({\n  json: {\n    url: page.url ?? null,\n    verdict: page.verdict ?? null,\n    issues: Array.isArray(page.issues) ? page.issues : [],\n    quick_wins: Array.isArray(page.quick_wins) ? page.quick_wins : [],\n    copy_notes: Array.isArray(page.copy_notes) ? page.copy_notes : [],\n    ux_notes: Array.isArray(page.ux_notes) ? page.ux_notes : []\n  }\n}));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2704,
+        1168
+      ],
+      "id": "33ac65e2-5545-4f7e-9171-74b22846ea2b",
+      "name": "parse json1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://aiplatform.googleapis.com/v1/projects/{{ $('Edit Fields').first().json.project_id }}/locations/global/publishers/google/models/gemini-2.5-flash:generateContent",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('get auth 2 token').first().json.access_token }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"contents\": [\n    {\n      \"role\": \"user\",\n      \"parts\": [\n        {\n          \"text\": \"Review this website page by comparing the DESKTOP and MOBILE screenshots of the same URL.\\nReturn JSON ONLY.\\nOutput MUST be ONE JSON object with this shape:\\n{\\n  \\\"url\\\": \\\"...\\\",\\n  \\\"verdict\\\": \\\"...\\\",\\n  \\\"issues\\\": [],\\n  \\\"quick_wins\\\": [],\\n  \\\"copy_notes\\\": [],\\n  \\\"ux_notes\\\": []\\n}\\n\\nRules:\\n- Be blunt, specific, actionable.\\n- Each array should contain short bullet strings.\\n\\nURL: {{ $json.url }}\"\n        },\n        {\n          \"file_data\": {\n            \"mime_type\": \"image/png\",\n            \"file_uri\": \"{{ $('get screenshots').first().json.results[$itemIndex].desktop.replace('https://storage.googleapis.com/', 'gs://') }}\"\n          }\n        },\n        {\n          \"file_data\": {\n            \"mime_type\": \"image/png\",\n            \"file_uri\": \"{{ $('get screenshots').first().json.results[$itemIndex].mobile.replace('https://storage.googleapis.com/', 'gs://') }}\"\n          }\n        }\n      ]\n    }\n  ],\n  \"generationConfig\": {\n    \"temperature\": 0.2\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -2496,
+        1168
+      ],
+      "id": "fe221f33-a025-4e93-81d8-a3c8a6cf3c4a",
+      "name": "compare the screenshots"
+    },
+    {
+      "parameters": {
+        "jsCode": "// n8n Code node: Final Variable Extractor\n\nconst raw =\n  $input.first().json?.candidates?.[0]?.content?.parts?.[0]?.text ??\n  $input.first().json?.text ??\n  '';\n\nlet text = String(raw).trim();\n\n// 1. Strip code fences\ntext = text.replace(/```json/gi, '').replace(/```/g, '').trim();\n\n// 2. Extract and Parse JSON\nconst match = text.match(/\\{[\\s\\S]*\\}/);\nif (!match) {\n  return [{ json: { error: 'No JSON object found', raw_text: text } }];\n}\n\nlet obj;\ntry {\n  obj = JSON.parse(match[0].trim());\n} catch (e) {\n  // Minor repair for trailing commas\n  const fixedStr = match[0].trim().replace(/,\\s*([}\\]])/g, '$1');\n  obj = JSON.parse(fixedStr);\n}\n\n// 3. Map variables directly (No more .answer wrapper)\nreturn [{\n  json: {\n    page: obj.page ?? null,\n    website_problem: obj.website_problem ?? null,\n    recognizable_reason: obj.recognizable_reason ?? null,\n    consequence_mechanics: obj.consequence_mechanics ?? null,\n    preview_asset_exists: typeof obj.preview_asset_exists === 'boolean' ? obj.preview_asset_exists : null,\n    review_time: Number.isFinite(obj.review_time) ? obj.review_time : null,\n    micro_yes: obj.micro_yes ?? null,\n    subject_label: obj.subject_label ?? null,\n    // Add sources if Gemini included groundingMetadata\n    sources: $input.first().json?.groundingMetadata?.webSearchQueries ?? []\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2288,
+        1168
+      ],
+      "id": "49cc4831-49f2-4a10-a21d-fbb145ea4a7f",
+      "name": " parse json"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://35.193.25.26:3333/screenshot",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"urls\": [\n    \"{{ $json.url_1 }}\",\n    \"{{ $json.url_2 }}\",\n    \"{{ $json.url_3 }}\"\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -256,
+        1168
+      ],
+      "id": "7ff24c54-37be-460f-99bd-f8ad8d3920b4",
+      "name": "get screenshots1",
+      "retryOnFail": false
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        -2992,
+        272
+      ],
+      "id": "61668473-0dcd-4fa7-9bb4-766c588b0cc9",
+      "name": "Limit"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "40eb5f7b-52ab-452e-b3d3-2df0eeca7284",
+              "name": "row number",
+              "value": "={{ $('get leeds').item.json.row_number }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        256,
+        1168
+      ],
+      "id": "5e9b31a6-17ed-4558-8663-f0f080c397a3",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "amount": 30
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        64,
+        256
+      ],
+      "id": "c1b22818-8df6-49db-9ac9-720b3f0abf35",
+      "name": "Wait3",
+      "webhookId": "d8dee27f-92c7-475b-a19a-6fa387f6f384"
+    },
+    {
+      "parameters": {
+        "amount": 30
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        240,
+        64
+      ],
+      "id": "689a359a-f847-4281-82ed-fa04596fb6d5",
+      "name": "Wait4",
+      "webhookId": "d8dee27f-92c7-475b-a19a-6fa387f6f384"
+    }
+  ],
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "get leeds",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "parse json",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "get google token",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Update row in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request3": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript4": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request4": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript5": {
+      "main": [
+        [
+          {
+            "node": "get screenshots1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request6": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript6": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Wait3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request7": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript7": {
+      "main": [
+        []
+      ]
+    },
+    "Update row in sheet1": {
+      "main": [
+        [
+          {
+            "node": "Wait4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Update row in sheet2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update row in sheet2": {
+      "main": [
+        [
+          {
+            "node": "get leeds",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "Update row in sheet3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update row in sheet3": {
+      "main": [
+        [
+          {
+            "node": "get leeds",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get leeds": {
+      "main": [
+        [
+          {
+            "node": "Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get auth 2 token": {
+      "main": [
+        [
+          {
+            "node": "Gemini",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "parse json": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get google token": {
+      "main": [
+        [
+          {
+            "node": "get auth 2 token",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini": {
+      "main": [
+        [
+          {
+            "node": "Parse json",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse json": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get screenshots": {
+      "main": [
+        [
+          {
+            "node": "review screenshots",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "review screenshots": {
+      "main": [
+        [
+          {
+            "node": "parse json1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "parse json1": {
+      "main": [
+        [
+          {
+            "node": "compare the screenshots",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "compare the screenshots": {
+      "main": [
+        [
+          {
+            "node": " parse json",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    " parse json": {
+      "main": [
+        []
+      ]
+    },
+    "get screenshots1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait3": {
+      "main": [
+        [
+          {
+            "node": "get leeds",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait4": {
+      "main": [
+        [
+          {
+            "node": "get leeds",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "versionId": "e5dde297-2f5e-4d26-b5c1-2b401aabe3f3",
+  "activeVersionId": null,
+  "triggerCount": 0,
+  "shared": [
+    {
+      "updatedAt": "2026-05-27T13:46:05.796Z",
+      "createdAt": "2026-05-27T13:46:05.796Z",
+      "role": "workflow:owner",
+      "workflowId": "X1VmXgEkU0Pfrsnh",
+      "projectId": "5GBCFFrIrIkPnjdc"
+    }
+  ],
+  "activeVersion": null,
+  "tags": []
+}
