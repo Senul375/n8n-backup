@@ -1,0 +1,397 @@
+{
+  "updatedAt": "2026-05-27T10:45:22.108Z",
+  "createdAt": "2026-05-02T10:25:46.457Z",
+  "id": "q9lminXDOsUE5irH",
+  "name": "2. Get Places Website",
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "d922bc86-57db-47f8-a430-4a781cb69f5f",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "95965a6b-baf5-46c5-852e-a88a4be04d9f",
+              "name": "Google_Maps_API",
+              "value": "AIzaSyC6ksZOqDtte69YfY2eTM1b61Z4mhSKjRk",
+              "type": "string"
+            },
+            {
+              "id": "f8588993-203f-4fdd-a4d1-e1c32b3fd44b",
+              "name": "Spreadsheet_id",
+              "value": "1mkq1_5Pk1EDkeYZ8MD0FSUXkh4gtaSGHXJE-lNP-cZ4",
+              "type": "string"
+            },
+            {
+              "id": "90c98d91-f6e0-4592-8024-0e5b3066d225",
+              "name": "test_sheet_name",
+              "value": "lead 2",
+              "type": "string"
+            },
+            {
+              "id": "7808ade4-1bc1-44a4-8e35-e9d861800d8d",
+              "name": "sheet_name",
+              "value": "lead 1",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        192,
+        0
+      ],
+      "id": "1ec5df47-217f-48af-8ae8-c4aa9c66c0bb",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1-gVddh8f8OkLNNPl6MY6pKjD73wqGf6b0m8zNjOYUpA",
+          "mode": "list",
+          "cachedResultName": "Step 1 - Recruitment agency",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-gVddh8f8OkLNNPl6MY6pKjD73wqGf6b0m8zNjOYUpA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1656038683,
+          "mode": "list",
+          "cachedResultName": "cleaned sheet - no duplicates",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-gVddh8f8OkLNNPl6MY6pKjD73wqGf6b0m8zNjOYUpA/edit#gid=1656038683"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        400,
+        0
+      ],
+      "id": "a7fb6f18-cb1d-4b3a-9188-f7b58b6e48b0",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "XurJbcuuPZn14SYW",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=https://places.googleapis.com/v1/places/{{ $json['place id'] }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Goog-Api-Key",
+              "value": "={{ $('Edit Fields').item.json.Google_Maps_API }}"
+            },
+            {
+              "name": "X-Goog-FieldMask",
+              "value": "id,displayName.text,websiteUri,formattedAddress,nationalPhoneNumber,internationalPhoneNumber,rating"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        608,
+        0
+      ],
+      "id": "c63bbbb8-39fd-4344-abda-5e3fa06d1000",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "91b7f13d-8c1b-48cc-8afd-6c96cadd4dbe",
+              "name": "result",
+              "value": "={{ $json.displayName }},{{ $json.websiteUri }},{{ $json.rating }},{{ $json.formattedAddress }},{{ $json.internationalPhoneNumber }},{{ $json.nationalPhoneNumber }},{{ $json.id }}",
+              "type": "string"
+            },
+            {
+              "id": "2cdb5542-5313-46bd-b389-17318153242b",
+              "name": "place_id",
+              "value": "={{ $json.id }}",
+              "type": "string"
+            },
+            {
+              "id": "fb030911-0352-470a-bac3-c52c1743a792",
+              "name": "sheet_name",
+              "value": "Final 1",
+              "type": "string"
+            },
+            {
+              "id": "5f00cbe8-907a-4ed1-b931-ffc02ecc7adb",
+              "name": "final_sheet_id",
+              "value": "1wdA0xu44-YjjzmmmZdUXeT5LXn7a7RtIkNb6OKsfbDk",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        816,
+        0
+      ],
+      "id": "0772a64a-5393-449f-b950-71a0ef6c65b9",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1-gVddh8f8OkLNNPl6MY6pKjD73wqGf6b0m8zNjOYUpA",
+          "mode": "list",
+          "cachedResultName": "Step 1 - Recruitment agency",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-gVddh8f8OkLNNPl6MY6pKjD73wqGf6b0m8zNjOYUpA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1288768779,
+          "mode": "list",
+          "cachedResultName": "Sheet3",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-gVddh8f8OkLNNPl6MY6pKjD73wqGf6b0m8zNjOYUpA/edit#gid=1288768779"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "rating": "={{ $('HTTP Request').item.json.rating }}",
+            "national phone number": "={{ $('HTTP Request').item.json.nationalPhoneNumber }}",
+            "place id": "={{ $('HTTP Request').item.json.id }}",
+            "international phone number": "=*{{ $('HTTP Request').item.json.internationalPhoneNumber }}",
+            "website url": "={{ $('HTTP Request').item.json.websiteUri }}",
+            "format address": "={{ $('HTTP Request').item.json.formattedAddress }}",
+            "Company name": "={{ $('HTTP Request').item.json.displayName.text }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "Company name",
+              "displayName": "Company name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "place id",
+              "displayName": "place id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "national phone number",
+              "displayName": "national phone number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "international phone number",
+              "displayName": "international phone number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "rating",
+              "displayName": "rating",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "website url",
+              "displayName": "website url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "format address",
+              "displayName": "format address",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "person searched",
+              "displayName": "person searched",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "hunter searched",
+              "displayName": "hunter searched",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "done research",
+              "displayName": "done research",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1024,
+        0
+      ],
+      "id": "bb14d0fa-5450-4d70-bd18-abcdd0b8cc81",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "XurJbcuuPZn14SYW",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "versionId": "171ac916-55ae-46ed-8313-fd4e64d814aa",
+  "activeVersionId": null,
+  "triggerCount": 0,
+  "shared": [
+    {
+      "updatedAt": "2026-05-02T10:25:46.460Z",
+      "createdAt": "2026-05-02T10:25:46.460Z",
+      "role": "workflow:owner",
+      "workflowId": "q9lminXDOsUE5irH",
+      "projectId": "5GBCFFrIrIkPnjdc"
+    }
+  ],
+  "activeVersion": null,
+  "tags": []
+}
