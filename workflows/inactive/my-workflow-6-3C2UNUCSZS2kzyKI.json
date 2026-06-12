@@ -1,0 +1,417 @@
+{
+  "updatedAt": "2026-05-24T00:00:34.418Z",
+  "createdAt": "2026-05-23T21:09:22.088Z",
+  "id": "3C2UNUCSZS2kzyKI",
+  "name": "My workflow 6",
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "23c9f097-bdb4-471b-a236-9fcb2118118c",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appgxo7UbOlkjQ1xG",
+          "mode": "list",
+          "cachedResultName": "Leads for albert",
+          "cachedResultUrl": "https://airtable.com/appgxo7UbOlkjQ1xG"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblRWUlVJEHBy09BV",
+          "mode": "list",
+          "cachedResultName": "Table 1",
+          "cachedResultUrl": "https://airtable.com/appgxo7UbOlkjQ1xG/tblRWUlVJEHBy09BV"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "company name": "={{ $json['company name'] }}",
+            "Place Id": "={{ $json['place id'] }}",
+            "National Phone Number": "={{ $json.nationalPhoneNumber }}",
+            "international Phone Number": "={{ $json.internationalPhoneNumber }}",
+            "websiteUri": "={{ $json.websiteUri }}",
+            "format address": "={{ $json['format adrees'] }}",
+            "personal email": "={{ $json['hunter email'] }}",
+            "first name": "={{ $json['first name'] }}",
+            "last name": "={{ $json['last name'] }}",
+            "department": "={{ $json.department }}",
+            "job title": "={{ $json['job title'] }}",
+            "linkedn": "={{ $json.linkedn }}",
+            "twitter": "={{ $json.twitter }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "company name",
+              "displayName": "company name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Place Id",
+              "displayName": "Place Id",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "National Phone Number",
+              "displayName": "National Phone Number",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "international Phone Number",
+              "displayName": "international Phone Number",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "websiteUri",
+              "displayName": "websiteUri",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "format address",
+              "displayName": "format address",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "personal email",
+              "displayName": "personal email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "first name",
+              "displayName": "first name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "last name",
+              "displayName": "last name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "department",
+              "displayName": "department",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "job title",
+              "displayName": "job title",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "linkedn",
+              "displayName": "linkedn",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "twitter",
+              "displayName": "twitter",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "pitch email ",
+              "displayName": "pitch email ",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "options": [
+                {
+                  "name": "sent",
+                  "value": "sent"
+                },
+                {
+                  "name": "not yet sent",
+                  "value": "not yet sent"
+                },
+                {
+                  "name": "issue",
+                  "value": "issue"
+                },
+                {
+                  "name": "on the procees",
+                  "value": "on the procees"
+                },
+                {
+                  "name": "relied",
+                  "value": "relied"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Follow up 1",
+              "displayName": "Follow up 1",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "options": [
+                {
+                  "name": "sent",
+                  "value": "sent"
+                },
+                {
+                  "name": "not yet sent",
+                  "value": "not yet sent"
+                },
+                {
+                  "name": "on the procces",
+                  "value": "on the procces"
+                },
+                {
+                  "name": "issue",
+                  "value": "issue"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Follow up 2",
+              "displayName": "Follow up 2",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "options": [
+                {
+                  "name": "sent",
+                  "value": "sent"
+                },
+                {
+                  "name": "not sent yet",
+                  "value": "not sent yet"
+                },
+                {
+                  "name": "issue",
+                  "value": "issue"
+                },
+                {
+                  "name": "replied",
+                  "value": "replied"
+                },
+                {
+                  "name": "on the process",
+                  "value": "on the process"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Lead has replied",
+              "displayName": "Lead has replied",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "options": [
+                {
+                  "name": "yes",
+                  "value": "yes"
+                },
+                {
+                  "name": "no",
+                  "value": "no"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        416,
+        0
+      ],
+      "id": "48dc1ff9-af0d-4f5c-bf7e-77935bcd09a9",
+      "name": "Create a record",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "1E76WfArdXji8u1t",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1e8PqyNqPIx8e_Phzwz81ODSsxpy9EPty9ohjUNMw744",
+          "mode": "list",
+          "cachedResultName": "Get leads - albert ",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1e8PqyNqPIx8e_Phzwz81ODSsxpy9EPty9ohjUNMw744/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 798005522,
+          "mode": "list",
+          "cachedResultName": "Sheet2",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1e8PqyNqPIx8e_Phzwz81ODSsxpy9EPty9ohjUNMw744/edit#gid=798005522"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        208,
+        0
+      ],
+      "id": "3f75c99b-3303-4171-a30a-10c3f0f6a5fb",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "XurJbcuuPZn14SYW",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Create a record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "versionId": "19e9adae-a026-4da7-a26c-26f5daf49fe8",
+  "activeVersionId": null,
+  "triggerCount": 0,
+  "shared": [
+    {
+      "updatedAt": "2026-05-23T21:09:22.090Z",
+      "createdAt": "2026-05-23T21:09:22.090Z",
+      "role": "workflow:owner",
+      "workflowId": "3C2UNUCSZS2kzyKI",
+      "projectId": "5GBCFFrIrIkPnjdc"
+    }
+  ],
+  "activeVersion": null,
+  "tags": []
+}
