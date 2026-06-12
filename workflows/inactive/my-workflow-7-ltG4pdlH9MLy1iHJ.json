@@ -1,0 +1,607 @@
+{
+  "updatedAt": "2026-06-02T17:39:04.175Z",
+  "createdAt": "2026-06-02T17:36:09.048Z",
+  "id": "ltG4pdlH9MLy1iHJ",
+  "name": "My workflow 7",
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "e5eddd5e-b3b7-4683-8898-4bc75cf5b432",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1mRUJc0K4_XlL3JkxZ1USEPzRNXShym1CgECMS6GCtGI",
+          "mode": "list",
+          "cachedResultName": "Recrument agency - no agent",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1mRUJc0K4_XlL3JkxZ1USEPzRNXShym1CgECMS6GCtGI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1686681481,
+          "mode": "list",
+          "cachedResultName": "Sheet3",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1mRUJc0K4_XlL3JkxZ1USEPzRNXShym1CgECMS6GCtGI/edit#gid=1686681481"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "infor added"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        208,
+        0
+      ],
+      "id": "a4b05321-7622-4342-aa1e-c91e73c41105",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "XurJbcuuPZn14SYW",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1mRUJc0K4_XlL3JkxZ1USEPzRNXShym1CgECMS6GCtGI",
+          "mode": "list",
+          "cachedResultName": "Recrument agency - no agent",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1mRUJc0K4_XlL3JkxZ1USEPzRNXShym1CgECMS6GCtGI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1658197815,
+          "mode": "list",
+          "cachedResultName": "Sheet5",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1mRUJc0K4_XlL3JkxZ1USEPzRNXShym1CgECMS6GCtGI/edit#gid=1658197815"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        416,
+        0
+      ],
+      "id": "7e9675ad-5925-4724-910b-7b3847e47bd2",
+      "name": "Get row(s) in sheet1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "XurJbcuuPZn14SYW",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1mRUJc0K4_XlL3JkxZ1USEPzRNXShym1CgECMS6GCtGI",
+          "mode": "list",
+          "cachedResultName": "Recrument agency - no agent",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1mRUJc0K4_XlL3JkxZ1USEPzRNXShym1CgECMS6GCtGI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1686681481,
+          "mode": "list",
+          "cachedResultName": "Sheet3",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1mRUJc0K4_XlL3JkxZ1USEPzRNXShym1CgECMS6GCtGI/edit#gid=1686681481"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "pitch  sublect line": "={{ $json['pitch  sublect line'] }}",
+            "pitch email": "={{ $json['pitch email'] }}",
+            "SB - follow up 1": "={{ $json['SB - follow up 1'] }}",
+            "Follow up 1 ": "={{ $json['Follow up 1 '] }}",
+            "SB - follow up 2": "={{ $json['SB - follow up 2'] }}",
+            "Follow up 2": "={{ $json['Follow up 2'] }}",
+            "SB - follow up 3": "={{ $json['SB - follow up 3'] }}",
+            "Follow up 3": "={{ $json['Follow up 3'] }}",
+            "infor added": "done",
+            "company name": "={{ $json['company name'] }}"
+          },
+          "matchingColumns": [
+            "company name"
+          ],
+          "schema": [
+            {
+              "id": "company name",
+              "displayName": "company name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "place id",
+              "displayName": "place id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "national phone number ",
+              "displayName": "national phone number ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "rating",
+              "displayName": "rating",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "website url",
+              "displayName": "website url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "format address",
+              "displayName": "format address",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "huntor email",
+              "displayName": "huntor email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "twitter",
+              "displayName": "twitter",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "first name",
+              "displayName": "first name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "last name",
+              "displayName": "last name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "department",
+              "displayName": "department",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "job title",
+              "displayName": "job title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "lindkedn",
+              "displayName": "lindkedn",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "AI chat box",
+              "displayName": "AI chat box",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "page",
+              "displayName": "page",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "website problem",
+              "displayName": "website problem",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "recognizable reason",
+              "displayName": "recognizable reason",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "consequence_mechanics",
+              "displayName": "consequence_mechanics",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "review",
+              "displayName": "review",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "micro yes",
+              "displayName": "micro yes",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "subject lable",
+              "displayName": "subject lable",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "researched done",
+              "displayName": "researched done",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "issue found",
+              "displayName": "issue found",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email created",
+              "displayName": "email created",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "verified from alex",
+              "displayName": "verified from alex",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "pitch  sublect line",
+              "displayName": "pitch  sublect line",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "pitch email",
+              "displayName": "pitch email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "SB - follow up 1",
+              "displayName": "SB - follow up 1",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Follow up 1 ",
+              "displayName": "Follow up 1 ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "SB - follow up 2",
+              "displayName": "SB - follow up 2",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Follow up 2",
+              "displayName": "Follow up 2",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "SB - follow up 3",
+              "displayName": "SB - follow up 3",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Follow up 3",
+              "displayName": "Follow up 3",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "stop 30",
+              "displayName": "stop 30",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "thread id",
+              "displayName": "thread id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "massage id",
+              "displayName": "massage id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "issue ",
+              "displayName": "issue ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "pitch sent ",
+              "displayName": "pitch sent ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "follow up 1 sent",
+              "displayName": "follow up 1 sent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "follow up 2 sent",
+              "displayName": "follow up 2 sent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "follow up 3 sent ",
+              "displayName": "follow up 3 sent ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "infor added",
+              "displayName": "infor added",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        624,
+        0
+      ],
+      "id": "351c0d92-e01d-4cc7-a292-44bf7dd771d2",
+      "name": "Update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "XurJbcuuPZn14SYW",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet1": {
+      "main": [
+        [
+          {
+            "node": "Update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "versionId": "641a4376-7df9-4344-91db-0d7d8a2e411d",
+  "activeVersionId": null,
+  "triggerCount": 0,
+  "shared": [
+    {
+      "updatedAt": "2026-06-02T17:36:09.052Z",
+      "createdAt": "2026-06-02T17:36:09.052Z",
+      "role": "workflow:owner",
+      "workflowId": "ltG4pdlH9MLy1iHJ",
+      "projectId": "5GBCFFrIrIkPnjdc"
+    }
+  ],
+  "activeVersion": null,
+  "tags": []
+}
