@@ -1,0 +1,465 @@
+{
+  "updatedAt": "2026-04-22T17:31:57.931Z",
+  "createdAt": "2026-04-22T17:31:57.931Z",
+  "id": "2f8lFsKnDhFK3okG",
+  "name": "My workflow 2",
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1376,
+        192
+      ],
+      "id": "d2f15477-781a-4a75-8f42-6f09877c17a8",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1jLy55W69X3sbrfB0eechMZv0fL_HzzAOCQCXPhKtJOE",
+          "mode": "list",
+          "cachedResultName": "Dental Leads - step 2",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1jLy55W69X3sbrfB0eechMZv0fL_HzzAOCQCXPhKtJOE/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1jLy55W69X3sbrfB0eechMZv0fL_HzzAOCQCXPhKtJOE/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "done research",
+              "lookupValue": "false"
+            }
+          ]
+        },
+        "options": {
+          "returnFirstMatch": true
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -1184,
+        192
+      ],
+      "id": "a7c6a97c-8158-4c58-9e4c-c349612bb0e1",
+      "name": "Get row(s) in sheet"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "40a70526-659d-4756-8a9e-f6ce1b459051",
+              "leftValue": "={{ $json.websiteUri }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -976,
+        192
+      ],
+      "id": "8080f1fe-99e7-4303-9b03-b8d1cb6e4ec0",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "jsCode": "return items.map(item => {\n  // Raw from sheet\n  let raw = String(item.json.websiteUri || '');\n\n  // Sanitize invisible garbage that breaks parsing\n  raw = raw\n    .replace(/\\u00A0/g, ' ')   // nbsp\n    .replace(/\\u200B/g, '')    // zero-width space\n    .replace(/\\u200C/g, '')    // zero-width non-joiner\n    .replace(/\\u200D/g, '')    // zero-width joiner\n    .replace(/\\uFEFF/g, '')    // BOM\n    .trim();\n\n  // Take first URL-ish token if the cell contains extra stuff\n  const tokenMatch = raw.match(/https?:\\/\\/[^\\s]+|[a-z0-9.-]+\\.[a-z]{2,}(\\/[^\\s]*)?/i);\n  const token = (tokenMatch ? tokenMatch[0] : raw).trim();\n\n  // Extract hostname without trusting URL()\n  let host = '';\n  const m1 = token.match(/^https?:\\/\\/([^\\/?#\\s]+)/i);\n  if (m1 && m1[1]) {\n    host = m1[1];\n  } else {\n    const m2 = token.match(/^([a-z0-9.-]+\\.[a-z]{2,})(?:[\\/?#]|$)/i);\n    if (m2 && m2[1]) host = m2[1];\n  }\n\n  // Normalize\n  const website_domain = host.replace(/^www\\./i, '').toLowerCase();\n\n  // Canonical clean website root\n  const website_clean = website_domain ? `https://${website_domain}/` : '';\n\n  return {\n    json: {\n      row_number: item.json.row_number,\n      website_clean,\n      website_domain\n    }\n  };\n});\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -768,
+        96
+      ],
+      "id": "52cb9287-88b5-41c8-ade8-cdb6e5679057",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.website_clean }}sitemap.xml",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -560,
+        96
+      ],
+      "id": "28a999ad-bec6-46ca-bfb5-2a5e21603bc9",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "jsCode": "// n8n Code node\n\nconst body = $json.data || '';\nconst sizeBytes = Buffer.byteLength(body, 'utf8');\n\n// hard size cutoff: 1.5 MB\nconst MAX_SIZE = 1.5 * 1024 * 1024;\n\n// normalize\nconst text = body.slice(0, 5000).toLowerCase();\n\n// garbage checks\nconst looksLikeHtml =\n  text.includes('<!doctype html') ||\n  text.includes('<html') ||\n  text.includes('<head') ||\n  text.includes('<body');\n\nif (sizeBytes > MAX_SIZE || looksLikeHtml) {\n  return [{ status: 2 }];\n}\n\n// sitemap checks\nconst looksLikeSitemap =\n  text.includes('<?xml') &&\n  (text.includes('<sitemapindex') ||\n   text.includes('<urlset') ||\n   text.includes('<url><loc>'));\n\nif (looksLikeSitemap) {\n  return [{ status: 1 }];\n}\n\n// default: treat as garbage\nreturn [{ status: 2 }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -352,
+        96
+      ],
+      "id": "93f18c87-5d8a-4f82-8577-07b1e29c33b3",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "a5fcd2ca-4ca3-405b-8a9f-a5dd3342b9c2",
+              "leftValue": "={{ $json.status }}",
+              "rightValue": 1,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -144,
+        96
+      ],
+      "id": "0237a7cf-87a9-4d00-8b86-28b74ee65989",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = $('HTTP Request').first().json.data ?? '';\nconst xml = String(raw);\n\n// Pull all <loc> links\nconst locs = [...xml.matchAll(/<loc>([^<]+)<\\/loc>/g)].map(m => m[1].trim());\n\n// Build the sitemap blob (links + separator + flattened XML)\nconst sitemap_blob = [\n  locs.join(', '),\n  '---',\n  xml.replace(/\\s+/g, ' ').trim()\n].join('\\n');\n\n// Prompt template (NORMAL newlines for now)\nconst prompt =\n  \"You are a technical research analyst processing XML sitemap data for a business website.\\n\" +\n  \"You are given the raw response body retrieved from requesting /sitemap.xml.\\n\" +\n  \"Use ONLY the provided sitemap data.\\n\" +\n  \"Do NOT use prior knowledge, assumptions, or external information.\\n\" +\n  \"If required information cannot be determined from the sitemap data, return null.\\n\\n\" +\n  \"Business Website data: \" + sitemap_blob + \"\\n\\n\" +\n  \"Instructions:\\n\" +\n  \"Analyze the provided sitemap response.\\n\" +\n  \"First, determine whether the response represents:\\n\" +\n  \"- a sitemap index (containing links to other sitemaps),\\n\" +\n  \"- a page-level sitemap (containing page URLs),\\n\" +\n  \"- or a non-sitemap response (HTML page, blocked response, or invalid content).\\n\\n\" +\n  \"Decision Rules:\\n\" +\n  \"1) If the response is a sitemap index:\\n\" +\n  \"   - Select ONE best page-level sitemap URL (prefer page-sitemap.xml or similar; avoid post/category/tag if possible).\\n\" +\n  \"   - Output MUST be this exact JSON shape (all keys required):\\n\" +\n  \"     {\\\"sitemap_index\\\":\\\"<page sitemap url>\\\",\\\"mode\\\":2,\\\"url_1\\\":null,\\\"url_2\\\":null,\\\"url_3\\\":null}\\n\\n\" +\n  \"2) If the response is already a page-level sitemap:\\n\" +\n  \"   - Select EXACTLY three URLs from the provided URLs only:\\n\" +\n  \"     url_1 = homepage (root URL / canonical homepage)\\n\" +\n  \"     url_2 = primary offer/service page\\n\" +\n  \"     url_3 = trust/differentiation page (about/contact/faq/how-it-works/suppliers)\\n\" +\n  \"   - Output MUST be this exact JSON shape (all keys required):\\n\" +\n  \"     {\\\"sitemap_index\\\":null,\\\"mode\\\":1,\\\"url_1\\\":\\\"<url>\\\",\\\"url_2\\\":\\\"<url>\\\",\\\"url_3\\\":\\\"<url>\\\"}\\n\\n\" +\n  \"3) If invalid/non-sitemap:\\n\" +\n  \"   - Output MUST be this exact JSON shape (all keys required):\\n\" +\n  \"     {\\\"sitemap_index\\\":null,\\\"mode\\\":0,\\\"url_1\\\":null,\\\"url_2\\\":null,\\\"url_3\\\":null}\\n\\n\" +\n  \"Output Requirements (STRICT):\\n\" +\n  \"- Output MUST be valid JSON.\\n\" +\n  \"- Output MUST be ONE JSON object ONLY.\\n\" +\n  \"- Do NOT include markdown, code fences, or extra text.\\n\" +\n  \"- Do NOT include arrays.\\n\" +\n  \"- Use null exactly as shown.\\n\" +\n  \"- All keys MUST be present exactly: sitemap_index, mode, url_1, url_2, url_3\\n\";\n\n// Convert to escaped style for JSON-safe embedding:\n// - escape backslashes\n// - escape double quotes\n// - turn real newlines into literal \\\\n\nconst escapedPrompt = prompt\n  .replace(/\\\\/g, '\\\\\\\\')\n  .replace(/\"/g, '\\\\\"')\n  .replace(/\\r?\\n/g, '\\\\\\\\n');\n\nreturn [\n  {\n    json: {\n      prompt: escapedPrompt\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "39880ea7-73c5-49d6-868d-9efe027551c1",
+      "name": "Code in JavaScript2"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7f591297-ebbd-4b37-be7f-15daf154bcd5",
+              "name": "project_id",
+              "value": "n8n-trw-492316",
+              "type": "string"
+            },
+            {
+              "id": "cd1d9181-a1d8-4b92-8552-60d119019008",
+              "name": "client_email",
+              "value": "n8n-storage@n8n-trw-492316.iam.gserviceaccount.com",
+              "type": "string"
+            },
+            {
+              "id": "c70f7502-f57c-4eef-ab21-4267ae341d4b",
+              "name": "location_id",
+              "value": "global",
+              "type": "string"
+            },
+            {
+              "id": "81f917be-f9e8-4d2b-9a88-2c9f6b61402d",
+              "name": "api_endpoint",
+              "value": "global-alplatform.googleapis.com",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        176,
+        0
+      ],
+      "id": "15326ee3-76b6-4c4a-aedf-6bddb59284e6",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "useJson": true,
+        "claimsJson": "={\n  \"iss\": \"{{ $json.client_email }}\",\n  \"scope\": \"https://www.googleapis.com/auth/cloud-platform\",\n  \"aud\": \"https://oauth2.googleapis.com/token\",\n  \"exp\": {{ Math.floor(Date.now() / 1000) + 3500 }},\n  \"iat\": {{ Math.floor(Date.now() / 1000) }}\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.jwt",
+      "typeVersion": 1,
+      "position": [
+        288,
+        0
+      ],
+      "id": "45724623-7040-4c16-be46-ca3343d3f6f6",
+      "name": "JWT"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://oauth2.googleapis.com/token",
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "grant_type",
+              "value": "\"urn:ietf:params:oauth:grant-type:jwt-bearer\""
+            },
+            {
+              "name": "assertion",
+              "value": "={{ $json.token }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        496,
+        0
+      ],
+      "id": "961b58be-94af-4086-9c84-c24c4bf15c5e",
+      "name": "HTTP Request1"
+    }
+  ],
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript2": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "JWT",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "JWT": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": {
+    "Get row(s) in sheet": [
+      {
+        "json": {
+          "row_number": 2,
+          "displayName": "UK Smile",
+          "id": "ChIJDf0-FLQadkgRAuKmDq3qZ8k",
+          "nationalPhoneNumber": "020 7788 8495",
+          "internationalPhoneNumber": "′ +44 20 7788 8495",
+          "rating": 4.9,
+          "websiteUri": "http://www.uksmile.com/",
+          "text": "",
+          "person searched": "yes",
+          "hunter searched": "",
+          "format adress": "81 Buckingham Gate, London SW1E 6PE, UK",
+          "make senario": "",
+          "done research": false
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ],
+    "Code in JavaScript": [
+      {
+        "json": {
+          "row_number": 2,
+          "website_clean": "https://uksmile.com/",
+          "website_domain": "uksmile.com"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ],
+    "HTTP Request": [
+      {
+        "json": {
+          "data": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n<url>\n\t<loc>https://uksmile.com/</loc>\n\t<lastmod>2026-04-04T00:00:11+00:00</lastmod>\n\t<priority>1.00</priority>\n</url>\n<url>\n\t<loc>https://uksmile.com/pages/about</loc>\n\t<lastmod>2026-04-04T00:00:11+00:00</lastmod>\n\t<priority>0.80</priority>\n</url>\n<url>\n\t<loc>https://uksmile.com/pages/contact</loc>\n\t<lastmod>2026-04-04T00:00:11+00:00</lastmod>\n\t<priority>0.80</priority>\n</url>\n<url>\n\t<loc>https://uksmile.com/pages/deliveries</loc>\n\t<lastmod>2026-04-04T00:00:11+00:00</lastmod>\n\t<priority>0.80</priority>\n</url>\n<url>\n\t<loc>https://uksmile.com/pages/privacy-policy</loc>\n\t<lastmod>2026-04-04T00:00:11+00:00</lastmod>\n\t<priority>0.80</priority>\n</url>\n<url>\n\t<loc>https://uksmile.com/pages/returns</loc>\n\t<lastmod>2026-04-04T00:00:11+00:00</lastmod>\n\t<priority>0.80</priority>\n</url>\n<url>\n\t<loc>https://uksmile.com/pages/terms-and-conditions</loc>\n\t<lastmod>2026-04-04T00:00:11+00:00</lastmod>\n\t<priority>0.80</priority>\n</url>\n<url>\n\t<loc>https://uksmile.com/blog</loc>\n\t<lastmod>2026-04-04T00:00:11+00:00</lastmod>\n\t<priority>0.80</priority>\n</url>\n<url>\n\t<loc>https://uksmile.com/pages/invisalign</loc>\n\t<lastmod>2026-04-04T00:00:11+00:00</lastmod>\n\t<priority>0.80</priority>\n</url>\n<url>\n\t<loc>https://uksmile.com/pages/incognito-braces</loc>\n\t<lastmod>2026-04-04T00:00:11+00:00</lastmod>\n\t<priority>0.80</priority>\n</url>\n<url>\n\t<loc>https://uksmile.com/pages/damon-clear-braces</loc>\n\t<lastmod>2026-04-04T00:00:11+00:00</lastmod>\n\t<priority>0.80</priority>\n</url>\n<url>\n\t<loc>https://uksmile.com/pages/orthodontics</loc>\n\t<lastmod>2026-04-04T00:00:11+00:00</lastmod>\n\t<priority>0.80</priority>\n</url>\n<url>\n\t<loc>https://uksmile.com/pages/dental-implants</loc>\n\t<lastmod>2026-04-04T00:00:11+00:00</lastmod>\n\t<priority>0.80</priority>\n</url>\n<url>\n\t<loc>https://uksmile.com/pages/emergency-dentist</loc>\n\t<lastmod>2026-04-04T00:00:11+00:00</lastmod>\n\t<priority>0.80</priority>\n</url>\n<url>\n\t<loc>https://uksmile.com/pages/general-dentistry</loc>\n\t<lastmod>2026-04-04T00:00:11+00:00</lastmod>\n\t<priority>0.80</priority>\n</url>\n<url>\n\t<loc>https://uksmile.com/pages/crowns</loc>\n\t<lastmod>2026-04-04T00:00:11+00:00</lastmod>\n\t<priority>0.80</priority>\n</url>\n<url>\n\t<loc>https://uksmile.com/pages/root-canal-treatment</loc>\n\t<lastmod>2026-04-04T00:00:11+00:00</lastmod>\n\t<priority>0.80</priority>\n</url>\n<url>\n\t<loc>https://uksmile.com/pages/dental-hygiene</loc>\n\t<lastmod>2026-04-04T00:00:11+00:00</lastmod>\n\t<priority>0.80</priority>\n</url>\n<url>\n\t<loc>https://uksmile.com/pages/bridges</loc>\n\t<lastmod>2026-04-04T00:00:11+00:00</lastmod>\n\t<priority>0.80</priority>\n</url>\n<url>\n\t<loc>https://uksmile.com/pages/migraine-tmj-treatment</loc>\n\t<lastmod>2026-04-04T00:00:11+00:00</lastmod>\n\t<priority>0.80</priority>\n</url>\n<url>\n\t<loc>https://uksmile.com/pages/somnowell-anti-snoring</loc>\n\t<lastmod>2026-04-04T00:00:11+00:00</lastmod>\n\t<priority>0.80</priority>\n</url>\n<url>\n\t<loc>https://uksmile.com/pages/cosmetic-dentistry</loc>\n\t<lastmod>2026-04-04T00:00:11+00:00</lastmod>\n\t<priority>0.80</priority>\n</url>\n<url>\n\t<loc>https://uksmile.com/pages/veneers</loc>\n\t<lastmod>2026-04-04T00:00:11+00:00</lastmod>\n\t<priority>0.80</priority>\n</url>\n<url>\n\t<loc>https://uksmile.com/pages/teeth-whitening</loc>\n\t<lastmod>2026-04-04T00:00:11+00:00</lastmod>\n\t<priority>0.80</priority>\n</url>\n<url>\n\t<loc>https://uksmile.com/pages/cerec-1-day-restoration</loc>\n\t<lastmod>2026-04-04T00:00:11+00:00</lastmod>\n\t<priority>0.80</priority>\n</url>\n<url>\n\t<loc>https://uksmile.com/pages/white-fillings</loc>\n\t<lastmod>2026-04-04T00:00:11+00:00</lastmod>\n\t<priority>0.80</priority>\n</url>\n<url>\n\t<loc>https://uksmile.com/pages/tooth-coloured-fillings</loc>\n\t<lastmod>2026-04-04T00:00:11+00:00</lastmod>\n\t<priority>0.80</priority>\n</url>\n<url>\n\t<loc>https://uksmile.com/pages/facial-aesthetics</loc>\n\t<lastmod>2026-04-04T00:00:11+00:00</lastmod>\n\t<priority>0.80</priority>\n</url>\n<url>\n\t<loc>https://uksmile.com/pages/chemical-peels</loc>\n\t<lastmod>2026-04-04T00:00:11+00:00</lastmod>\n\t<priority>0.80</priority>\n</url>\n<url>\n\t<loc>https://uksmile.com/pages/zo-stimulating-peel</loc>\n\t<lastmod>2026-04-04T00:00:11+00:00</lastmod>\n\t<priority>0.80</priority>\n</url>\n<url>\n\t<loc>https://uksmile.com/pages/profhilo</loc>\n\t<lastmod>2026-04-04T00:00:11+00:00</lastmod>\n\t<priority>0.80</priority>\n</url>\n<url>\n\t<loc>https://uksmile.com/pages/skinboosters</loc>\n\t<lastmod>2026-04-04T00:00:11+00:00</lastmod>\n\t<priority>0.80</priority>\n</url>\n<url>\n\t<loc>https://uksmile.com/pages/aqualyx</loc>\n\t<lastmod>2026-04-04T00:00:11+00:00</lastmod>\n\t<priority>0.80</priority>\n</url>\n<url>\n\t<loc>https://uksmile.com/pages/fees</loc>\n\t<lastmod>2026-04-04T00:00:11+00:00</lastmod>\n\t<priority>0.80</priority>\n</url>\n<url>\n\t<loc>https://uksmile.com/pages/dental-finance</loc>\n\t<lastmod>2026-04-04T00:00:11+00:00</lastmod>\n\t<priority>0.80</priority>\n</url>\n<url>\n\t<loc>https://uksmile.com/pages/smile-gallery</loc>\n\t<lastmod>2026-04-04T00:00:11+00:00</lastmod>\n\t<priority>0.80</priority>\n</url>\n<url>\n\t<loc>https://uksmile.com/pages/why-choose-us</loc>\n\t<lastmod>2026-04-04T00:00:11+00:00</lastmod>\n\t<priority>0.80</priority>\n</url>\n<url>\n\t<loc>https://uksmile.com/pages/our-team</loc>\n\t<lastmod>2026-04-04T00:00:11+00:00</lastmod>\n\t<priority>0.80</priority>\n</url>\n<url>\n\t<loc>https://uksmile.com/pages/our-technology</loc>\n\t<lastmod>2026-04-04T00:00:11+00:00</lastmod>\n\t<priority>0.80</priority>\n</url>\n<url>\n\t<loc>https://uksmile.com/pages/referrals</loc>\n\t<lastmod>2026-04-04T00:00:11+00:00</lastmod>\n\t<priority>0.80</priority>\n</url>\n<url>\n\t<loc>https://uksmile.com/pages/smile-assessment</loc>\n\t<lastmod>2026-04-04T00:00:11+00:00</lastmod>\n\t<priority>0.80</priority>\n</url>\n<url>\n\t<loc>https://uksmile.com/pages/53</loc>\n\t<lastmod>2026-04-04T00:00:11+00:00</lastmod>\n\t<priority>0.80</priority>\n</url>\n<url>\n\t<loc>https://uksmile.com/pages/covid-19-pcr</loc>\n\t<lastmod>2026-04-04T00:00:11+00:00</lastmod>\n\t<priority>0.80</priority>\n</url>\n<url>\n\t<loc>https://uksmile.com/pages/covid-19-more-information</loc>\n\t<lastmod>2026-04-04T00:00:11+00:00</lastmod>\n\t<priority>0.80</priority>\n</url>\n<url>\n\t<loc>https://uksmile.com/pages/periodontics-gum-disease-treatment</loc>\n\t<lastmod>2026-04-04T00:00:11+00:00</lastmod>\n\t<priority>0.80</priority>\n</url>\n<url>\n\t<loc>https://uksmile.com/pages/periodontics</loc>\n\t<lastmod>2026-04-04T00:00:11+00:00</lastmod>\n\t<priority>0.80</priority>\n</url>\n<url>\n\t<loc>https://uksmile.com/pages/test</loc>\n\t<lastmod>2026-04-04T00:00:11+00:00</lastmod>\n\t<priority>0.80</priority>\n</url>\n<url>\n\t<loc>https://uksmile.com/pages/emergency-dentist-offer</loc>\n\t<lastmod>2026-04-04T00:00:11+00:00</lastmod>\n\t<priority>0.80</priority>\n</url>\n<url>\n\t<loc>https://uksmile.com/products/featured</loc>\n\t<lastmod>2026-04-04T00:00:11+00:00</lastmod>\n\t<priority>0.80</priority>\n</url>\n<url>\n\t<loc>https://uksmile.com/blog/dr-domniki-chatzapoulou</loc>\n\t<lastmod>2026-04-04T00:00:11+00:00</lastmod>\n\t<priority>0.80</priority>\n</url>\n<url>\n\t<loc>https://uksmile.com/blog/dr-athyr-al-killidar</loc>\n\t<lastmod>2026-04-04T00:00:11+00:00</lastmod>\n\t<priority>0.80</priority>\n</url>\n<url>\n\t<loc>https://uksmile.com/blog/dr-amir-vahdat</loc>\n\t<lastmod>2026-04-04T00:00:11+00:00</lastmod>\n\t<priority>0.80</priority>\n</url>\n</urlset>\n"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ],
+    "Edit Fields": [
+      {
+        "json": {
+          "project_id": "n8n-trw-492316",
+          "client_email": "n8n-storage@n8n-trw-492316.iam.gserviceaccount.com",
+          "location_id": "global",
+          "api_endpoint": "global-alplatform.googleapis.com"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ],
+    "Code in JavaScript2": [
+      {
+        "json": {
+          "prompt": "You are a technical research analyst processing XML sitemap data for a business website.\\\\nYou are given the raw response body retrieved from requesting /sitemap.xml.\\\\nUse ONLY the provided sitemap data.\\\\nDo NOT use prior knowledge, assumptions, or external information.\\\\nIf required information cannot be determined from the sitemap data, return null.\\\\n\\\\nBusiness Website data: https://uksmile.com/, https://uksmile.com/pages/about, https://uksmile.com/pages/contact, https://uksmile.com/pages/deliveries, https://uksmile.com/pages/privacy-policy, https://uksmile.com/pages/returns, https://uksmile.com/pages/terms-and-conditions, https://uksmile.com/blog, https://uksmile.com/pages/invisalign, https://uksmile.com/pages/incognito-braces, https://uksmile.com/pages/damon-clear-braces, https://uksmile.com/pages/orthodontics, https://uksmile.com/pages/dental-implants, https://uksmile.com/pages/emergency-dentist, https://uksmile.com/pages/general-dentistry, https://uksmile.com/pages/crowns, https://uksmile.com/pages/root-canal-treatment, https://uksmile.com/pages/dental-hygiene, https://uksmile.com/pages/bridges, https://uksmile.com/pages/migraine-tmj-treatment, https://uksmile.com/pages/somnowell-anti-snoring, https://uksmile.com/pages/cosmetic-dentistry, https://uksmile.com/pages/veneers, https://uksmile.com/pages/teeth-whitening, https://uksmile.com/pages/cerec-1-day-restoration, https://uksmile.com/pages/white-fillings, https://uksmile.com/pages/tooth-coloured-fillings, https://uksmile.com/pages/facial-aesthetics, https://uksmile.com/pages/chemical-peels, https://uksmile.com/pages/zo-stimulating-peel, https://uksmile.com/pages/profhilo, https://uksmile.com/pages/skinboosters, https://uksmile.com/pages/aqualyx, https://uksmile.com/pages/fees, https://uksmile.com/pages/dental-finance, https://uksmile.com/pages/smile-gallery, https://uksmile.com/pages/why-choose-us, https://uksmile.com/pages/our-team, https://uksmile.com/pages/our-technology, https://uksmile.com/pages/referrals, https://uksmile.com/pages/smile-assessment, https://uksmile.com/pages/53, https://uksmile.com/pages/covid-19-pcr, https://uksmile.com/pages/covid-19-more-information, https://uksmile.com/pages/periodontics-gum-disease-treatment, https://uksmile.com/pages/periodontics, https://uksmile.com/pages/test, https://uksmile.com/pages/emergency-dentist-offer, https://uksmile.com/products/featured, https://uksmile.com/blog/dr-domniki-chatzapoulou, https://uksmile.com/blog/dr-athyr-al-killidar, https://uksmile.com/blog/dr-amir-vahdat\\\\n---\\\\n<?xml version=\\\"1.0\\\" encoding=\\\"UTF-8\\\"?> <urlset xmlns=\\\"http://www.sitemaps.org/schemas/sitemap/0.9\\\"> <url> <loc>https://uksmile.com/</loc> <lastmod>2026-04-04T00:00:11+00:00</lastmod> <priority>1.00</priority> </url> <url> <loc>https://uksmile.com/pages/about</loc> <lastmod>2026-04-04T00:00:11+00:00</lastmod> <priority>0.80</priority> </url> <url> <loc>https://uksmile.com/pages/contact</loc> <lastmod>2026-04-04T00:00:11+00:00</lastmod> <priority>0.80</priority> </url> <url> <loc>https://uksmile.com/pages/deliveries</loc> <lastmod>2026-04-04T00:00:11+00:00</lastmod> <priority>0.80</priority> </url> <url> <loc>https://uksmile.com/pages/privacy-policy</loc> <lastmod>2026-04-04T00:00:11+00:00</lastmod> <priority>0.80</priority> </url> <url> <loc>https://uksmile.com/pages/returns</loc> <lastmod>2026-04-04T00:00:11+00:00</lastmod> <priority>0.80</priority> </url> <url> <loc>https://uksmile.com/pages/terms-and-conditions</loc> <lastmod>2026-04-04T00:00:11+00:00</lastmod> <priority>0.80</priority> </url> <url> <loc>https://uksmile.com/blog</loc> <lastmod>2026-04-04T00:00:11+00:00</lastmod> <priority>0.80</priority> </url> <url> <loc>https://uksmile.com/pages/invisalign</loc> <lastmod>2026-04-04T00:00:11+00:00</lastmod> <priority>0.80</priority> </url> <url> <loc>https://uksmile.com/pages/incognito-braces</loc> <lastmod>2026-04-04T00:00:11+00:00</lastmod> <priority>0.80</priority> </url> <url> <loc>https://uksmile.com/pages/damon-clear-braces</loc> <lastmod>2026-04-04T00:00:11+00:00</lastmod> <priority>0.80</priority> </url> <url> <loc>https://uksmile.com/pages/orthodontics</loc> <lastmod>2026-04-04T00:00:11+00:00</lastmod> <priority>0.80</priority> </url> <url> <loc>https://uksmile.com/pages/dental-implants</loc> <lastmod>2026-04-04T00:00:11+00:00</lastmod> <priority>0.80</priority> </url> <url> <loc>https://uksmile.com/pages/emergency-dentist</loc> <lastmod>2026-04-04T00:00:11+00:00</lastmod> <priority>0.80</priority> </url> <url> <loc>https://uksmile.com/pages/general-dentistry</loc> <lastmod>2026-04-04T00:00:11+00:00</lastmod> <priority>0.80</priority> </url> <url> <loc>https://uksmile.com/pages/crowns</loc> <lastmod>2026-04-04T00:00:11+00:00</lastmod> <priority>0.80</priority> </url> <url> <loc>https://uksmile.com/pages/root-canal-treatment</loc> <lastmod>2026-04-04T00:00:11+00:00</lastmod> <priority>0.80</priority> </url> <url> <loc>https://uksmile.com/pages/dental-hygiene</loc> <lastmod>2026-04-04T00:00:11+00:00</lastmod> <priority>0.80</priority> </url> <url> <loc>https://uksmile.com/pages/bridges</loc> <lastmod>2026-04-04T00:00:11+00:00</lastmod> <priority>0.80</priority> </url> <url> <loc>https://uksmile.com/pages/migraine-tmj-treatment</loc> <lastmod>2026-04-04T00:00:11+00:00</lastmod> <priority>0.80</priority> </url> <url> <loc>https://uksmile.com/pages/somnowell-anti-snoring</loc> <lastmod>2026-04-04T00:00:11+00:00</lastmod> <priority>0.80</priority> </url> <url> <loc>https://uksmile.com/pages/cosmetic-dentistry</loc> <lastmod>2026-04-04T00:00:11+00:00</lastmod> <priority>0.80</priority> </url> <url> <loc>https://uksmile.com/pages/veneers</loc> <lastmod>2026-04-04T00:00:11+00:00</lastmod> <priority>0.80</priority> </url> <url> <loc>https://uksmile.com/pages/teeth-whitening</loc> <lastmod>2026-04-04T00:00:11+00:00</lastmod> <priority>0.80</priority> </url> <url> <loc>https://uksmile.com/pages/cerec-1-day-restoration</loc> <lastmod>2026-04-04T00:00:11+00:00</lastmod> <priority>0.80</priority> </url> <url> <loc>https://uksmile.com/pages/white-fillings</loc> <lastmod>2026-04-04T00:00:11+00:00</lastmod> <priority>0.80</priority> </url> <url> <loc>https://uksmile.com/pages/tooth-coloured-fillings</loc> <lastmod>2026-04-04T00:00:11+00:00</lastmod> <priority>0.80</priority> </url> <url> <loc>https://uksmile.com/pages/facial-aesthetics</loc> <lastmod>2026-04-04T00:00:11+00:00</lastmod> <priority>0.80</priority> </url> <url> <loc>https://uksmile.com/pages/chemical-peels</loc> <lastmod>2026-04-04T00:00:11+00:00</lastmod> <priority>0.80</priority> </url> <url> <loc>https://uksmile.com/pages/zo-stimulating-peel</loc> <lastmod>2026-04-04T00:00:11+00:00</lastmod> <priority>0.80</priority> </url> <url> <loc>https://uksmile.com/pages/profhilo</loc> <lastmod>2026-04-04T00:00:11+00:00</lastmod> <priority>0.80</priority> </url> <url> <loc>https://uksmile.com/pages/skinboosters</loc> <lastmod>2026-04-04T00:00:11+00:00</lastmod> <priority>0.80</priority> </url> <url> <loc>https://uksmile.com/pages/aqualyx</loc> <lastmod>2026-04-04T00:00:11+00:00</lastmod> <priority>0.80</priority> </url> <url> <loc>https://uksmile.com/pages/fees</loc> <lastmod>2026-04-04T00:00:11+00:00</lastmod> <priority>0.80</priority> </url> <url> <loc>https://uksmile.com/pages/dental-finance</loc> <lastmod>2026-04-04T00:00:11+00:00</lastmod> <priority>0.80</priority> </url> <url> <loc>https://uksmile.com/pages/smile-gallery</loc> <lastmod>2026-04-04T00:00:11+00:00</lastmod> <priority>0.80</priority> </url> <url> <loc>https://uksmile.com/pages/why-choose-us</loc> <lastmod>2026-04-04T00:00:11+00:00</lastmod> <priority>0.80</priority> </url> <url> <loc>https://uksmile.com/pages/our-team</loc> <lastmod>2026-04-04T00:00:11+00:00</lastmod> <priority>0.80</priority> </url> <url> <loc>https://uksmile.com/pages/our-technology</loc> <lastmod>2026-04-04T00:00:11+00:00</lastmod> <priority>0.80</priority> </url> <url> <loc>https://uksmile.com/pages/referrals</loc> <lastmod>2026-04-04T00:00:11+00:00</lastmod> <priority>0.80</priority> </url> <url> <loc>https://uksmile.com/pages/smile-assessment</loc> <lastmod>2026-04-04T00:00:11+00:00</lastmod> <priority>0.80</priority> </url> <url> <loc>https://uksmile.com/pages/53</loc> <lastmod>2026-04-04T00:00:11+00:00</lastmod> <priority>0.80</priority> </url> <url> <loc>https://uksmile.com/pages/covid-19-pcr</loc> <lastmod>2026-04-04T00:00:11+00:00</lastmod> <priority>0.80</priority> </url> <url> <loc>https://uksmile.com/pages/covid-19-more-information</loc> <lastmod>2026-04-04T00:00:11+00:00</lastmod> <priority>0.80</priority> </url> <url> <loc>https://uksmile.com/pages/periodontics-gum-disease-treatment</loc> <lastmod>2026-04-04T00:00:11+00:00</lastmod> <priority>0.80</priority> </url> <url> <loc>https://uksmile.com/pages/periodontics</loc> <lastmod>2026-04-04T00:00:11+00:00</lastmod> <priority>0.80</priority> </url> <url> <loc>https://uksmile.com/pages/test</loc> <lastmod>2026-04-04T00:00:11+00:00</lastmod> <priority>0.80</priority> </url> <url> <loc>https://uksmile.com/pages/emergency-dentist-offer</loc> <lastmod>2026-04-04T00:00:11+00:00</lastmod> <priority>0.80</priority> </url> <url> <loc>https://uksmile.com/products/featured</loc> <lastmod>2026-04-04T00:00:11+00:00</lastmod> <priority>0.80</priority> </url> <url> <loc>https://uksmile.com/blog/dr-domniki-chatzapoulou</loc> <lastmod>2026-04-04T00:00:11+00:00</lastmod> <priority>0.80</priority> </url> <url> <loc>https://uksmile.com/blog/dr-athyr-al-killidar</loc> <lastmod>2026-04-04T00:00:11+00:00</lastmod> <priority>0.80</priority> </url> <url> <loc>https://uksmile.com/blog/dr-amir-vahdat</loc> <lastmod>2026-04-04T00:00:11+00:00</lastmod> <priority>0.80</priority> </url> </urlset>\\\\n\\\\nInstructions:\\\\nAnalyze the provided sitemap response.\\\\nFirst, determine whether the response represents:\\\\n- a sitemap index (containing links to other sitemaps),\\\\n- a page-level sitemap (containing page URLs),\\\\n- or a non-sitemap response (HTML page, blocked response, or invalid content).\\\\n\\\\nDecision Rules:\\\\n1) If the response is a sitemap index:\\\\n   - Select ONE best page-level sitemap URL (prefer page-sitemap.xml or similar; avoid post/category/tag if possible).\\\\n   - Output MUST be this exact JSON shape (all keys required):\\\\n     {\\\"sitemap_index\\\":\\\"<page sitemap url>\\\",\\\"mode\\\":2,\\\"url_1\\\":null,\\\"url_2\\\":null,\\\"url_3\\\":null}\\\\n\\\\n2) If the response is already a page-level sitemap:\\\\n   - Select EXACTLY three URLs from the provided URLs only:\\\\n     url_1 = homepage (root URL / canonical homepage)\\\\n     url_2 = primary offer/service page\\\\n     url_3 = trust/differentiation page (about/contact/faq/how-it-works/suppliers)\\\\n   - Output MUST be this exact JSON shape (all keys required):\\\\n     {\\\"sitemap_index\\\":null,\\\"mode\\\":1,\\\"url_1\\\":\\\"<url>\\\",\\\"url_2\\\":\\\"<url>\\\",\\\"url_3\\\":\\\"<url>\\\"}\\\\n\\\\n3) If invalid/non-sitemap:\\\\n   - Output MUST be this exact JSON shape (all keys required):\\\\n     {\\\"sitemap_index\\\":null,\\\"mode\\\":0,\\\"url_1\\\":null,\\\"url_2\\\":null,\\\"url_3\\\":null}\\\\n\\\\nOutput Requirements (STRICT):\\\\n- Output MUST be valid JSON.\\\\n- Output MUST be ONE JSON object ONLY.\\\\n- Do NOT include markdown, code fences, or extra text.\\\\n- Do NOT include arrays.\\\\n- Use null exactly as shown.\\\\n- All keys MUST be present exactly: sitemap_index, mode, url_1, url_2, url_3\\\\n"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "versionId": "39228dfd-161a-4795-8195-ea78f59c2a5d",
+  "activeVersionId": null,
+  "triggerCount": 0,
+  "shared": [
+    {
+      "updatedAt": "2026-04-22T17:31:57.934Z",
+      "createdAt": "2026-04-22T17:31:57.934Z",
+      "role": "workflow:owner",
+      "workflowId": "2f8lFsKnDhFK3okG",
+      "projectId": "5GBCFFrIrIkPnjdc"
+    }
+  ],
+  "activeVersion": null,
+  "tags": []
+}
