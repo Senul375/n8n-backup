@@ -1,0 +1,77 @@
+{
+  "updatedAt": "2026-05-26T14:42:14.749Z",
+  "createdAt": "2026-05-26T13:40:05.709Z",
+  "id": "i7jFFn3eSn2ecqXu",
+  "name": "Vapi OutBound Agent",
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "path": "9e62e6cc-5048-4932-ad9a-873911fb754e",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "bd9a1348-59ff-48bb-a7c0-5cfb511691b1",
+      "name": "Webhook",
+      "webhookId": "9e62e6cc-5048-4932-ad9a-873911fb754e"
+    }
+  ],
+  "connections": {},
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": {},
+  "versionId": "52cf3b11-9833-4afc-97a0-77e8758abb75",
+  "activeVersionId": "52cf3b11-9833-4afc-97a0-77e8758abb75",
+  "triggerCount": 1,
+  "shared": [
+    {
+      "updatedAt": "2026-05-26T13:40:05.714Z",
+      "createdAt": "2026-05-26T13:40:05.714Z",
+      "role": "workflow:owner",
+      "workflowId": "i7jFFn3eSn2ecqXu",
+      "projectId": "5GBCFFrIrIkPnjdc"
+    }
+  ],
+  "activeVersion": {
+    "updatedAt": "2026-05-26T14:42:05.000Z",
+    "createdAt": "2026-05-26T13:52:23.071Z",
+    "versionId": "52cf3b11-9833-4afc-97a0-77e8758abb75",
+    "workflowId": "i7jFFn3eSn2ecqXu",
+    "nodes": [
+      {
+        "parameters": {
+          "path": "9e62e6cc-5048-4932-ad9a-873911fb754e",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2.1,
+        "position": [
+          0,
+          0
+        ],
+        "id": "bd9a1348-59ff-48bb-a7c0-5cfb511691b1",
+        "name": "Webhook",
+        "webhookId": "9e62e6cc-5048-4932-ad9a-873911fb754e"
+      }
+    ],
+    "connections": {},
+    "authors": "senul adeeth",
+    "name": "Version 52cf3b11",
+    "description": "",
+    "autosaved": true
+  },
+  "tags": []
+}
