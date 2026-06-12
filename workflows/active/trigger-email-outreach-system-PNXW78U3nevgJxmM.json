@@ -1,0 +1,847 @@
+{
+  "updatedAt": "2026-06-02T23:52:34.931Z",
+  "createdAt": "2026-05-27T23:44:13.677Z",
+  "id": "PNXW78U3nevgJxmM",
+  "name": "Trigger Email Outreach System",
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -32,
+        16
+      ],
+      "id": "64275946-ef3f-4676-a78f-1fb12c88f9a2",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1mRUJc0K4_XlL3JkxZ1USEPzRNXShym1CgECMS6GCtGI",
+          "mode": "list",
+          "cachedResultName": "Recrument agency - no agent",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1mRUJc0K4_XlL3JkxZ1USEPzRNXShym1CgECMS6GCtGI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1008840576,
+          "mode": "list",
+          "cachedResultName": "Sheet6",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1mRUJc0K4_XlL3JkxZ1USEPzRNXShym1CgECMS6GCtGI/edit#gid=1008840576"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "pitch sent"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        176,
+        16
+      ],
+      "id": "476faad3-8218-477c-a646-a53be53a536d",
+      "name": "Get the leads form the Google sheet",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "XurJbcuuPZn14SYW",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        672,
+        0
+      ],
+      "id": "4ab1ed01-8841-48d7-9fcb-db3a4abb0ef8",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "14558182-c39a-47e0-8ebb-ce15fce1bc15",
+              "leftValue": "={{ $('Get the leads form the Google sheet').item.json.name }}",
+              "rightValue": "yes",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        928,
+        16
+      ],
+      "id": "f405f693-f05a-40ee-9df1-ba4bc9a4477e",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "amount": "={{ $json.number }}",
+        "unit": "minutes"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1328,
+        0
+      ],
+      "id": "e211a53b-69e4-400d-8a93-7a32f1532cfd",
+      "name": "Wait",
+      "webhookId": "fe385585-153c-4a33-b04b-b25198935edd"
+    },
+    {
+      "parameters": {
+        "url": "https://n8n.35.225.222.54.sslip.io/webhook/9d410687-8c9f-4702-8135-594dd4bab3d4",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1504,
+        0
+      ],
+      "id": "05af26e5-e9c8-4391-85f6-494eebf4d87b",
+      "name": "HTTP Request",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.status }}",
+                    "rightValue": 200,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    },
+                    "id": "ab999bd3-ab69-4aa7-9e9e-fe91e41cdb9b"
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        1712,
+        0
+      ],
+      "id": "304b40c7-3bf0-46ea-a538-c189aeba48ec",
+      "name": "Switch",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const min = 3;\nconst max = 7;\n\nconst randomNumber = Math.floor(Math.random() * (max - min + 1)) + min;\n\nreturn [\n  {\n    json: {\n      number: randomNumber\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1152,
+        0
+      ],
+      "id": "30a0c7c5-d2d6-451e-945f-37afcc30c5b1",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "sendTo": "senuladeeth9@gmail.com",
+        "subject": "Daily Email Outreach System is done",
+        "message": "The cold email outreach has sent for today ",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        992,
+        -224
+      ],
+      "id": "2a9ce328-925c-40cf-b5f4-2ca627de9404",
+      "name": "Send a message",
+      "webhookId": "5cce4378-f02e-4668-af29-74e8191162a8",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "ClO23cw4LdmPiacG",
+          "name": "Business email"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "2e28af1b-8541-4bdc-a6cf-272f750873bc",
+              "leftValue": "={{ $json['pitch email'].length }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        384,
+        16
+      ],
+      "id": "d71f6c5b-635e-44f5-8269-a3adef0dcfae",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "sendTo": "senuladeeth9@gmail.com",
+        "subject": "you ran out of emails",
+        "message": "create more emails",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        448,
+        272
+      ],
+      "id": "c29e4a06-1a40-418a-a248-57ba6db34649",
+      "name": "Send a message1",
+      "webhookId": "5cce4378-f02e-4668-af29-74e8191162a8",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "ClO23cw4LdmPiacG",
+          "name": "Business email"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -48,
+        -128
+      ],
+      "id": "df473f56-84c8-47de-9228-afda0c72da96",
+      "name": "Schedule Trigger"
+    }
+  ],
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get the leads form the Google sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get the leads form the Google sheet": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get the leads form the Google sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "staticData": {
+    "node:Schedule Trigger": {
+      "recurrenceRules": []
+    }
+  },
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "versionId": "3e6f8d39-9dbe-4af9-a03f-2533e454ab6f",
+  "activeVersionId": "3e6f8d39-9dbe-4af9-a03f-2533e454ab6f",
+  "triggerCount": 1,
+  "shared": [
+    {
+      "updatedAt": "2026-05-27T23:44:13.680Z",
+      "createdAt": "2026-05-27T23:44:13.680Z",
+      "role": "workflow:owner",
+      "workflowId": "PNXW78U3nevgJxmM",
+      "projectId": "5GBCFFrIrIkPnjdc"
+    }
+  ],
+  "activeVersion": {
+    "updatedAt": "2026-06-02T23:52:36.000Z",
+    "createdAt": "2026-06-02T23:52:34.933Z",
+    "versionId": "3e6f8d39-9dbe-4af9-a03f-2533e454ab6f",
+    "workflowId": "PNXW78U3nevgJxmM",
+    "nodes": [
+      {
+        "parameters": {},
+        "type": "n8n-nodes-base.manualTrigger",
+        "typeVersion": 1,
+        "position": [
+          -32,
+          16
+        ],
+        "id": "64275946-ef3f-4676-a78f-1fb12c88f9a2",
+        "name": "When clicking ‘Execute workflow’"
+      },
+      {
+        "parameters": {
+          "documentId": {
+            "__rl": true,
+            "value": "1mRUJc0K4_XlL3JkxZ1USEPzRNXShym1CgECMS6GCtGI",
+            "mode": "list",
+            "cachedResultName": "Recrument agency - no agent",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1mRUJc0K4_XlL3JkxZ1USEPzRNXShym1CgECMS6GCtGI/edit?usp=drivesdk"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": 1008840576,
+            "mode": "list",
+            "cachedResultName": "Sheet6",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1mRUJc0K4_XlL3JkxZ1USEPzRNXShym1CgECMS6GCtGI/edit#gid=1008840576"
+          },
+          "filtersUI": {
+            "values": [
+              {
+                "lookupColumn": "pitch sent"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.7,
+        "position": [
+          176,
+          16
+        ],
+        "id": "476faad3-8218-477c-a646-a53be53a536d",
+        "name": "Get the leads form the Google sheet",
+        "alwaysOutputData": true,
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "XurJbcuuPZn14SYW",
+            "name": "Google Sheets account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "options": {}
+        },
+        "type": "n8n-nodes-base.splitInBatches",
+        "typeVersion": 3,
+        "position": [
+          672,
+          0
+        ],
+        "id": "4ab1ed01-8841-48d7-9fcb-db3a4abb0ef8",
+        "name": "Loop Over Items"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 3
+            },
+            "conditions": [
+              {
+                "id": "14558182-c39a-47e0-8ebb-ce15fce1bc15",
+                "leftValue": "={{ $('Get the leads form the Google sheet').item.json.name }}",
+                "rightValue": "yes",
+                "operator": {
+                  "type": "string",
+                  "operation": "notEquals"
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.3,
+        "position": [
+          928,
+          16
+        ],
+        "id": "f405f693-f05a-40ee-9df1-ba4bc9a4477e",
+        "name": "If"
+      },
+      {
+        "parameters": {
+          "amount": "={{ $json.number }}",
+          "unit": "minutes"
+        },
+        "type": "n8n-nodes-base.wait",
+        "typeVersion": 1.1,
+        "position": [
+          1328,
+          0
+        ],
+        "id": "e211a53b-69e4-400d-8a93-7a32f1532cfd",
+        "name": "Wait",
+        "webhookId": "fe385585-153c-4a33-b04b-b25198935edd"
+      },
+      {
+        "parameters": {
+          "url": "https://n8n.35.225.222.54.sslip.io/webhook/9d410687-8c9f-4702-8135-594dd4bab3d4",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.4,
+        "position": [
+          1504,
+          0
+        ],
+        "id": "05af26e5-e9c8-4391-85f6-494eebf4d87b",
+        "name": "HTTP Request",
+        "alwaysOutputData": true
+      },
+      {
+        "parameters": {
+          "rules": {
+            "values": [
+              {
+                "conditions": {
+                  "options": {
+                    "caseSensitive": true,
+                    "leftValue": "",
+                    "typeValidation": "loose",
+                    "version": 3
+                  },
+                  "conditions": [
+                    {
+                      "leftValue": "={{ $json.status }}",
+                      "rightValue": 200,
+                      "operator": {
+                        "type": "number",
+                        "operation": "equals"
+                      },
+                      "id": "ab999bd3-ab69-4aa7-9e9e-fe91e41cdb9b"
+                    }
+                  ],
+                  "combinator": "and"
+                }
+              }
+            ]
+          },
+          "looseTypeValidation": true,
+          "options": {}
+        },
+        "type": "n8n-nodes-base.switch",
+        "typeVersion": 3.4,
+        "position": [
+          1712,
+          0
+        ],
+        "id": "304b40c7-3bf0-46ea-a538-c189aeba48ec",
+        "name": "Switch",
+        "alwaysOutputData": true
+      },
+      {
+        "parameters": {
+          "jsCode": "const min = 3;\nconst max = 7;\n\nconst randomNumber = Math.floor(Math.random() * (max - min + 1)) + min;\n\nreturn [\n  {\n    json: {\n      number: randomNumber\n    }\n  }\n];\n"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1152,
+          0
+        ],
+        "id": "30a0c7c5-d2d6-451e-945f-37afcc30c5b1",
+        "name": "Code in JavaScript"
+      },
+      {
+        "parameters": {
+          "sendTo": "senuladeeth9@gmail.com",
+          "subject": "Daily Email Outreach System is done",
+          "message": "The cold email outreach has sent for today ",
+          "options": {
+            "appendAttribution": false
+          }
+        },
+        "type": "n8n-nodes-base.gmail",
+        "typeVersion": 2.2,
+        "position": [
+          992,
+          -224
+        ],
+        "id": "2a9ce328-925c-40cf-b5f4-2ca627de9404",
+        "name": "Send a message",
+        "webhookId": "5cce4378-f02e-4668-af29-74e8191162a8",
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "ClO23cw4LdmPiacG",
+            "name": "Business email"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 3
+            },
+            "conditions": [
+              {
+                "id": "2e28af1b-8541-4bdc-a6cf-272f750873bc",
+                "leftValue": "={{ $json['pitch email'].length }}",
+                "rightValue": 0,
+                "operator": {
+                  "type": "number",
+                  "operation": "gt"
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.3,
+        "position": [
+          384,
+          16
+        ],
+        "id": "d71f6c5b-635e-44f5-8269-a3adef0dcfae",
+        "name": "If1"
+      },
+      {
+        "parameters": {
+          "sendTo": "senuladeeth9@gmail.com",
+          "subject": "you ran out of emails",
+          "message": "create more emails",
+          "options": {
+            "appendAttribution": false
+          }
+        },
+        "type": "n8n-nodes-base.gmail",
+        "typeVersion": 2.2,
+        "position": [
+          448,
+          272
+        ],
+        "id": "c29e4a06-1a40-418a-a248-57ba6db34649",
+        "name": "Send a message1",
+        "webhookId": "5cce4378-f02e-4668-af29-74e8191162a8",
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "ClO23cw4LdmPiacG",
+            "name": "Business email"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "rule": {
+            "interval": [
+              {
+                "triggerAtHour": 8
+              }
+            ]
+          }
+        },
+        "type": "n8n-nodes-base.scheduleTrigger",
+        "typeVersion": 1.3,
+        "position": [
+          -48,
+          -128
+        ],
+        "id": "df473f56-84c8-47de-9228-afda0c72da96",
+        "name": "Schedule Trigger"
+      }
+    ],
+    "connections": {
+      "When clicking ‘Execute workflow’": {
+        "main": [
+          [
+            {
+              "node": "Get the leads form the Google sheet",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get the leads form the Google sheet": {
+        "main": [
+          [
+            {
+              "node": "If1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Loop Over Items": {
+        "main": [
+          [],
+          [
+            {
+              "node": "If",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "If": {
+        "main": [
+          [
+            {
+              "node": "Code in JavaScript",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Wait": {
+        "main": [
+          [
+            {
+              "node": "HTTP Request",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "HTTP Request": {
+        "main": [
+          [
+            {
+              "node": "Switch",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Switch": {
+        "main": [
+          [
+            {
+              "node": "Loop Over Items",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Code in JavaScript": {
+        "main": [
+          [
+            {
+              "node": "Wait",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "If1": {
+        "main": [
+          [
+            {
+              "node": "Loop Over Items",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          []
+        ]
+      },
+      "Schedule Trigger": {
+        "main": [
+          [
+            {
+              "node": "Get the leads form the Google sheet",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "senul adeeth",
+    "name": "Version 3e6f8d39",
+    "description": "",
+    "autosaved": true
+  },
+  "tags": []
+}
