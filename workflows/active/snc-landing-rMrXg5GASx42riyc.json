@@ -1,0 +1,79 @@
+{
+  "updatedAt": "2026-05-31T07:03:52.154Z",
+  "createdAt": "2026-05-03T16:32:12.675Z",
+  "id": "rMrXg5GASx42riyc",
+  "name": "snc landing",
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "12f6af46-cac2-4c44-b769-84641713fc9f",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -144,
+        0
+      ],
+      "id": "2168f5b3-efd7-4f91-aeee-611fcf0d936b",
+      "name": "Webhook",
+      "webhookId": "12f6af46-cac2-4c44-b769-84641713fc9f"
+    }
+  ],
+  "connections": {},
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": {},
+  "versionId": "c503002e-4069-4d44-9399-c2f9e9196611",
+  "activeVersionId": "c503002e-4069-4d44-9399-c2f9e9196611",
+  "triggerCount": 1,
+  "shared": [
+    {
+      "updatedAt": "2026-05-03T16:32:12.678Z",
+      "createdAt": "2026-05-03T16:32:12.678Z",
+      "role": "workflow:owner",
+      "workflowId": "rMrXg5GASx42riyc",
+      "projectId": "5GBCFFrIrIkPnjdc"
+    }
+  ],
+  "activeVersion": {
+    "updatedAt": "2026-05-31T07:03:30.000Z",
+    "createdAt": "2026-05-31T07:03:28.246Z",
+    "versionId": "c503002e-4069-4d44-9399-c2f9e9196611",
+    "workflowId": "rMrXg5GASx42riyc",
+    "nodes": [
+      {
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "12f6af46-cac2-4c44-b769-84641713fc9f",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2.1,
+        "position": [
+          -144,
+          0
+        ],
+        "id": "2168f5b3-efd7-4f91-aeee-611fcf0d936b",
+        "name": "Webhook",
+        "webhookId": "12f6af46-cac2-4c44-b769-84641713fc9f"
+      }
+    ],
+    "connections": {},
+    "authors": "senul adeeth",
+    "name": "Version c503002e",
+    "description": "",
+    "autosaved": true
+  },
+  "tags": []
+}
