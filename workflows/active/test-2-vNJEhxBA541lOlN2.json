@@ -1,0 +1,4137 @@
+{
+  "updatedAt": "2026-06-06T14:48:38.675Z",
+  "createdAt": "2026-06-06T12:09:25.653Z",
+  "id": "vNJEhxBA541lOlN2",
+  "name": "test 2",
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "95965a6b-baf5-46c5-852e-a88a4be04d9f",
+              "name": "Google_Maps_API",
+              "value": "AIzaSyC6ksZOqDtte69YfY2eTM1b61Z4mhSKjRk",
+              "type": "string"
+            },
+            {
+              "id": "e0a9a743-f310-4eea-bfe4-55d5a25effd9",
+              "name": "query",
+              "value": "={{ $json.body.niche }}",
+              "type": "string"
+            },
+            {
+              "id": "1c7f4e33-3c43-4c3a-8fd8-b42d168c2fc7",
+              "name": "location",
+              "value": "={{ $json.body.location }}",
+              "type": "string"
+            },
+            {
+              "id": "b8da2aea-848e-4b55-912a-e60ff2e01cec",
+              "name": "radius",
+              "value": "1000",
+              "type": "string"
+            },
+            {
+              "id": "f8588993-203f-4fdd-a4d1-e1c32b3fd44b",
+              "name": "Spreadsheet_id",
+              "value": "1F_EQtucCajHSJZrUT_S32nJqdYWtMhw_kKm6XInuRVI",
+              "type": "string"
+            },
+            {
+              "id": "90c98d91-f6e0-4592-8024-0e5b3066d225",
+              "name": "sheet_name",
+              "value": "sheet 1",
+              "type": "string"
+            },
+            {
+              "id": "33ddb2c0-29b3-4800-a69a-3d9affd9f613",
+              "name": "Max_Item",
+              "value": 300,
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -2608,
+        160
+      ],
+      "id": "5356d18d-ea7c-4d0e-9d0c-1965c7165f0e",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "url": "https://maps.googleapis.com/maps/api/geocode/json",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "address",
+              "value": "={{ $json.location }}"
+            },
+            {
+              "name": "key",
+              "value": "=AIzaSyC6ksZOqDtte69YfY2eTM1b61Z4mhSKjRk"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -2480,
+        160
+      ],
+      "id": "a78521cb-2d2e-499b-bb08-5fa611be6e30",
+      "name": "Get cordinetes"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://places.googleapis.com/v1/places:searchText",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Goog-Api-Key",
+              "value": "={{ $('Edit Fields').item.json.Google_Maps_API }}"
+            },
+            {
+              "name": "X-Goog-FieldMask",
+              "value": "places.id,places.displayName.text,places.formattedAddress,places.priceLevel,places.nationalPhoneNumber,places.websiteUri,places.rating,places.internationalPhoneNumber,nextPageToken"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"textQuery\": \"{{ $('Edit Fields').item.json.query }} {{ $('Edit Fields').item.json.location }}\",\n  \"locationBias\": {\n    \"circle\": {\n      \"center\": {\n        \"latitude\": {{ $json.results[0].geometry.location.lat }},\n        \"longitude\": {{ $json.results[0].geometry.location.lng }}\n      },\n      \"radius\": {{ $('Edit Fields').item.json.radius }}\n    }\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -2336,
+        160
+      ],
+      "id": "6a0b253c-8e26-490e-bc93-4fd032d9a09c",
+      "name": "Get Places"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "places",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -2176,
+        160
+      ],
+      "id": "6db7062c-03de-45bd-9712-ccd5b28d3ce1",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1bjT1IsLvoF2Q0Fl-DW0obkpiBF1nW2QYrZJsdEgepEg",
+          "mode": "list",
+          "cachedResultName": "Untitled s",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1bjT1IsLvoF2Q0Fl-DW0obkpiBF1nW2QYrZJsdEgepEg/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1bjT1IsLvoF2Q0Fl-DW0obkpiBF1nW2QYrZJsdEgepEg/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "rating": "={{ $json.rating }}",
+            "company name": "={{ $json.displayName.text }}",
+            "place id ": "={{ $json.id }}",
+            "interantional phone ": "={{ $json.internationalPhoneNumber }}",
+            "national phone": "={{ $json.nationalPhoneNumber }}",
+            "website": "={{ $json.websiteUri }}",
+            "address": "={{ $json.formattedAddress }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "company name",
+              "displayName": "company name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "place id ",
+              "displayName": "place id ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "interantional phone ",
+              "displayName": "interantional phone ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "national phone",
+              "displayName": "national phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "website",
+              "displayName": "website",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "address",
+              "displayName": "address",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "rating",
+              "displayName": "rating",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -1312,
+        272
+      ],
+      "id": "e6d52bb3-2aec-49a0-ba74-e6676aa53bf1",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "XurJbcuuPZn14SYW",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1bjT1IsLvoF2Q0Fl-DW0obkpiBF1nW2QYrZJsdEgepEg",
+          "mode": "list",
+          "cachedResultName": "Untitled s",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1bjT1IsLvoF2Q0Fl-DW0obkpiBF1nW2QYrZJsdEgepEg/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1bjT1IsLvoF2Q0Fl-DW0obkpiBF1nW2QYrZJsdEgepEg/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "huntor done"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -3104,
+        560
+      ],
+      "id": "a9cb1bb4-6154-484c-95bb-a9bfd3bbb60a",
+      "name": "Get row(s) in sheet",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "XurJbcuuPZn14SYW",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "domain": "={{ $('Get row(s) in sheet').item.json.website }}",
+        "onlyEmails": false,
+        "limit": 5,
+        "filters": {
+          "seniority": [
+            "executive"
+          ],
+          "department": [
+            "executive",
+            "management"
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.hunter",
+      "typeVersion": 1,
+      "position": [
+        -2656,
+        912
+      ],
+      "id": "50c3fcf2-a6ba-4071-ba46-ae0594f02584",
+      "name": "Hunter",
+      "alwaysOutputData": true,
+      "retryOnFail": false,
+      "credentials": {
+        "hunterApi": {
+          "id": "yZGF0DkzLwp2b49M",
+          "name": "Hunter account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "name": "Replace Me",
+      "typeVersion": 1,
+      "position": [
+        192,
+        1440
+      ],
+      "id": "635f6e96-5152-4f35-a16b-9532ba36f28c"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "548ee1e9-db03-4fd4-a1c9-5627e0dd5ee0",
+              "name": "row_number",
+              "value": "={{ $json.row_number }}",
+              "type": "number"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -800,
+        544
+      ],
+      "id": "33a00259-272f-4ba9-8505-38cffd9df881",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1bjT1IsLvoF2Q0Fl-DW0obkpiBF1nW2QYrZJsdEgepEg",
+          "mode": "list",
+          "cachedResultName": "Untitled s",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1bjT1IsLvoF2Q0Fl-DW0obkpiBF1nW2QYrZJsdEgepEg/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1bjT1IsLvoF2Q0Fl-DW0obkpiBF1nW2QYrZJsdEgepEg/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "huntor done": "done",
+            "row_number": "={{ $('Get row(s) in sheet').item.json.row_number }}"
+          },
+          "matchingColumns": [
+            "row_number"
+          ],
+          "schema": [
+            {
+              "id": "company name",
+              "displayName": "company name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "place id ",
+              "displayName": "place id ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "interantional phone ",
+              "displayName": "interantional phone ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "national phone",
+              "displayName": "national phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "website",
+              "displayName": "website",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "address",
+              "displayName": "address",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "rating",
+              "displayName": "rating",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "huntor done",
+              "displayName": "huntor done",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -496,
+        544
+      ],
+      "id": "6fdd5c2f-6403-4166-a6d0-c05ba7b12dc1",
+      "name": "Update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "XurJbcuuPZn14SYW",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "value"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        -2256,
+        1152
+      ],
+      "id": "43c6acbe-9a5f-4122-8793-1783e1445c74",
+      "name": "Aggregate2"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "2d77fbb8-6e1b-4ea2-8852-8887ef2e8380",
+              "leftValue": "={{$json.emails.length }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -2400,
+        576
+      ],
+      "id": "9c0b8a99-859e-4a55-89f7-8c9e1edd49cf",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1bjT1IsLvoF2Q0Fl-DW0obkpiBF1nW2QYrZJsdEgepEg",
+          "mode": "list",
+          "cachedResultName": "Untitled s",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1bjT1IsLvoF2Q0Fl-DW0obkpiBF1nW2QYrZJsdEgepEg/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1bjT1IsLvoF2Q0Fl-DW0obkpiBF1nW2QYrZJsdEgepEg/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "row_number": "={{ $('Get row(s) in sheet').first().json.row_number }}",
+            "huntor done": "not found"
+          },
+          "matchingColumns": [
+            "row_number"
+          ],
+          "schema": [
+            {
+              "id": "company name",
+              "displayName": "company name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "place id ",
+              "displayName": "place id ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "interantional phone ",
+              "displayName": "interantional phone ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "national phone",
+              "displayName": "national phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "website",
+              "displayName": "website",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "address",
+              "displayName": "address",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "rating",
+              "displayName": "rating",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "huntor done",
+              "displayName": "huntor done",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        0,
+        1440
+      ],
+      "id": "939c5175-3ef2-4a02-8879-8335e585425b",
+      "name": "Update row in sheet1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "XurJbcuuPZn14SYW",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -656,
+        544
+      ],
+      "id": "9d8d1276-0be7-4eff-8fe9-c417a4876c4c",
+      "name": "Wait",
+      "webhookId": "348e933e-4e12-4e5c-be17-cea3bde36283"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "548ee1e9-db03-4fd4-a1c9-5627e0dd5ee0",
+              "name": "row_number",
+              "value": "={{ $('Get row(s) in sheet').item.json.row_number }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -400,
+        1440
+      ],
+      "id": "f06526ea-3b99-469e-9063-4a0f93435c1a",
+      "name": "Edit Fields2"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "548ee1e9-db03-4fd4-a1c9-5627e0dd5ee0",
+              "name": "row_number",
+              "value": "={{ $json.row_number }}",
+              "type": "number"
+            },
+            {
+              "id": "ecf24989-ed45-4873-8db9-3fee90b28c7b",
+              "name": "name",
+              "value": "={{ $json['company name'] }}",
+              "type": "string"
+            },
+            {
+              "id": "6323428c-3306-4144-bcae-551fd34458da",
+              "name": "websiteUri",
+              "value": "={{ $json.website }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -2704,
+        560
+      ],
+      "id": "d35f64eb-bc15-4c80-b420-e5a3004a4b3e",
+      "name": "Edit Fields3"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "585b05ed-c2eb-48f3-abb2-6bd2898b790f",
+              "name": "Website_URL",
+              "value": "={{ $('Split Out1').item.json.domain }}",
+              "type": "string"
+            },
+            {
+              "id": "16543e92-7848-4f86-bdba-2830b3b41626",
+              "name": "email",
+              "value": "={{ $('Split Out1').item.json.emails.value }}",
+              "type": "string"
+            },
+            {
+              "id": "53f78f00-ced8-40e0-b7a2-66ce10466f0a",
+              "name": "first_name",
+              "value": "={{ $('Split Out1').item.json.emails.first_name }}",
+              "type": "string"
+            },
+            {
+              "id": "f23326ea-e9b5-4463-8236-766aee75b708",
+              "name": "last_name",
+              "value": "={{ $('Split Out1').item.json.emails.last_name }}",
+              "type": "string"
+            },
+            {
+              "id": "a2d49c4a-ec8b-4a6a-a4ca-8efcdfe855a4",
+              "name": "position_raw",
+              "value": "={{ $('Split Out1').item.json.emails.position_raw }}",
+              "type": "string"
+            },
+            {
+              "id": "518ebb43-6632-4bae-b12c-4c0cd6041472",
+              "name": "position",
+              "value": "={{ $('Split Out1').item.json.emails.position }}",
+              "type": "string"
+            },
+            {
+              "id": "44794344-7b1e-413b-bd32-22136b4d23d9",
+              "name": "linkedin",
+              "value": "={{ $('Split Out1').item.json.emails.linkedin }}",
+              "type": "string"
+            },
+            {
+              "id": "519b03e1-8fe4-4f41-a0bb-b955c1bde719",
+              "name": "seniority",
+              "value": "={{ $('Split Out1').item.json.emails.seniority }}",
+              "type": "string"
+            },
+            {
+              "id": "2b544f5f-b231-46b7-9a93-c1db1a4bedcc",
+              "name": "twitter",
+              "value": "={{ $('Split Out1').item.json.emails.twitter }}",
+              "type": "string"
+            },
+            {
+              "id": "9f2c9ee8-17a5-4865-99e4-f003ef350d68",
+              "name": "verification",
+              "value": "={{ $('Split Out1').item.json.emails.verification }}",
+              "type": "object"
+            },
+            {
+              "id": "48a7f622-6f69-4507-bd69-9fad6e139eb6",
+              "name": "emails.department",
+              "value": "={{ $('Split Out1').item.json.emails.department }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1744,
+        544
+      ],
+      "id": "cbd85d56-7fa0-4e85-9db9-b31f66da3957",
+      "name": "Edit Fields4"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "2ad5dee7-63da-4873-8e93-aef1830dcba5",
+              "leftValue": "={{ $json.website }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {
+          "ignoreCase": false
+        }
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.3,
+      "position": [
+        -2896,
+        560
+      ],
+      "id": "f173b424-cc08-4500-906c-9faebf17985f",
+      "name": "Filter"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -1536,
+        544
+      ],
+      "id": "e8faf1a4-1bf9-4cd2-8fef-7193ed95ea98",
+      "name": "Wait2",
+      "webhookId": "e9d0df04-4d0c-4dd1-986c-016d3908de51"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "00396bc4-b02c-47bf-a3cf-7406999f93fd",
+              "name": "SpreadSheet_Id_Hunter_outputs",
+              "value": "1WMpSYadz8bnoR70Sr2B8GnygmsGCMwzY2vlC9-I08Yo",
+              "type": "string"
+            },
+            {
+              "id": "97baa437-f018-40c0-9f65-467538ada272",
+              "name": "Sheet_name2",
+              "value": "Sheet3",
+              "type": "string"
+            },
+            {
+              "id": "c4bae51e-394f-421b-9c02-410cb05671fc",
+              "name": "SpreadSheet_id1_inputs",
+              "value": "1hRF3Ffnj1z4vWv1-FRG3IkMunm4uhs_jrDeZ8CCQOU0",
+              "type": "string"
+            },
+            {
+              "id": "3e8458b9-a0f0-4640-b9e0-141da3624eca",
+              "name": "Sheet_name1",
+              "value": "Final1",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -3296,
+        560
+      ],
+      "id": "3620f404-37c8-43fa-9acf-c67a164e6226",
+      "name": "Edit Fields5"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1bjT1IsLvoF2Q0Fl-DW0obkpiBF1nW2QYrZJsdEgepEg",
+          "mode": "list",
+          "cachedResultName": "Untitled s",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1bjT1IsLvoF2Q0Fl-DW0obkpiBF1nW2QYrZJsdEgepEg/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1897926932,
+          "mode": "list",
+          "cachedResultName": "Sheet2",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1bjT1IsLvoF2Q0Fl-DW0obkpiBF1nW2QYrZJsdEgepEg/edit#gid=1897926932"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "email": "={{ $('Edit Fields4').item.json.email }}",
+            "first name": "={{ $('Edit Fields4').item.json.first_name }}",
+            "last name": "={{ $('Edit Fields4').item.json.last_name }}",
+            "position": "={{ $('Edit Fields4').item.json.position_raw }}",
+            "department": "={{ $('Edit Fields4').item.json.emails.department }}",
+            "linkdn": "={{ $('Edit Fields4').item.json.linkedin }}",
+            "huntor done": "done",
+            "company name": "={{ $('Get row(s) in sheet').item.json['company name'] }}",
+            "place id ": "={{ $('Get row(s) in sheet').item.json['place id '] }}",
+            "interantional phone ": "={{ $('Get row(s) in sheet').item.json['national phone'] }}",
+            "national phone": "=*{{ $('Get row(s) in sheet').item.json['national phone'] }}",
+            "website": "={{ $('Get row(s) in sheet').item.json.website }}",
+            "address": "={{ $('Get row(s) in sheet').item.json.address }}",
+            "rating": "={{ $('Get row(s) in sheet').item.json.rating }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "company name",
+              "displayName": "company name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "place id ",
+              "displayName": "place id ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "interantional phone ",
+              "displayName": "interantional phone ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "national phone",
+              "displayName": "national phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "website",
+              "displayName": "website",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "address",
+              "displayName": "address",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "rating",
+              "displayName": "rating",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "first name",
+              "displayName": "first name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "last name",
+              "displayName": "last name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "position",
+              "displayName": "position",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "department",
+              "displayName": "department",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "linkdn",
+              "displayName": "linkdn",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "huntor done",
+              "displayName": "huntor done",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -1296,
+        544
+      ],
+      "id": "18d6d42d-7b00-40b4-8c88-b05ac61d7095",
+      "name": "Append row in sheet1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "XurJbcuuPZn14SYW",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "emails",
+        "include": "allOtherFields",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -1952,
+        544
+      ],
+      "id": "7b15e5d6-0ea3-4b56-8adc-51b57c0b62bf",
+      "name": "Split Out1"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        -1024,
+        544
+      ],
+      "id": "3d494384-c22b-4171-9ede-951164bb7e7a",
+      "name": "Aggregate1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const companies = {};\n\nfor (const item of items) {\n  const company = item.json[\"company name\"]?.trim().toLowerCase() || \"\";\n  \n  if (!company) continue;\n  \n  // Only keep the first occurrence of each company\n  if (!companies[company]) {\n    companies[company] = item.json;\n  }\n}\n\nconst result = Object.values(companies).map(lead => ({ json: lead }));\n\nreturn result;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1456,
+        1168
+      ],
+      "id": "27c3fc2b-7b22-4d58-8b1d-69b3e990e91f",
+      "name": "Code in JavaScript",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1bjT1IsLvoF2Q0Fl-DW0obkpiBF1nW2QYrZJsdEgepEg",
+          "mode": "list",
+          "cachedResultName": "Untitled s",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1bjT1IsLvoF2Q0Fl-DW0obkpiBF1nW2QYrZJsdEgepEg/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1897926932,
+          "mode": "list",
+          "cachedResultName": "Sheet2",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1bjT1IsLvoF2Q0Fl-DW0obkpiBF1nW2QYrZJsdEgepEg/edit#gid=1897926932"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -1872,
+        1168
+      ],
+      "id": "7fc5728b-d652-4b00-86de-cad7c151f297",
+      "name": "Get row(s) in sheet1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "XurJbcuuPZn14SYW",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1bjT1IsLvoF2Q0Fl-DW0obkpiBF1nW2QYrZJsdEgepEg",
+          "mode": "list",
+          "cachedResultName": "Untitled s",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1bjT1IsLvoF2Q0Fl-DW0obkpiBF1nW2QYrZJsdEgepEg/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1407683037,
+          "mode": "list",
+          "cachedResultName": "Sheet3",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1bjT1IsLvoF2Q0Fl-DW0obkpiBF1nW2QYrZJsdEgepEg/edit#gid=1407683037"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "company name": "={{ $json['company name'] }}",
+            "place id ": "={{ $json['place id '] }}",
+            "interantional phone ": "={{ $json['interantional phone '] }}",
+            "national phone": "={{ $json['national phone'] }}",
+            "website": "={{ $json.website }}",
+            "address": "={{ $json.address }}",
+            "rating": "={{ $json.rating }}",
+            "email": "={{ $json.email }}",
+            "first name": "={{ $json['first name'] }}",
+            "last name": "={{ $json['first name'] }}",
+            "position": "={{ $json.position }}",
+            "department": "={{ $json.department }}",
+            "linkdn": "={{ $json.linkdn }}",
+            "huntor done": "={{ $json['huntor done'] }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "company name",
+              "displayName": "company name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "place id ",
+              "displayName": "place id ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "interantional phone ",
+              "displayName": "interantional phone ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "national phone",
+              "displayName": "national phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "website",
+              "displayName": "website",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "address",
+              "displayName": "address",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "rating",
+              "displayName": "rating",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "first name",
+              "displayName": "first name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "last name",
+              "displayName": "last name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "position",
+              "displayName": "position",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "department",
+              "displayName": "department",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "linkdn",
+              "displayName": "linkdn",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "huntor done",
+              "displayName": "huntor done",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -1040,
+        1168
+      ],
+      "id": "2a992251-8427-4369-8f70-7acedaae426d",
+      "name": "Append row in sheet2",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "XurJbcuuPZn14SYW",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "835cfec8-d50a-47f6-8cec-a29c2311eb6d",
+              "leftValue": "={{ $json.website }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.3,
+      "position": [
+        -1680,
+        1168
+      ],
+      "id": "418c78bf-3400-4fe1-b921-42a179c00b32",
+      "name": "Filter1"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -2080,
+        1168
+      ],
+      "id": "9505a7cc-d8b1-48d5-80e6-9ddd1b06ad6f",
+      "name": "Wait3",
+      "webhookId": "cb62ccc0-c4e6-4818-b709-bf4d7698029e"
+    },
+    {
+      "parameters": {
+        "tableId": "leads",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "company_name",
+              "fieldValue": "={{ $json['company name'] }}"
+            },
+            {
+              "fieldId": "place_id",
+              "fieldValue": "={{ $json['place id '] }}"
+            },
+            {
+              "fieldId": "international_phone",
+              "fieldValue": "={{ $json['interantional phone '] }}"
+            },
+            {
+              "fieldId": "national_phone",
+              "fieldValue": "={{ $json['national phone'] }}"
+            },
+            {
+              "fieldId": "website",
+              "fieldValue": "={{ $json.website }}"
+            },
+            {
+              "fieldId": "address",
+              "fieldValue": "={{ $json.address }}"
+            },
+            {
+              "fieldId": "rating",
+              "fieldValue": "={{ $json.rating }}"
+            },
+            {
+              "fieldId": "email",
+              "fieldValue": "={{ $json.email }}"
+            },
+            {
+              "fieldId": "first_name",
+              "fieldValue": "={{ $json['first name'] }}"
+            },
+            {
+              "fieldId": "last_name",
+              "fieldValue": "={{ $json['last name'] }}"
+            },
+            {
+              "fieldId": "position",
+              "fieldValue": "={{ $json.position }}"
+            },
+            {
+              "fieldId": "department",
+              "fieldValue": "={{ $json.department }}"
+            },
+            {
+              "fieldId": "linkedin",
+              "fieldValue": "={{ $json.linkdn }}"
+            },
+            {
+              "fieldId": "run_id",
+              "fieldValue": "={{ $('Webhook').item.json.body.run_id }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -1264,
+        1072
+      ],
+      "id": "52b5feb8-aeab-4844-975b-3ac586d1c10e",
+      "name": "Create a row",
+      "credentials": {
+        "supabaseApi": {
+          "id": "OySZv50X7f5J01ZN",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 4
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -192,
+        1440
+      ],
+      "id": "77d46691-2243-4940-82b5-61483026a7db",
+      "name": "Wait1",
+      "webhookId": "e3d1ead0-cdc0-4791-9a51-19521fe3e9ec"
+    },
+    {
+      "parameters": {
+        "tableId": "leads",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "company_name",
+              "fieldValue": "={{ $json.displayName.text }}"
+            },
+            {
+              "fieldId": "place_id",
+              "fieldValue": "={{ $json.id }}"
+            },
+            {
+              "fieldId": "international_phone",
+              "fieldValue": "={{ $json.internationalPhoneNumber }}"
+            },
+            {
+              "fieldId": "phone",
+              "fieldValue": "={{ $json.nationalPhoneNumber }}"
+            },
+            {
+              "fieldId": "website",
+              "fieldValue": "={{ $json.websiteUri }}"
+            },
+            {
+              "fieldId": "address",
+              "fieldValue": "={{ $json.formattedAddress }}"
+            },
+            {
+              "fieldId": "rating",
+              "fieldValue": "={{ $json.rating }}"
+            },
+            {
+              "fieldId": "run_id",
+              "fieldValue": "={{ $('Webhook').item.json.body.run_id }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -1712,
+        160
+      ],
+      "id": "bbd127aa-d2fc-4845-9c29-d559c2b2fdf6",
+      "name": "Create a row1",
+      "credentials": {
+        "supabaseApi": {
+          "id": "OySZv50X7f5J01ZN",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "f6316c28-5ab4-4be9-a6ef-177df99b4a1b",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -2800,
+        160
+      ],
+      "id": "dbc97f68-df70-4900-ad52-7a4f1cdd8205",
+      "name": "Webhook",
+      "webhookId": "f6316c28-5ab4-4be9-a6ef-177df99b4a1b"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "places",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -1152,
+        256
+      ],
+      "id": "02109163-c1ae-48e0-8433-b106da6f0bdc",
+      "name": "Split Out2"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "runs",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $('Webhook').item.json.body.run_id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "id",
+              "fieldValue": "={{ $('Webhook').item.json.body.run_id }}"
+            },
+            {
+              "fieldId": "niche",
+              "fieldValue": "={{ $('Webhook').item.json.body.niche }}"
+            },
+            {
+              "fieldId": "location",
+              "fieldValue": "={{ $('Webhook').item.json.body.location }}"
+            },
+            {
+              "fieldId": "status",
+              "fieldValue": "completed"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -1536,
+        160
+      ],
+      "id": "05eb2d67-0c1f-490a-9658-2ea20f25ea0c",
+      "name": "Update a row",
+      "credentials": {
+        "supabaseApi": {
+          "id": "OySZv50X7f5J01ZN",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        -816,
+        112
+      ],
+      "id": "c2d804dc-2989-4132-bdbe-5250ef26f7c4",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7545df16-ea74-4e46-800e-51cd3045c02c",
+              "name": "displayName.text",
+              "value": "={{ $json.displayName.text }}",
+              "type": "string"
+            },
+            {
+              "id": "852a7d11-26b4-4bce-9511-1fc5b9617ba6",
+              "name": "websiteUri",
+              "value": "={{ $json.websiteUri }}",
+              "type": "string"
+            },
+            {
+              "id": "3d3525ea-318f-4040-9230-1022d22cb1f8",
+              "name": "id",
+              "value": "={{ $json.id }}",
+              "type": "string"
+            },
+            {
+              "id": "414fee5c-b950-4f7e-8601-347758a3d048",
+              "name": "nationalPhoneNumber",
+              "value": "={{ $json.nationalPhoneNumber }}",
+              "type": "string"
+            },
+            {
+              "id": "c3cac64e-6dc2-4979-8f57-2d9d04fae164",
+              "name": "internationalPhoneNumber",
+              "value": "={{ $json.internationalPhoneNumber }}",
+              "type": "string"
+            },
+            {
+              "id": "4fd8d028-6062-4446-9760-97f054e47f52",
+              "name": "formattedAddress",
+              "value": "={{ $json.formattedAddress }}",
+              "type": "string"
+            },
+            {
+              "id": "4572deaa-0a11-4e46-8e18-d28ccb39da47",
+              "name": "rating",
+              "value": "={{ $json.rating }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1968,
+        160
+      ],
+      "id": "c45fd2b8-4628-45b9-bb78-27a0d115de12",
+      "name": "Edit Fields6"
+    }
+  ],
+  "connections": {
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Get cordinetes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get cordinetes": {
+      "main": [
+        [
+          {
+            "node": "Get Places",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Places": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Split Out2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Hunter": {
+      "main": [
+        []
+      ]
+    },
+    "Replace Me": {
+      "main": [
+        []
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update row in sheet": {
+      "main": [
+        []
+      ]
+    },
+    "Aggregate2": {
+      "main": [
+        [
+          {
+            "node": "Wait3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [],
+        []
+      ]
+    },
+    "Update row in sheet1": {
+      "main": [
+        [
+          {
+            "node": "Replace Me",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields2": {
+      "main": [
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields3": {
+      "main": [
+        []
+      ]
+    },
+    "Edit Fields4": {
+      "main": [
+        [
+          {
+            "node": "Wait2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait2": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields5": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet1": {
+      "main": [
+        [
+          {
+            "node": "Aggregate1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Create a row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet1": {
+      "main": [
+        [
+          {
+            "node": "Filter1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait3": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a row": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "Update row in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out2": {
+      "main": [
+        []
+      ]
+    },
+    "Update a row": {
+      "main": [
+        []
+      ]
+    },
+    "Create a row1": {
+      "main": [
+        [
+          {
+            "node": "Update a row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields6": {
+      "main": [
+        [
+          {
+            "node": "Create a row1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "versionId": "c63c9825-efaa-413f-ae05-fde05e1fa405",
+  "activeVersionId": "c63c9825-efaa-413f-ae05-fde05e1fa405",
+  "triggerCount": 1,
+  "shared": [
+    {
+      "updatedAt": "2026-06-06T12:09:25.656Z",
+      "createdAt": "2026-06-06T12:09:25.656Z",
+      "role": "workflow:owner",
+      "workflowId": "vNJEhxBA541lOlN2",
+      "projectId": "5GBCFFrIrIkPnjdc"
+    }
+  ],
+  "activeVersion": {
+    "updatedAt": "2026-06-06T14:48:41.000Z",
+    "createdAt": "2026-06-06T14:48:38.677Z",
+    "versionId": "c63c9825-efaa-413f-ae05-fde05e1fa405",
+    "workflowId": "vNJEhxBA541lOlN2",
+    "nodes": [
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "95965a6b-baf5-46c5-852e-a88a4be04d9f",
+                "name": "Google_Maps_API",
+                "value": "AIzaSyC6ksZOqDtte69YfY2eTM1b61Z4mhSKjRk",
+                "type": "string"
+              },
+              {
+                "id": "e0a9a743-f310-4eea-bfe4-55d5a25effd9",
+                "name": "query",
+                "value": "={{ $json.body.niche }}",
+                "type": "string"
+              },
+              {
+                "id": "1c7f4e33-3c43-4c3a-8fd8-b42d168c2fc7",
+                "name": "location",
+                "value": "={{ $json.body.location }}",
+                "type": "string"
+              },
+              {
+                "id": "b8da2aea-848e-4b55-912a-e60ff2e01cec",
+                "name": "radius",
+                "value": "1000",
+                "type": "string"
+              },
+              {
+                "id": "f8588993-203f-4fdd-a4d1-e1c32b3fd44b",
+                "name": "Spreadsheet_id",
+                "value": "1F_EQtucCajHSJZrUT_S32nJqdYWtMhw_kKm6XInuRVI",
+                "type": "string"
+              },
+              {
+                "id": "90c98d91-f6e0-4592-8024-0e5b3066d225",
+                "name": "sheet_name",
+                "value": "sheet 1",
+                "type": "string"
+              },
+              {
+                "id": "33ddb2c0-29b3-4800-a69a-3d9affd9f613",
+                "name": "Max_Item",
+                "value": 300,
+                "type": "number"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          -2608,
+          160
+        ],
+        "id": "5356d18d-ea7c-4d0e-9d0c-1965c7165f0e",
+        "name": "Edit Fields"
+      },
+      {
+        "parameters": {
+          "url": "https://maps.googleapis.com/maps/api/geocode/json",
+          "sendQuery": true,
+          "queryParameters": {
+            "parameters": [
+              {
+                "name": "address",
+                "value": "={{ $json.location }}"
+              },
+              {
+                "name": "key",
+                "value": "=AIzaSyC6ksZOqDtte69YfY2eTM1b61Z4mhSKjRk"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.3,
+        "position": [
+          -2480,
+          160
+        ],
+        "id": "a78521cb-2d2e-499b-bb08-5fa611be6e30",
+        "name": "Get cordinetes"
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://places.googleapis.com/v1/places:searchText",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "X-Goog-Api-Key",
+                "value": "={{ $('Edit Fields').item.json.Google_Maps_API }}"
+              },
+              {
+                "name": "X-Goog-FieldMask",
+                "value": "places.id,places.displayName.text,places.formattedAddress,places.priceLevel,places.nationalPhoneNumber,places.websiteUri,places.rating,places.internationalPhoneNumber,nextPageToken"
+              }
+            ]
+          },
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={\n  \"textQuery\": \"{{ $('Edit Fields').item.json.query }} {{ $('Edit Fields').item.json.location }}\",\n  \"locationBias\": {\n    \"circle\": {\n      \"center\": {\n        \"latitude\": {{ $json.results[0].geometry.location.lat }},\n        \"longitude\": {{ $json.results[0].geometry.location.lng }}\n      },\n      \"radius\": {{ $('Edit Fields').item.json.radius }}\n    }\n  }\n}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.3,
+        "position": [
+          -2336,
+          160
+        ],
+        "id": "6a0b253c-8e26-490e-bc93-4fd032d9a09c",
+        "name": "Get Places"
+      },
+      {
+        "parameters": {
+          "fieldToSplitOut": "places",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.splitOut",
+        "typeVersion": 1,
+        "position": [
+          -2176,
+          160
+        ],
+        "id": "6db7062c-03de-45bd-9712-ccd5b28d3ce1",
+        "name": "Split Out"
+      },
+      {
+        "parameters": {
+          "operation": "append",
+          "documentId": {
+            "__rl": true,
+            "value": "1bjT1IsLvoF2Q0Fl-DW0obkpiBF1nW2QYrZJsdEgepEg",
+            "mode": "list",
+            "cachedResultName": "Untitled s",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1bjT1IsLvoF2Q0Fl-DW0obkpiBF1nW2QYrZJsdEgepEg/edit?usp=drivesdk"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": "gid=0",
+            "mode": "list",
+            "cachedResultName": "Sheet1",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1bjT1IsLvoF2Q0Fl-DW0obkpiBF1nW2QYrZJsdEgepEg/edit#gid=0"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "rating": "={{ $json.rating }}",
+              "company name": "={{ $json.displayName.text }}",
+              "place id ": "={{ $json.id }}",
+              "interantional phone ": "={{ $json.internationalPhoneNumber }}",
+              "national phone": "={{ $json.nationalPhoneNumber }}",
+              "website": "={{ $json.websiteUri }}",
+              "address": "={{ $json.formattedAddress }}"
+            },
+            "matchingColumns": [
+              "id"
+            ],
+            "schema": [
+              {
+                "id": "company name",
+                "displayName": "company name",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "place id ",
+                "displayName": "place id ",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "interantional phone ",
+                "displayName": "interantional phone ",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "national phone",
+                "displayName": "national phone",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "website",
+                "displayName": "website",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "address",
+                "displayName": "address",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "rating",
+                "displayName": "rating",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.7,
+        "position": [
+          -1312,
+          272
+        ],
+        "id": "e6d52bb3-2aec-49a0-ba74-e6676aa53bf1",
+        "name": "Append row in sheet",
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "XurJbcuuPZn14SYW",
+            "name": "Google Sheets account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "documentId": {
+            "__rl": true,
+            "value": "1bjT1IsLvoF2Q0Fl-DW0obkpiBF1nW2QYrZJsdEgepEg",
+            "mode": "list",
+            "cachedResultName": "Untitled s",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1bjT1IsLvoF2Q0Fl-DW0obkpiBF1nW2QYrZJsdEgepEg/edit?usp=drivesdk"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": "gid=0",
+            "mode": "list",
+            "cachedResultName": "Sheet1",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1bjT1IsLvoF2Q0Fl-DW0obkpiBF1nW2QYrZJsdEgepEg/edit#gid=0"
+          },
+          "filtersUI": {
+            "values": [
+              {
+                "lookupColumn": "huntor done"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.7,
+        "position": [
+          -3104,
+          560
+        ],
+        "id": "a9cb1bb4-6154-484c-95bb-a9bfd3bbb60a",
+        "name": "Get row(s) in sheet",
+        "alwaysOutputData": true,
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "XurJbcuuPZn14SYW",
+            "name": "Google Sheets account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "domain": "={{ $('Get row(s) in sheet').item.json.website }}",
+          "onlyEmails": false,
+          "limit": 5,
+          "filters": {
+            "seniority": [
+              "executive"
+            ],
+            "department": [
+              "executive",
+              "management"
+            ]
+          }
+        },
+        "type": "n8n-nodes-base.hunter",
+        "typeVersion": 1,
+        "position": [
+          -2656,
+          912
+        ],
+        "id": "50c3fcf2-a6ba-4071-ba46-ae0594f02584",
+        "name": "Hunter",
+        "alwaysOutputData": true,
+        "retryOnFail": false,
+        "credentials": {
+          "hunterApi": {
+            "id": "yZGF0DkzLwp2b49M",
+            "name": "Hunter account"
+          }
+        }
+      },
+      {
+        "parameters": {},
+        "type": "n8n-nodes-base.noOp",
+        "name": "Replace Me",
+        "typeVersion": 1,
+        "position": [
+          192,
+          1440
+        ],
+        "id": "635f6e96-5152-4f35-a16b-9532ba36f28c"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "548ee1e9-db03-4fd4-a1c9-5627e0dd5ee0",
+                "name": "row_number",
+                "value": "={{ $json.row_number }}",
+                "type": "number"
+              }
+            ]
+          },
+          "includeOtherFields": true,
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          -800,
+          544
+        ],
+        "id": "33a00259-272f-4ba9-8505-38cffd9df881",
+        "name": "Edit Fields1"
+      },
+      {
+        "parameters": {
+          "operation": "update",
+          "documentId": {
+            "__rl": true,
+            "value": "1bjT1IsLvoF2Q0Fl-DW0obkpiBF1nW2QYrZJsdEgepEg",
+            "mode": "list",
+            "cachedResultName": "Untitled s",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1bjT1IsLvoF2Q0Fl-DW0obkpiBF1nW2QYrZJsdEgepEg/edit?usp=drivesdk"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": "gid=0",
+            "mode": "list",
+            "cachedResultName": "Sheet1",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1bjT1IsLvoF2Q0Fl-DW0obkpiBF1nW2QYrZJsdEgepEg/edit#gid=0"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "huntor done": "done",
+              "row_number": "={{ $('Get row(s) in sheet').item.json.row_number }}"
+            },
+            "matchingColumns": [
+              "row_number"
+            ],
+            "schema": [
+              {
+                "id": "company name",
+                "displayName": "company name",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "place id ",
+                "displayName": "place id ",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "interantional phone ",
+                "displayName": "interantional phone ",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "national phone",
+                "displayName": "national phone",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "website",
+                "displayName": "website",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "address",
+                "displayName": "address",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "rating",
+                "displayName": "rating",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "huntor done",
+                "displayName": "huntor done",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "row_number",
+                "displayName": "row_number",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "number",
+                "canBeUsedToMatch": true,
+                "readOnly": true,
+                "removed": false
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.7,
+        "position": [
+          -496,
+          544
+        ],
+        "id": "6fdd5c2f-6403-4166-a6d0-c05ba7b12dc1",
+        "name": "Update row in sheet",
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "XurJbcuuPZn14SYW",
+            "name": "Google Sheets account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "fieldsToAggregate": {
+            "fieldToAggregate": [
+              {
+                "fieldToAggregate": "value"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.aggregate",
+        "typeVersion": 1,
+        "position": [
+          -2256,
+          1152
+        ],
+        "id": "43c6acbe-9a5f-4122-8793-1783e1445c74",
+        "name": "Aggregate2"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "loose",
+              "version": 3
+            },
+            "conditions": [
+              {
+                "id": "2d77fbb8-6e1b-4ea2-8852-8887ef2e8380",
+                "leftValue": "={{$json.emails.length }}",
+                "rightValue": 0,
+                "operator": {
+                  "type": "number",
+                  "operation": "gt"
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "looseTypeValidation": true,
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.3,
+        "position": [
+          -2400,
+          576
+        ],
+        "id": "9c0b8a99-859e-4a55-89f7-8c9e1edd49cf",
+        "name": "If"
+      },
+      {
+        "parameters": {
+          "operation": "update",
+          "documentId": {
+            "__rl": true,
+            "value": "1bjT1IsLvoF2Q0Fl-DW0obkpiBF1nW2QYrZJsdEgepEg",
+            "mode": "list",
+            "cachedResultName": "Untitled s",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1bjT1IsLvoF2Q0Fl-DW0obkpiBF1nW2QYrZJsdEgepEg/edit?usp=drivesdk"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": "gid=0",
+            "mode": "list",
+            "cachedResultName": "Sheet1",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1bjT1IsLvoF2Q0Fl-DW0obkpiBF1nW2QYrZJsdEgepEg/edit#gid=0"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "row_number": "={{ $('Get row(s) in sheet').first().json.row_number }}",
+              "huntor done": "not found"
+            },
+            "matchingColumns": [
+              "row_number"
+            ],
+            "schema": [
+              {
+                "id": "company name",
+                "displayName": "company name",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "place id ",
+                "displayName": "place id ",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "interantional phone ",
+                "displayName": "interantional phone ",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "national phone",
+                "displayName": "national phone",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "website",
+                "displayName": "website",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "address",
+                "displayName": "address",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "rating",
+                "displayName": "rating",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "huntor done",
+                "displayName": "huntor done",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "row_number",
+                "displayName": "row_number",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "number",
+                "canBeUsedToMatch": true,
+                "readOnly": true,
+                "removed": false
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.7,
+        "position": [
+          0,
+          1440
+        ],
+        "id": "939c5175-3ef2-4a02-8879-8335e585425b",
+        "name": "Update row in sheet1",
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "XurJbcuuPZn14SYW",
+            "name": "Google Sheets account"
+          }
+        }
+      },
+      {
+        "parameters": {},
+        "type": "n8n-nodes-base.wait",
+        "typeVersion": 1.1,
+        "position": [
+          -656,
+          544
+        ],
+        "id": "9d8d1276-0be7-4eff-8fe9-c417a4876c4c",
+        "name": "Wait",
+        "webhookId": "348e933e-4e12-4e5c-be17-cea3bde36283"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "548ee1e9-db03-4fd4-a1c9-5627e0dd5ee0",
+                "name": "row_number",
+                "value": "={{ $('Get row(s) in sheet').item.json.row_number }}",
+                "type": "number"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          -400,
+          1440
+        ],
+        "id": "f06526ea-3b99-469e-9063-4a0f93435c1a",
+        "name": "Edit Fields2"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "548ee1e9-db03-4fd4-a1c9-5627e0dd5ee0",
+                "name": "row_number",
+                "value": "={{ $json.row_number }}",
+                "type": "number"
+              },
+              {
+                "id": "ecf24989-ed45-4873-8db9-3fee90b28c7b",
+                "name": "name",
+                "value": "={{ $json['company name'] }}",
+                "type": "string"
+              },
+              {
+                "id": "6323428c-3306-4144-bcae-551fd34458da",
+                "name": "websiteUri",
+                "value": "={{ $json.website }}",
+                "type": "string"
+              }
+            ]
+          },
+          "includeOtherFields": true,
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          -2704,
+          560
+        ],
+        "id": "d35f64eb-bc15-4c80-b420-e5a3004a4b3e",
+        "name": "Edit Fields3"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "585b05ed-c2eb-48f3-abb2-6bd2898b790f",
+                "name": "Website_URL",
+                "value": "={{ $('Split Out1').item.json.domain }}",
+                "type": "string"
+              },
+              {
+                "id": "16543e92-7848-4f86-bdba-2830b3b41626",
+                "name": "email",
+                "value": "={{ $('Split Out1').item.json.emails.value }}",
+                "type": "string"
+              },
+              {
+                "id": "53f78f00-ced8-40e0-b7a2-66ce10466f0a",
+                "name": "first_name",
+                "value": "={{ $('Split Out1').item.json.emails.first_name }}",
+                "type": "string"
+              },
+              {
+                "id": "f23326ea-e9b5-4463-8236-766aee75b708",
+                "name": "last_name",
+                "value": "={{ $('Split Out1').item.json.emails.last_name }}",
+                "type": "string"
+              },
+              {
+                "id": "a2d49c4a-ec8b-4a6a-a4ca-8efcdfe855a4",
+                "name": "position_raw",
+                "value": "={{ $('Split Out1').item.json.emails.position_raw }}",
+                "type": "string"
+              },
+              {
+                "id": "518ebb43-6632-4bae-b12c-4c0cd6041472",
+                "name": "position",
+                "value": "={{ $('Split Out1').item.json.emails.position }}",
+                "type": "string"
+              },
+              {
+                "id": "44794344-7b1e-413b-bd32-22136b4d23d9",
+                "name": "linkedin",
+                "value": "={{ $('Split Out1').item.json.emails.linkedin }}",
+                "type": "string"
+              },
+              {
+                "id": "519b03e1-8fe4-4f41-a0bb-b955c1bde719",
+                "name": "seniority",
+                "value": "={{ $('Split Out1').item.json.emails.seniority }}",
+                "type": "string"
+              },
+              {
+                "id": "2b544f5f-b231-46b7-9a93-c1db1a4bedcc",
+                "name": "twitter",
+                "value": "={{ $('Split Out1').item.json.emails.twitter }}",
+                "type": "string"
+              },
+              {
+                "id": "9f2c9ee8-17a5-4865-99e4-f003ef350d68",
+                "name": "verification",
+                "value": "={{ $('Split Out1').item.json.emails.verification }}",
+                "type": "object"
+              },
+              {
+                "id": "48a7f622-6f69-4507-bd69-9fad6e139eb6",
+                "name": "emails.department",
+                "value": "={{ $('Split Out1').item.json.emails.department }}",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          -1744,
+          544
+        ],
+        "id": "cbd85d56-7fa0-4e85-9db9-b31f66da3957",
+        "name": "Edit Fields4"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 3
+            },
+            "conditions": [
+              {
+                "id": "2ad5dee7-63da-4873-8e93-aef1830dcba5",
+                "leftValue": "={{ $json.website }}",
+                "rightValue": "",
+                "operator": {
+                  "type": "string",
+                  "operation": "notEmpty",
+                  "singleValue": true
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {
+            "ignoreCase": false
+          }
+        },
+        "type": "n8n-nodes-base.filter",
+        "typeVersion": 2.3,
+        "position": [
+          -2896,
+          560
+        ],
+        "id": "f173b424-cc08-4500-906c-9faebf17985f",
+        "name": "Filter"
+      },
+      {
+        "parameters": {},
+        "type": "n8n-nodes-base.wait",
+        "typeVersion": 1.1,
+        "position": [
+          -1536,
+          544
+        ],
+        "id": "e8faf1a4-1bf9-4cd2-8fef-7193ed95ea98",
+        "name": "Wait2",
+        "webhookId": "e9d0df04-4d0c-4dd1-986c-016d3908de51"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "00396bc4-b02c-47bf-a3cf-7406999f93fd",
+                "name": "SpreadSheet_Id_Hunter_outputs",
+                "value": "1WMpSYadz8bnoR70Sr2B8GnygmsGCMwzY2vlC9-I08Yo",
+                "type": "string"
+              },
+              {
+                "id": "97baa437-f018-40c0-9f65-467538ada272",
+                "name": "Sheet_name2",
+                "value": "Sheet3",
+                "type": "string"
+              },
+              {
+                "id": "c4bae51e-394f-421b-9c02-410cb05671fc",
+                "name": "SpreadSheet_id1_inputs",
+                "value": "1hRF3Ffnj1z4vWv1-FRG3IkMunm4uhs_jrDeZ8CCQOU0",
+                "type": "string"
+              },
+              {
+                "id": "3e8458b9-a0f0-4640-b9e0-141da3624eca",
+                "name": "Sheet_name1",
+                "value": "Final1",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          -3296,
+          560
+        ],
+        "id": "3620f404-37c8-43fa-9acf-c67a164e6226",
+        "name": "Edit Fields5"
+      },
+      {
+        "parameters": {
+          "operation": "append",
+          "documentId": {
+            "__rl": true,
+            "value": "1bjT1IsLvoF2Q0Fl-DW0obkpiBF1nW2QYrZJsdEgepEg",
+            "mode": "list",
+            "cachedResultName": "Untitled s",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1bjT1IsLvoF2Q0Fl-DW0obkpiBF1nW2QYrZJsdEgepEg/edit?usp=drivesdk"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": 1897926932,
+            "mode": "list",
+            "cachedResultName": "Sheet2",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1bjT1IsLvoF2Q0Fl-DW0obkpiBF1nW2QYrZJsdEgepEg/edit#gid=1897926932"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "email": "={{ $('Edit Fields4').item.json.email }}",
+              "first name": "={{ $('Edit Fields4').item.json.first_name }}",
+              "last name": "={{ $('Edit Fields4').item.json.last_name }}",
+              "position": "={{ $('Edit Fields4').item.json.position_raw }}",
+              "department": "={{ $('Edit Fields4').item.json.emails.department }}",
+              "linkdn": "={{ $('Edit Fields4').item.json.linkedin }}",
+              "huntor done": "done",
+              "company name": "={{ $('Get row(s) in sheet').item.json['company name'] }}",
+              "place id ": "={{ $('Get row(s) in sheet').item.json['place id '] }}",
+              "interantional phone ": "={{ $('Get row(s) in sheet').item.json['national phone'] }}",
+              "national phone": "=*{{ $('Get row(s) in sheet').item.json['national phone'] }}",
+              "website": "={{ $('Get row(s) in sheet').item.json.website }}",
+              "address": "={{ $('Get row(s) in sheet').item.json.address }}",
+              "rating": "={{ $('Get row(s) in sheet').item.json.rating }}"
+            },
+            "matchingColumns": [],
+            "schema": [
+              {
+                "id": "company name",
+                "displayName": "company name",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "place id ",
+                "displayName": "place id ",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "interantional phone ",
+                "displayName": "interantional phone ",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "national phone",
+                "displayName": "national phone",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "website",
+                "displayName": "website",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "address",
+                "displayName": "address",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "rating",
+                "displayName": "rating",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "email",
+                "displayName": "email",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "first name",
+                "displayName": "first name",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "last name",
+                "displayName": "last name",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "position",
+                "displayName": "position",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "department",
+                "displayName": "department",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "linkdn",
+                "displayName": "linkdn",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "huntor done",
+                "displayName": "huntor done",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.7,
+        "position": [
+          -1296,
+          544
+        ],
+        "id": "18d6d42d-7b00-40b4-8c88-b05ac61d7095",
+        "name": "Append row in sheet1",
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "XurJbcuuPZn14SYW",
+            "name": "Google Sheets account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "fieldToSplitOut": "emails",
+          "include": "allOtherFields",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.splitOut",
+        "typeVersion": 1,
+        "position": [
+          -1952,
+          544
+        ],
+        "id": "7b15e5d6-0ea3-4b56-8adc-51b57c0b62bf",
+        "name": "Split Out1"
+      },
+      {
+        "parameters": {
+          "aggregate": "aggregateAllItemData",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.aggregate",
+        "typeVersion": 1,
+        "position": [
+          -1024,
+          544
+        ],
+        "id": "3d494384-c22b-4171-9ede-951164bb7e7a",
+        "name": "Aggregate1"
+      },
+      {
+        "parameters": {
+          "jsCode": "const companies = {};\n\nfor (const item of items) {\n  const company = item.json[\"company name\"]?.trim().toLowerCase() || \"\";\n  \n  if (!company) continue;\n  \n  // Only keep the first occurrence of each company\n  if (!companies[company]) {\n    companies[company] = item.json;\n  }\n}\n\nconst result = Object.values(companies).map(lead => ({ json: lead }));\n\nreturn result;"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          -1456,
+          1168
+        ],
+        "id": "27c3fc2b-7b22-4d58-8b1d-69b3e990e91f",
+        "name": "Code in JavaScript",
+        "alwaysOutputData": true
+      },
+      {
+        "parameters": {
+          "documentId": {
+            "__rl": true,
+            "value": "1bjT1IsLvoF2Q0Fl-DW0obkpiBF1nW2QYrZJsdEgepEg",
+            "mode": "list",
+            "cachedResultName": "Untitled s",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1bjT1IsLvoF2Q0Fl-DW0obkpiBF1nW2QYrZJsdEgepEg/edit?usp=drivesdk"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": 1897926932,
+            "mode": "list",
+            "cachedResultName": "Sheet2",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1bjT1IsLvoF2Q0Fl-DW0obkpiBF1nW2QYrZJsdEgepEg/edit#gid=1897926932"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.7,
+        "position": [
+          -1872,
+          1168
+        ],
+        "id": "7fc5728b-d652-4b00-86de-cad7c151f297",
+        "name": "Get row(s) in sheet1",
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "XurJbcuuPZn14SYW",
+            "name": "Google Sheets account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "append",
+          "documentId": {
+            "__rl": true,
+            "value": "1bjT1IsLvoF2Q0Fl-DW0obkpiBF1nW2QYrZJsdEgepEg",
+            "mode": "list",
+            "cachedResultName": "Untitled s",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1bjT1IsLvoF2Q0Fl-DW0obkpiBF1nW2QYrZJsdEgepEg/edit?usp=drivesdk"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": 1407683037,
+            "mode": "list",
+            "cachedResultName": "Sheet3",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1bjT1IsLvoF2Q0Fl-DW0obkpiBF1nW2QYrZJsdEgepEg/edit#gid=1407683037"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "company name": "={{ $json['company name'] }}",
+              "place id ": "={{ $json['place id '] }}",
+              "interantional phone ": "={{ $json['interantional phone '] }}",
+              "national phone": "={{ $json['national phone'] }}",
+              "website": "={{ $json.website }}",
+              "address": "={{ $json.address }}",
+              "rating": "={{ $json.rating }}",
+              "email": "={{ $json.email }}",
+              "first name": "={{ $json['first name'] }}",
+              "last name": "={{ $json['first name'] }}",
+              "position": "={{ $json.position }}",
+              "department": "={{ $json.department }}",
+              "linkdn": "={{ $json.linkdn }}",
+              "huntor done": "={{ $json['huntor done'] }}"
+            },
+            "matchingColumns": [],
+            "schema": [
+              {
+                "id": "company name",
+                "displayName": "company name",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "place id ",
+                "displayName": "place id ",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "interantional phone ",
+                "displayName": "interantional phone ",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "national phone",
+                "displayName": "national phone",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "website",
+                "displayName": "website",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "address",
+                "displayName": "address",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "rating",
+                "displayName": "rating",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "email",
+                "displayName": "email",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "first name",
+                "displayName": "first name",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "last name",
+                "displayName": "last name",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "position",
+                "displayName": "position",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "department",
+                "displayName": "department",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "linkdn",
+                "displayName": "linkdn",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "huntor done",
+                "displayName": "huntor done",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.7,
+        "position": [
+          -1040,
+          1168
+        ],
+        "id": "2a992251-8427-4369-8f70-7acedaae426d",
+        "name": "Append row in sheet2",
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "XurJbcuuPZn14SYW",
+            "name": "Google Sheets account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 3
+            },
+            "conditions": [
+              {
+                "id": "835cfec8-d50a-47f6-8cec-a29c2311eb6d",
+                "leftValue": "={{ $json.website }}",
+                "rightValue": "",
+                "operator": {
+                  "type": "string",
+                  "operation": "exists",
+                  "singleValue": true
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.filter",
+        "typeVersion": 2.3,
+        "position": [
+          -1680,
+          1168
+        ],
+        "id": "418c78bf-3400-4fe1-b921-42a179c00b32",
+        "name": "Filter1"
+      },
+      {
+        "parameters": {},
+        "type": "n8n-nodes-base.wait",
+        "typeVersion": 1.1,
+        "position": [
+          -2080,
+          1168
+        ],
+        "id": "9505a7cc-d8b1-48d5-80e6-9ddd1b06ad6f",
+        "name": "Wait3",
+        "webhookId": "cb62ccc0-c4e6-4818-b709-bf4d7698029e"
+      },
+      {
+        "parameters": {
+          "tableId": "leads",
+          "fieldsUi": {
+            "fieldValues": [
+              {
+                "fieldId": "company_name",
+                "fieldValue": "={{ $json['company name'] }}"
+              },
+              {
+                "fieldId": "place_id",
+                "fieldValue": "={{ $json['place id '] }}"
+              },
+              {
+                "fieldId": "international_phone",
+                "fieldValue": "={{ $json['interantional phone '] }}"
+              },
+              {
+                "fieldId": "national_phone",
+                "fieldValue": "={{ $json['national phone'] }}"
+              },
+              {
+                "fieldId": "website",
+                "fieldValue": "={{ $json.website }}"
+              },
+              {
+                "fieldId": "address",
+                "fieldValue": "={{ $json.address }}"
+              },
+              {
+                "fieldId": "rating",
+                "fieldValue": "={{ $json.rating }}"
+              },
+              {
+                "fieldId": "email",
+                "fieldValue": "={{ $json.email }}"
+              },
+              {
+                "fieldId": "first_name",
+                "fieldValue": "={{ $json['first name'] }}"
+              },
+              {
+                "fieldId": "last_name",
+                "fieldValue": "={{ $json['last name'] }}"
+              },
+              {
+                "fieldId": "position",
+                "fieldValue": "={{ $json.position }}"
+              },
+              {
+                "fieldId": "department",
+                "fieldValue": "={{ $json.department }}"
+              },
+              {
+                "fieldId": "linkedin",
+                "fieldValue": "={{ $json.linkdn }}"
+              },
+              {
+                "fieldId": "run_id",
+                "fieldValue": "={{ $('Webhook').item.json.body.run_id }}"
+              }
+            ]
+          }
+        },
+        "type": "n8n-nodes-base.supabase",
+        "typeVersion": 1,
+        "position": [
+          -1264,
+          1072
+        ],
+        "id": "52b5feb8-aeab-4844-975b-3ac586d1c10e",
+        "name": "Create a row",
+        "credentials": {
+          "supabaseApi": {
+            "id": "OySZv50X7f5J01ZN",
+            "name": "Supabase account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "amount": 4
+        },
+        "type": "n8n-nodes-base.wait",
+        "typeVersion": 1.1,
+        "position": [
+          -192,
+          1440
+        ],
+        "id": "77d46691-2243-4940-82b5-61483026a7db",
+        "name": "Wait1",
+        "webhookId": "e3d1ead0-cdc0-4791-9a51-19521fe3e9ec"
+      },
+      {
+        "parameters": {
+          "tableId": "leads",
+          "fieldsUi": {
+            "fieldValues": [
+              {
+                "fieldId": "company_name",
+                "fieldValue": "={{ $json.displayName.text }}"
+              },
+              {
+                "fieldId": "place_id",
+                "fieldValue": "={{ $json.id }}"
+              },
+              {
+                "fieldId": "international_phone",
+                "fieldValue": "={{ $json.internationalPhoneNumber }}"
+              },
+              {
+                "fieldId": "phone",
+                "fieldValue": "={{ $json.nationalPhoneNumber }}"
+              },
+              {
+                "fieldId": "website",
+                "fieldValue": "={{ $json.websiteUri }}"
+              },
+              {
+                "fieldId": "address",
+                "fieldValue": "={{ $json.formattedAddress }}"
+              },
+              {
+                "fieldId": "rating",
+                "fieldValue": "={{ $json.rating }}"
+              },
+              {
+                "fieldId": "run_id",
+                "fieldValue": "={{ $('Webhook').item.json.body.run_id }}"
+              }
+            ]
+          }
+        },
+        "type": "n8n-nodes-base.supabase",
+        "typeVersion": 1,
+        "position": [
+          -1712,
+          160
+        ],
+        "id": "bbd127aa-d2fc-4845-9c29-d559c2b2fdf6",
+        "name": "Create a row1",
+        "credentials": {
+          "supabaseApi": {
+            "id": "OySZv50X7f5J01ZN",
+            "name": "Supabase account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "f6316c28-5ab4-4be9-a6ef-177df99b4a1b",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2.1,
+        "position": [
+          -2800,
+          160
+        ],
+        "id": "dbc97f68-df70-4900-ad52-7a4f1cdd8205",
+        "name": "Webhook",
+        "webhookId": "f6316c28-5ab4-4be9-a6ef-177df99b4a1b"
+      },
+      {
+        "parameters": {
+          "fieldToSplitOut": "places",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.splitOut",
+        "typeVersion": 1,
+        "position": [
+          -1152,
+          256
+        ],
+        "id": "02109163-c1ae-48e0-8433-b106da6f0bdc",
+        "name": "Split Out2"
+      },
+      {
+        "parameters": {
+          "operation": "update",
+          "tableId": "runs",
+          "filters": {
+            "conditions": [
+              {
+                "keyName": "id",
+                "condition": "eq",
+                "keyValue": "={{ $('Webhook').item.json.body.run_id }}"
+              }
+            ]
+          },
+          "fieldsUi": {
+            "fieldValues": [
+              {
+                "fieldId": "id",
+                "fieldValue": "={{ $('Webhook').item.json.body.run_id }}"
+              },
+              {
+                "fieldId": "niche",
+                "fieldValue": "={{ $('Webhook').item.json.body.niche }}"
+              },
+              {
+                "fieldId": "location",
+                "fieldValue": "={{ $('Webhook').item.json.body.location }}"
+              },
+              {
+                "fieldId": "status",
+                "fieldValue": "completed"
+              }
+            ]
+          }
+        },
+        "type": "n8n-nodes-base.supabase",
+        "typeVersion": 1,
+        "position": [
+          -1536,
+          160
+        ],
+        "id": "05eb2d67-0c1f-490a-9658-2ea20f25ea0c",
+        "name": "Update a row",
+        "credentials": {
+          "supabaseApi": {
+            "id": "OySZv50X7f5J01ZN",
+            "name": "Supabase account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "aggregate": "aggregateAllItemData",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.aggregate",
+        "typeVersion": 1,
+        "position": [
+          -816,
+          112
+        ],
+        "id": "c2d804dc-2989-4132-bdbe-5250ef26f7c4",
+        "name": "Aggregate"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "7545df16-ea74-4e46-800e-51cd3045c02c",
+                "name": "displayName.text",
+                "value": "={{ $json.displayName.text }}",
+                "type": "string"
+              },
+              {
+                "id": "852a7d11-26b4-4bce-9511-1fc5b9617ba6",
+                "name": "websiteUri",
+                "value": "={{ $json.websiteUri }}",
+                "type": "string"
+              },
+              {
+                "id": "3d3525ea-318f-4040-9230-1022d22cb1f8",
+                "name": "id",
+                "value": "={{ $json.id }}",
+                "type": "string"
+              },
+              {
+                "id": "414fee5c-b950-4f7e-8601-347758a3d048",
+                "name": "nationalPhoneNumber",
+                "value": "={{ $json.nationalPhoneNumber }}",
+                "type": "string"
+              },
+              {
+                "id": "c3cac64e-6dc2-4979-8f57-2d9d04fae164",
+                "name": "internationalPhoneNumber",
+                "value": "={{ $json.internationalPhoneNumber }}",
+                "type": "string"
+              },
+              {
+                "id": "4fd8d028-6062-4446-9760-97f054e47f52",
+                "name": "formattedAddress",
+                "value": "={{ $json.formattedAddress }}",
+                "type": "string"
+              },
+              {
+                "id": "4572deaa-0a11-4e46-8e18-d28ccb39da47",
+                "name": "rating",
+                "value": "={{ $json.rating }}",
+                "type": "number"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          -1968,
+          160
+        ],
+        "id": "c45fd2b8-4628-45b9-bb78-27a0d115de12",
+        "name": "Edit Fields6"
+      }
+    ],
+    "connections": {
+      "Edit Fields": {
+        "main": [
+          [
+            {
+              "node": "Get cordinetes",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get cordinetes": {
+        "main": [
+          [
+            {
+              "node": "Get Places",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get Places": {
+        "main": [
+          [
+            {
+              "node": "Split Out",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Split Out": {
+        "main": [
+          [
+            {
+              "node": "Edit Fields6",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Append row in sheet": {
+        "main": [
+          [
+            {
+              "node": "Split Out2",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get row(s) in sheet": {
+        "main": [
+          [
+            {
+              "node": "Filter",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Hunter": {
+        "main": [
+          []
+        ]
+      },
+      "Replace Me": {
+        "main": [
+          []
+        ]
+      },
+      "Edit Fields1": {
+        "main": [
+          [
+            {
+              "node": "Wait",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Update row in sheet": {
+        "main": [
+          []
+        ]
+      },
+      "Aggregate2": {
+        "main": [
+          [
+            {
+              "node": "Wait3",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "If": {
+        "main": [
+          [],
+          []
+        ]
+      },
+      "Update row in sheet1": {
+        "main": [
+          [
+            {
+              "node": "Replace Me",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Wait": {
+        "main": [
+          [
+            {
+              "node": "Update row in sheet",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Edit Fields2": {
+        "main": [
+          [
+            {
+              "node": "Wait1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Edit Fields3": {
+        "main": [
+          []
+        ]
+      },
+      "Edit Fields4": {
+        "main": [
+          [
+            {
+              "node": "Wait2",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Filter": {
+        "main": [
+          [
+            {
+              "node": "Edit Fields3",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Wait2": {
+        "main": [
+          [
+            {
+              "node": "Append row in sheet1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Edit Fields5": {
+        "main": [
+          [
+            {
+              "node": "Get row(s) in sheet",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Append row in sheet1": {
+        "main": [
+          [
+            {
+              "node": "Aggregate1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Split Out1": {
+        "main": [
+          [
+            {
+              "node": "Edit Fields4",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Aggregate1": {
+        "main": [
+          [
+            {
+              "node": "Edit Fields1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Code in JavaScript": {
+        "main": [
+          [
+            {
+              "node": "Create a row",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get row(s) in sheet1": {
+        "main": [
+          [
+            {
+              "node": "Filter1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Filter1": {
+        "main": [
+          [
+            {
+              "node": "Code in JavaScript",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Wait3": {
+        "main": [
+          [
+            {
+              "node": "Get row(s) in sheet1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Create a row": {
+        "main": [
+          [
+            {
+              "node": "Append row in sheet2",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Wait1": {
+        "main": [
+          [
+            {
+              "node": "Update row in sheet1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Webhook": {
+        "main": [
+          [
+            {
+              "node": "Edit Fields",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Split Out2": {
+        "main": [
+          []
+        ]
+      },
+      "Update a row": {
+        "main": [
+          []
+        ]
+      },
+      "Create a row1": {
+        "main": [
+          [
+            {
+              "node": "Update a row",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Edit Fields6": {
+        "main": [
+          [
+            {
+              "node": "Create a row1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "senul adeeth",
+    "name": "Version c63c9825",
+    "description": "",
+    "autosaved": true
+  },
+  "tags": []
+}
