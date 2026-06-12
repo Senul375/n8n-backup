@@ -1,0 +1,177 @@
+{
+  "updatedAt": "2026-05-23T14:39:38.321Z",
+  "createdAt": "2026-05-23T14:12:50.294Z",
+  "id": "RngSoxalSS8lUmez",
+  "name": "My workflow 5",
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "7eff8aa9-1715-4100-8693-42ad2250003e",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "4b1256b2-2cfd-4f5f-98e2-bf0c0291c398",
+              "name": "Folde name",
+              "value": "back up 23/05/2026",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        208,
+        0
+      ],
+      "id": "1260d0de-811f-4584-ba34-ca98170c4a9c",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "filters": {},
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-base.n8n",
+      "typeVersion": 1,
+      "position": [
+        416,
+        0
+      ],
+      "id": "bb5d19fe-0063-414f-ac40-369b5c41e9a0",
+      "name": "Get many workflows",
+      "credentials": {
+        "n8nApi": {
+          "id": "cZFomUKP4PHzCXDh",
+          "name": "n8n account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "toJson",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        624,
+        0
+      ],
+      "id": "2abe5311-0dd7-44b8-a2d9-51bcd6063213",
+      "name": "Convert to File"
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "owner": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "repository": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        }
+      },
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1.1,
+      "position": [
+        832,
+        0
+      ],
+      "id": "668d8e5f-f84f-4e6e-963f-a4236bdc694f",
+      "name": "Create a file",
+      "webhookId": "8e37be72-d246-4da8-9943-aeb72cc068db",
+      "credentials": {
+        "githubApi": {
+          "id": "w4XGkZt6nxdqINBo",
+          "name": "GitHub account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Get many workflows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many workflows": {
+      "main": [
+        [
+          {
+            "node": "Convert to File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to File": {
+      "main": [
+        [
+          {
+            "node": "Create a file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "versionId": "d128139c-d2b0-4862-98c9-bab2bfae4910",
+  "activeVersionId": null,
+  "triggerCount": 0,
+  "shared": [
+    {
+      "updatedAt": "2026-05-23T14:12:50.297Z",
+      "createdAt": "2026-05-23T14:12:50.297Z",
+      "role": "workflow:owner",
+      "workflowId": "RngSoxalSS8lUmez",
+      "projectId": "5GBCFFrIrIkPnjdc"
+    }
+  ],
+  "activeVersion": null,
+  "tags": []
+}
