@@ -1,0 +1,755 @@
+{
+  "updatedAt": "2026-06-12T22:19:40.458Z",
+  "createdAt": "2026-06-11T15:54:24.261Z",
+  "id": "UqnNK60CBI7B6qeC",
+  "name": "Weekly n8n Workflow Backup to GitHub",
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                1
+              ],
+              "triggerAtHour": 3
+            }
+          ]
+        }
+      },
+      "id": "7c183b90-981b-41a2-868c-0f4d9d8a6962",
+      "name": "Weekly Schedule",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1056,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "n8nBaseUrl",
+              "name": "n8nBaseUrl",
+              "value": "https://n8n.35.225.222.54.sslip.io",
+              "type": "string"
+            },
+            {
+              "id": "githubOwner",
+              "name": "githubOwner",
+              "value": "Senul375",
+              "type": "string"
+            },
+            {
+              "id": "githubRepo",
+              "name": "githubRepo",
+              "value": "n8n-backup",
+              "type": "string"
+            },
+            {
+              "id": "githubBranch",
+              "name": "githubBranch",
+              "value": "main",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "d753a32d-9420-432f-9d63-2a81f6b555e8",
+      "name": "Set Config",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -832,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.n8nBaseUrl }}/api/v1/workflows",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "limit",
+              "value": "250"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "d89917b3-ce76-4b6a-b7f0-a3858c541bb8",
+      "name": "Get All Workflows",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -608,
+        80
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "SbyLsaKcsYVXb44E",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "data",
+        "options": {}
+      },
+      "id": "b2730696-91a0-4546-98a4-397cfde4430c",
+      "name": "Split Out Workflows",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -400,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "4a4cee1e-4e9a-41a9-8e5b-3bacb06cdbab",
+      "name": "Loop Over Workflows",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -176,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const workflow = $json;\n\nconst status = workflow.active ? 'active' : 'inactive';\n\nconst safeName = (workflow.name || 'unnamed')\n  .toLowerCase()\n  .replace(/[^a-z0-9]+/g, '-')\n  .replace(/(^-|-$)/g, '');\n\nconst fileName = `${safeName}-${workflow.id}.json`;\nconst path = `workflows/${status}/${fileName}`;\n\nconst content = Buffer.from(JSON.stringify(workflow, null, 2)).toString('base64');\n\nreturn {\n  json: {\n    path,\n    fileName,\n    content,\n    workflowName: workflow.name,\n    workflowId: workflow.id\n  }\n};"
+      },
+      "id": "2dc05e5a-59c4-430a-be11-b7c587de20c0",
+      "name": "Prepare File Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        48,
+        -32
+      ]
+    },
+    {
+      "parameters": {
+        "url": "=https://api.github.com/repos/{{ $('Set Config').item.json.githubOwner }}/{{ $('Set Config').item.json.githubRepo }}/contents/{{ $json.path }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "ref",
+              "value": "={{ $('Set Config').item.json.githubBranch }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/vnd.github+json"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        }
+      },
+      "id": "a1f54015-0899-4f16-8d24-ff3022af96c4",
+      "name": "Check Existing File",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        272,
+        -32
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "SbyLsaKcsYVXb44E",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const fileData = $('Prepare File Data').item.json;\nconst checkResponse = $json;\n\nconst payload = {\n  message: `Backup workflow: ${fileData.workflowName} (${new Date().toISOString()})`,\n  content: fileData.content,\n  branch: $('Set Config').item.json.githubBranch\n};\n\nif (checkResponse && checkResponse.sha) {\n  payload.sha = checkResponse.sha;\n}\n\nreturn {\n  json: {\n    path: fileData.path,\n    payload\n  }\n};"
+      },
+      "id": "0a5e2a25-8cd8-46fa-a1f6-622a81179d3b",
+      "name": "Build GitHub Payload",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        496,
+        -32
+      ]
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "=https://api.github.com/repos/{{ $('Set Config').first().json.githubOwner }}/{{ $('Set Config').first().json.githubRepo }}/contents/{{ $json.path }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/vnd.github+json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.payload) }}",
+        "options": {}
+      },
+      "id": "663f1625-282b-470c-b985-b68bcd9e970e",
+      "name": "Upsert File to GitHub",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        720,
+        -32
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "4OgQKBABRtSBjEnj",
+          "name": "Header Auth account 2"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1008,
+        -144
+      ],
+      "id": "3deedeb0-850d-4e27-9c26-5a9b34fb7071",
+      "name": "When clicking ‘Execute workflow’"
+    }
+  ],
+  "connections": {
+    "Weekly Schedule": {
+      "main": [
+        [
+          {
+            "node": "Set Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Config": {
+      "main": [
+        [
+          {
+            "node": "Get All Workflows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get All Workflows": {
+      "main": [
+        [
+          {
+            "node": "Split Out Workflows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out Workflows": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Workflows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Workflows": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Prepare File Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare File Data": {
+      "main": [
+        [
+          {
+            "node": "Check Existing File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Existing File": {
+      "main": [
+        [
+          {
+            "node": "Build GitHub Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build GitHub Payload": {
+      "main": [
+        [
+          {
+            "node": "Upsert File to GitHub",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upsert File to GitHub": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Workflows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Set Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "staticData": {
+    "node:Weekly Schedule": {
+      "recurrenceRules": []
+    }
+  },
+  "meta": null,
+  "pinData": {},
+  "versionId": "78112a66-956f-49dc-a8c2-bd80d909f41d",
+  "activeVersionId": "78112a66-956f-49dc-a8c2-bd80d909f41d",
+  "triggerCount": 1,
+  "shared": [
+    {
+      "updatedAt": "2026-06-11T15:54:24.264Z",
+      "createdAt": "2026-06-11T15:54:24.264Z",
+      "role": "workflow:owner",
+      "workflowId": "UqnNK60CBI7B6qeC",
+      "projectId": "5GBCFFrIrIkPnjdc"
+    }
+  ],
+  "activeVersion": {
+    "updatedAt": "2026-06-12T22:17:54.000Z",
+    "createdAt": "2026-06-12T22:17:50.234Z",
+    "versionId": "78112a66-956f-49dc-a8c2-bd80d909f41d",
+    "workflowId": "UqnNK60CBI7B6qeC",
+    "nodes": [
+      {
+        "parameters": {
+          "rule": {
+            "interval": [
+              {
+                "field": "weeks",
+                "triggerAtDay": [
+                  1
+                ],
+                "triggerAtHour": 3
+              }
+            ]
+          }
+        },
+        "id": "7c183b90-981b-41a2-868c-0f4d9d8a6962",
+        "name": "Weekly Schedule",
+        "type": "n8n-nodes-base.scheduleTrigger",
+        "typeVersion": 1.2,
+        "position": [
+          -1056,
+          80
+        ]
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "n8nBaseUrl",
+                "name": "n8nBaseUrl",
+                "value": "https://n8n.35.225.222.54.sslip.io",
+                "type": "string"
+              },
+              {
+                "id": "githubOwner",
+                "name": "githubOwner",
+                "value": "Senul375",
+                "type": "string"
+              },
+              {
+                "id": "githubRepo",
+                "name": "githubRepo",
+                "value": "n8n-backup",
+                "type": "string"
+              },
+              {
+                "id": "githubBranch",
+                "name": "githubBranch",
+                "value": "main",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "d753a32d-9420-432f-9d63-2a81f6b555e8",
+        "name": "Set Config",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          -832,
+          80
+        ]
+      },
+      {
+        "parameters": {
+          "url": "={{ $json.n8nBaseUrl }}/api/v1/workflows",
+          "authentication": "genericCredentialType",
+          "genericAuthType": "httpHeaderAuth",
+          "sendQuery": true,
+          "queryParameters": {
+            "parameters": [
+              {
+                "name": "limit",
+                "value": "250"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "d89917b3-ce76-4b6a-b7f0-a3858c541bb8",
+        "name": "Get All Workflows",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          -608,
+          80
+        ],
+        "credentials": {
+          "httpHeaderAuth": {
+            "id": "SbyLsaKcsYVXb44E",
+            "name": "Header Auth account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "fieldToSplitOut": "data",
+          "options": {}
+        },
+        "id": "b2730696-91a0-4546-98a4-397cfde4430c",
+        "name": "Split Out Workflows",
+        "type": "n8n-nodes-base.splitOut",
+        "typeVersion": 1,
+        "position": [
+          -400,
+          80
+        ]
+      },
+      {
+        "parameters": {
+          "options": {}
+        },
+        "id": "4a4cee1e-4e9a-41a9-8e5b-3bacb06cdbab",
+        "name": "Loop Over Workflows",
+        "type": "n8n-nodes-base.splitInBatches",
+        "typeVersion": 3,
+        "position": [
+          -176,
+          80
+        ]
+      },
+      {
+        "parameters": {
+          "jsCode": "const workflow = $json;\n\nconst status = workflow.active ? 'active' : 'inactive';\n\nconst safeName = (workflow.name || 'unnamed')\n  .toLowerCase()\n  .replace(/[^a-z0-9]+/g, '-')\n  .replace(/(^-|-$)/g, '');\n\nconst fileName = `${safeName}-${workflow.id}.json`;\nconst path = `workflows/${status}/${fileName}`;\n\nconst content = Buffer.from(JSON.stringify(workflow, null, 2)).toString('base64');\n\nreturn {\n  json: {\n    path,\n    fileName,\n    content,\n    workflowName: workflow.name,\n    workflowId: workflow.id\n  }\n};"
+        },
+        "id": "2dc05e5a-59c4-430a-be11-b7c587de20c0",
+        "name": "Prepare File Data",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          48,
+          -32
+        ]
+      },
+      {
+        "parameters": {
+          "url": "=https://api.github.com/repos/{{ $('Set Config').item.json.githubOwner }}/{{ $('Set Config').item.json.githubRepo }}/contents/{{ $json.path }}",
+          "authentication": "genericCredentialType",
+          "genericAuthType": "httpHeaderAuth",
+          "sendQuery": true,
+          "queryParameters": {
+            "parameters": [
+              {
+                "name": "ref",
+                "value": "={{ $('Set Config').item.json.githubBranch }}"
+              }
+            ]
+          },
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "Accept",
+                "value": "application/vnd.github+json"
+              }
+            ]
+          },
+          "options": {
+            "response": {
+              "response": {
+                "neverError": true
+              }
+            }
+          }
+        },
+        "id": "a1f54015-0899-4f16-8d24-ff3022af96c4",
+        "name": "Check Existing File",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          272,
+          -32
+        ],
+        "credentials": {
+          "httpHeaderAuth": {
+            "id": "SbyLsaKcsYVXb44E",
+            "name": "Header Auth account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsCode": "const fileData = $('Prepare File Data').item.json;\nconst checkResponse = $json;\n\nconst payload = {\n  message: `Backup workflow: ${fileData.workflowName} (${new Date().toISOString()})`,\n  content: fileData.content,\n  branch: $('Set Config').item.json.githubBranch\n};\n\nif (checkResponse && checkResponse.sha) {\n  payload.sha = checkResponse.sha;\n}\n\nreturn {\n  json: {\n    path: fileData.path,\n    payload\n  }\n};"
+        },
+        "id": "0a5e2a25-8cd8-46fa-a1f6-622a81179d3b",
+        "name": "Build GitHub Payload",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          496,
+          -32
+        ]
+      },
+      {
+        "parameters": {
+          "method": "PUT",
+          "url": "=https://api.github.com/repos/{{ $('Set Config').first().json.githubOwner }}/{{ $('Set Config').first().json.githubRepo }}/contents/{{ $json.path }}",
+          "authentication": "genericCredentialType",
+          "genericAuthType": "httpHeaderAuth",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "Accept",
+                "value": "application/vnd.github+json"
+              }
+            ]
+          },
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={{ JSON.stringify($json.payload) }}",
+          "options": {}
+        },
+        "id": "663f1625-282b-470c-b985-b68bcd9e970e",
+        "name": "Upsert File to GitHub",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          720,
+          -32
+        ],
+        "credentials": {
+          "httpHeaderAuth": {
+            "id": "4OgQKBABRtSBjEnj",
+            "name": "Header Auth account 2"
+          }
+        }
+      },
+      {
+        "parameters": {},
+        "type": "n8n-nodes-base.manualTrigger",
+        "typeVersion": 1,
+        "position": [
+          -1008,
+          -144
+        ],
+        "id": "3deedeb0-850d-4e27-9c26-5a9b34fb7071",
+        "name": "When clicking ‘Execute workflow’"
+      }
+    ],
+    "connections": {
+      "Weekly Schedule": {
+        "main": [
+          [
+            {
+              "node": "Set Config",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set Config": {
+        "main": [
+          [
+            {
+              "node": "Get All Workflows",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get All Workflows": {
+        "main": [
+          [
+            {
+              "node": "Split Out Workflows",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Split Out Workflows": {
+        "main": [
+          [
+            {
+              "node": "Loop Over Workflows",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Loop Over Workflows": {
+        "main": [
+          [],
+          [
+            {
+              "node": "Prepare File Data",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Prepare File Data": {
+        "main": [
+          [
+            {
+              "node": "Check Existing File",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Check Existing File": {
+        "main": [
+          [
+            {
+              "node": "Build GitHub Payload",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Build GitHub Payload": {
+        "main": [
+          [
+            {
+              "node": "Upsert File to GitHub",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Upsert File to GitHub": {
+        "main": [
+          [
+            {
+              "node": "Loop Over Workflows",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "When clicking ‘Execute workflow’": {
+        "main": [
+          [
+            {
+              "node": "Set Config",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "senul adeeth",
+    "name": "Version 78112a66",
+    "description": "",
+    "autosaved": true
+  },
+  "tags": []
+}
