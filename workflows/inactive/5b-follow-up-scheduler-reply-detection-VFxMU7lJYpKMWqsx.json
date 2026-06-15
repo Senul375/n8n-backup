@@ -1,0 +1,805 @@
+{
+  "updatedAt": "2026-06-13T20:09:05.972Z",
+  "createdAt": "2026-06-13T20:09:05.972Z",
+  "id": "VFxMU7lJYpKMWqsx",
+  "name": "5b. Follow-up Scheduler + Reply Detection",
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours"
+            }
+          ]
+        }
+      },
+      "name": "Schedule Trigger (hourly)",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1104,
+        80
+      ],
+      "id": "8c836672-ea47-4403-b6d1-028b7c54a832"
+    },
+    {
+      "parameters": {
+        "url": "={{ $credentials.supabaseUrl }}/rest/v1/outreach_log",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "status",
+              "value": "eq.scheduled"
+            },
+            {
+              "name": "scheduled_for",
+              "value": "lte.{{ new Date().toISOString() }}"
+            },
+            {
+              "name": "select",
+              "value": "*"
+            },
+            {
+              "name": "limit",
+              "value": "10"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $credentials.supabaseServiceKey }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer {{ $credentials.supabaseServiceKey }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Get Due Follow-ups",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -880,
+        80
+      ],
+      "id": "7a403efd-6712-4b83-96d8-4d681ac5daea"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "name": "Split Follow-ups",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -656,
+        80
+      ],
+      "id": "9e9bfcd1-19aa-4e2a-bb56-51dfbcd15bb3"
+    },
+    {
+      "parameters": {
+        "url": "={{ $credentials.supabaseUrl }}/rest/v1/leads",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "id",
+              "value": "=eq.{{ $json.lead_id }}"
+            },
+            {
+              "name": "select",
+              "value": "id,status,email,contact_name,business_name"
+            },
+            {
+              "name": "limit",
+              "value": "1"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $credentials.supabaseServiceKey }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer {{ $credentials.supabaseServiceKey }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Get Lead for Follow-up",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -448,
+        80
+      ],
+      "id": "0065ab48-26ce-4978-9e81-f92f9a61506c"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "not-replied",
+              "leftValue": "={{ $json[0].status }}",
+              "rightValue": "replied",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "name": "Lead Still Active?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -224,
+        80
+      ],
+      "id": "111240e0-f293-4edc-bcfc-a9560ff65ca5"
+    },
+    {
+      "parameters": {
+        "url": "={{ $credentials.supabaseUrl }}/rest/v1/outreach_log",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "lead_id",
+              "value": "=eq.{{ $('Split Follow-ups').item.json.lead_id }}"
+            },
+            {
+              "name": "status",
+              "value": "eq.sent"
+            },
+            {
+              "name": "select",
+              "value": "gmail_thread_id"
+            },
+            {
+              "name": "limit",
+              "value": "1"
+            },
+            {
+              "name": "order",
+              "value": "sent_at.asc"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $credentials.supabaseServiceKey }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer {{ $credentials.supabaseServiceKey }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Get Original Thread ID",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "b5c1dd30-c884-46f5-ba61-b5ee58b9402b"
+    },
+    {
+      "parameters": {
+        "url": "={{ $credentials.supabaseUrl }}/rest/v1/email_sequences",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "id",
+              "value": "=eq.{{ $('Split Follow-ups').item.json.email_sequence_id }}"
+            },
+            {
+              "name": "select",
+              "value": "*"
+            },
+            {
+              "name": "limit",
+              "value": "1"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $credentials.supabaseServiceKey }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer {{ $credentials.supabaseServiceKey }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Get Email Sequence",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        0,
+        160
+      ],
+      "id": "b4991073-bb1a-4807-8aaa-8c9bd1712416"
+    },
+    {
+      "parameters": {
+        "jsCode": "const followup = $('Split Follow-ups').item.json;\nconst lead = $('Get Lead for Follow-up').item.json[0];\nconst seq = $('Get Email Sequence').item.json[0];\nconst threadRow = $('Get Original Thread ID').item.json;\nconst threadId = Array.isArray(threadRow) ? (threadRow[0] ? threadRow[0].gmail_thread_id : null) : (threadRow ? threadRow.gmail_thread_id : null);\nconst emailType = followup.email_type;\nconst trackingId = require('crypto').randomUUID();\nlet subject, body;\nif (emailType === 'fu1') { subject = seq.fu1_subject; body = seq.fu1_body; }\nelse if (emailType === 'fu2') { subject = seq.fu2_subject; body = seq.fu2_body; }\nelse if (emailType === 'fu3') { subject = seq.fu3_subject; body = seq.fu3_body; }\nconst trackingBase = 'https://track.sncai.info';\nconst trackedBody = (body || '').replace(/https?:\\/\\/[^\\s<>\"]+/g, (url) => trackingBase + '/click?tid=' + trackingId + '&url=' + encodeURIComponent(url));\nconst pixelUrl = trackingBase + '/open?tid=' + trackingId;\nconst htmlBody = '<div>' + trackedBody.replace(/\\n/g, '<br>') + '</div><img src=\"' + pixelUrl + '\" width=\"1\" height=\"1\" style=\"display:none\" />';\nreturn { log_id: followup.id, lead_id: lead.id, sequence_id: seq.id, email_type: emailType, to_email: lead.email, subject: subject, body_plain: body, body_html: htmlBody, tracking_id: trackingId, gmail_thread_id: threadId || null };"
+      },
+      "name": "Build Follow-up Email",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        224,
+        80
+      ],
+      "id": "d216d50f-2cd9-42ed-bd4e-224957d2e9f0"
+    },
+    {
+      "parameters": {
+        "jsCode": "const minMs = 3 * 60 * 1000;\nconst maxMs = 7 * 60 * 1000;\nconst waitMs = Math.floor(Math.random() * (maxMs - minMs + 1)) + minMs;\nreturn Object.assign({}, $input.item.json, { jitter_seconds: Math.floor(waitMs / 1000) });"
+      },
+      "name": "Random Jitter",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        448,
+        80
+      ],
+      "id": "e74100ff-9ed9-46ad-ae80-a7a97bd4fe20"
+    },
+    {
+      "parameters": {},
+      "name": "Wait (3-7 min jitter)",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        672,
+        80
+      ],
+      "id": "4642a9b7-6cfc-466a-8a71-bcc18ca1936f",
+      "webhookId": "1f6f7d2c-aa86-4a60-b337-35299bc411ad"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.to_email }}",
+        "subject": "={{ $json.subject }}",
+        "message": "={{ $json.body_html }}",
+        "options": {
+          "appendAttribution": false,
+          "replyTo": "senul@sncai.info"
+        }
+      },
+      "name": "Send Follow-up (Gmail)",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        880,
+        80
+      ],
+      "id": "d3678d1f-30b2-40cc-973e-63b1c5ee0e27",
+      "webhookId": "43219ed6-48eb-44a6-8b7f-7cc41d8e8ab3"
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "={{ $credentials.supabaseUrl }}/rest/v1/outreach_log",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "id",
+              "value": "=eq.{{ $('Build Follow-up Email').item.json.log_id }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $credentials.supabaseServiceKey }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer {{ $credentials.supabaseServiceKey }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { status: 'sent', sent_at: new Date().toISOString(), tracking_id: $('Build Follow-up Email').item.json.tracking_id, gmail_thread_id: $json.threadId || $json.id } }}",
+        "options": {}
+      },
+      "name": "Update Log - Sent",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1104,
+        80
+      ],
+      "id": "cbd5889a-34ff-433b-adef-918fc94b44a2"
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "={{ $credentials.supabaseUrl }}/rest/v1/outreach_log",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "id",
+              "value": "=eq.{{ $('Split Follow-ups').item.json.id }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $credentials.supabaseServiceKey }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer {{ $credentials.supabaseServiceKey }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { status: 'stopped' } }}",
+        "options": {}
+      },
+      "name": "Stop - Lead Replied",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        0,
+        384
+      ],
+      "id": "58d244b5-4930-41c1-8428-2adcb5f958a9"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 30
+            }
+          ]
+        }
+      },
+      "name": "Reply Check Trigger (every 30min)",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1104,
+        592
+      ],
+      "id": "890d654e-3c07-4fd4-a1d7-f03e1eeeaf6d"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "name": "Check Gmail for Replies",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        -880,
+        592
+      ],
+      "id": "48494ba7-cf27-4416-8307-7ff07e38ae19",
+      "webhookId": "105b5fa0-827e-4a0d-a60b-537c0d8be68d"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "name": "Split Gmail Messages",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -656,
+        592
+      ],
+      "id": "1facba07-a6a6-4e1e-87fe-be5b10997eaa"
+    },
+    {
+      "parameters": {
+        "url": "={{ $credentials.supabaseUrl }}/rest/v1/outreach_log",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "gmail_thread_id",
+              "value": "=eq.{{ $json.threadId }}"
+            },
+            {
+              "name": "status",
+              "value": "eq.sent"
+            },
+            {
+              "name": "select",
+              "value": "id,lead_id"
+            },
+            {
+              "name": "limit",
+              "value": "1"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $credentials.supabaseServiceKey }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer {{ $credentials.supabaseServiceKey }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Match Thread to Log",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -448,
+        592
+      ],
+      "id": "2c8f80bb-8bfc-4176-9384-3fff4762b93f"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "found-match",
+              "leftValue": "={{ Array.isArray($json) && $json.length > 0 ? $json[0].lead_id : null }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "name": "Is a Reply to Our Email?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -224,
+        592
+      ],
+      "id": "9f7ec74f-1157-40d2-9c0f-2a9e6c4a83b8"
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "={{ $credentials.supabaseUrl }}/rest/v1/leads",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "id",
+              "value": "=eq.{{ $json[0].lead_id }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $credentials.supabaseServiceKey }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer {{ $credentials.supabaseServiceKey }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { status: 'replied', updated_at: new Date().toISOString() } }}",
+        "options": {}
+      },
+      "name": "Mark Lead as Replied",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        0,
+        592
+      ],
+      "id": "88528065-ff8d-44f9-8d7a-33df36681daf"
+    }
+  ],
+  "connections": {
+    "Schedule Trigger (hourly)": {
+      "main": [
+        [
+          {
+            "node": "Get Due Follow-ups",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Due Follow-ups": {
+      "main": [
+        [
+          {
+            "node": "Split Follow-ups",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Follow-ups": {
+      "main": [
+        [
+          {
+            "node": "Get Lead for Follow-up",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Lead for Follow-up": {
+      "main": [
+        [
+          {
+            "node": "Lead Still Active?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lead Still Active?": {
+      "main": [
+        [
+          {
+            "node": "Get Original Thread ID",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get Email Sequence",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Stop - Lead Replied",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Original Thread ID": {
+      "main": [
+        [
+          {
+            "node": "Build Follow-up Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Email Sequence": {
+      "main": [
+        [
+          {
+            "node": "Build Follow-up Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Follow-up Email": {
+      "main": [
+        [
+          {
+            "node": "Random Jitter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Random Jitter": {
+      "main": [
+        [
+          {
+            "node": "Wait (3-7 min jitter)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait (3-7 min jitter)": {
+      "main": [
+        [
+          {
+            "node": "Send Follow-up (Gmail)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Follow-up (Gmail)": {
+      "main": [
+        [
+          {
+            "node": "Update Log - Sent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reply Check Trigger (every 30min)": {
+      "main": [
+        [
+          {
+            "node": "Check Gmail for Replies",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Gmail for Replies": {
+      "main": [
+        [
+          {
+            "node": "Split Gmail Messages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Gmail Messages": {
+      "main": [
+        [
+          {
+            "node": "Match Thread to Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Match Thread to Log": {
+      "main": [
+        [
+          {
+            "node": "Is a Reply to Our Email?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is a Reply to Our Email?": {
+      "main": [
+        [
+          {
+            "node": "Mark Lead as Replied",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": {},
+  "versionId": "8aca1bb5-1177-4202-9ffe-64c0e01276fa",
+  "activeVersionId": null,
+  "triggerCount": 0,
+  "shared": [
+    {
+      "updatedAt": "2026-06-13T20:09:05.978Z",
+      "createdAt": "2026-06-13T20:09:05.978Z",
+      "role": "workflow:owner",
+      "workflowId": "VFxMU7lJYpKMWqsx",
+      "projectId": "5GBCFFrIrIkPnjdc"
+    }
+  ],
+  "activeVersion": null,
+  "tags": []
+}
