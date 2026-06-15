@@ -1,0 +1,598 @@
+{
+  "updatedAt": "2026-06-13T20:08:08.457Z",
+  "createdAt": "2026-06-13T20:08:08.457Z",
+  "id": "vMW8AO016lfo09tR",
+  "name": "5. Outreach Sender (Gmail + Tracking + Follow-ups)",
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "send-email",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "name": "Webhook - Approve & Send",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -2864,
+        80
+      ],
+      "webhookId": "approve-and-send",
+      "id": "a8efd521-92f4-4da7-a7ef-4ad81e6ea69e",
+      "notes": "Dashboard calls this when you click Approve & Send. Expects: { lead_id, sequence_id, email_type } where email_type is 'initial'|'fu1'|'fu2'|'fu3'"
+    },
+    {
+      "parameters": {
+        "url": "={{ $credentials.supabaseUrl }}/rest/v1/leads",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "id",
+              "value": "=eq.{{ $json.body.lead_id }}"
+            },
+            {
+              "name": "select",
+              "value": "*"
+            },
+            {
+              "name": "limit",
+              "value": "1"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $credentials.supabaseServiceKey }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer {{ $credentials.supabaseServiceKey }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Get Lead",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -2640,
+        80
+      ],
+      "id": "14eae776-d816-4019-84ad-0f7571ecdd43"
+    },
+    {
+      "parameters": {
+        "url": "={{ $credentials.supabaseUrl }}/rest/v1/email_sequences",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "id",
+              "value": "=eq.{{ $('Webhook - Approve & Send').item.json.body.sequence_id }}"
+            },
+            {
+              "name": "select",
+              "value": "*"
+            },
+            {
+              "name": "limit",
+              "value": "1"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $credentials.supabaseServiceKey }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer {{ $credentials.supabaseServiceKey }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Get Email Sequence",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -2416,
+        80
+      ],
+      "id": "a8b0ea33-143c-4b1d-95b1-73d707d4c1b0"
+    },
+    {
+      "parameters": {
+        "jsCode": "const webhookData = $('Webhook - Approve & Send').item.json.body;\nconst lead = $('Get Lead').item.json[0];\nconst seq = $('Get Email Sequence').item.json[0];\nconst emailType = webhookData.email_type || 'initial';\n\nconst trackingId = require('crypto').randomUUID();\n\nlet subject, body;\nif (emailType === 'initial') {\n  subject = seq.email_1_subject;\n  body = seq.email_1_body;\n} else if (emailType === 'fu1') {\n  subject = seq.fu1_subject;\n  body = seq.fu1_body;\n} else if (emailType === 'fu2') {\n  subject = seq.fu2_subject;\n  body = seq.fu2_body;\n} else if (emailType === 'fu3') {\n  subject = seq.fu3_subject;\n  body = seq.fu3_body;\n}\n\n// Wrap any URLs in body with tracked redirect\nconst trackingBase = $credentials.trackingBaseUrl || 'https://track.sncai.info';\nconst trackedBody = (body || '').replace(\n  /https?:\\/\\/[^\\s<>\"]+/g,\n  (url) => `${trackingBase}/click?tid=${trackingId}&url=${encodeURIComponent(url)}`\n);\n\n// Append invisible tracking pixel\nconst pixelUrl = `${trackingBase}/open?tid=${trackingId}`;\nconst htmlBody = `<div>${trackedBody.replace(/\\n/g, '<br>')}</div><img src=\"${pixelUrl}\" width=\"1\" height=\"1\" style=\"display:none\" />`;\n\nreturn {\n  lead_id: lead.id,\n  sequence_id: seq.id,\n  email_type: emailType,\n  to_email: lead.email,\n  to_name: lead.contact_name || lead.business_name,\n  subject,\n  body_plain: body,\n  body_html: htmlBody,\n  tracking_id: trackingId\n};"
+      },
+      "name": "Build Email + Tracking",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2208,
+        80
+      ],
+      "id": "ca143409-8c0f-4c30-9f41-a845d23078f1",
+      "notes": "Injects open-tracking pixel and wraps links with click-tracking redirect. Set $credentials.trackingBaseUrl to your tracking server domain."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Random wait between 3-7 minutes to avoid bot detection\nconst minMs = 3 * 60 * 1000;\nconst maxMs = 7 * 60 * 1000;\nconst waitMs = Math.floor(Math.random() * (maxMs - minMs + 1)) + minMs;\nconst waitSeconds = Math.floor(waitMs / 1000);\nreturn { ...($input.item.json), jitter_seconds: waitSeconds };"
+      },
+      "name": "Calculate Random Jitter",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1984,
+        80
+      ],
+      "id": "dae371e2-7397-4ccc-9193-f50a13a000c4"
+    },
+    {
+      "parameters": {},
+      "name": "Wait (3-7 min jitter)",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -1760,
+        80
+      ],
+      "id": "c38acf75-c163-466f-b160-28315fdb343d",
+      "webhookId": "051f213b-5013-41d2-ad25-aa2f78570be4",
+      "notes": "Waits a random 3-7 minutes before sending to avoid triggering spam/bot detection."
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.to_email }}",
+        "subject": "={{ $json.subject }}",
+        "message": "={{ $json.body_html }}",
+        "options": {
+          "appendAttribution": false,
+          "replyTo": "senul@sncai.info"
+        }
+      },
+      "name": "Send Email (Gmail)",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        -1536,
+        80
+      ],
+      "id": "cafdf735-b7df-440d-81ee-6791773ec59c",
+      "webhookId": "f888a6bf-44d1-4567-a72d-2683a196c358",
+      "notes": "Update credentials to your actual Gmail OAuth2 credential. Also update replyTo to your sending address."
+    },
+    {
+      "parameters": {
+        "jsCode": "const emailData = $('Build Email + Tracking').item.json;\nconst gmailResult = $json;\n\nconst threadId = gmailResult.threadId || gmailResult.id || null;\n\nreturn {\n  lead_id: emailData.lead_id,\n  sequence_id: emailData.sequence_id,\n  email_type: emailData.email_type,\n  subject: emailData.subject,\n  body: emailData.body_plain,\n  tracking_id: emailData.tracking_id,\n  gmail_thread_id: threadId,\n  status: 'sent',\n  sent_at: new Date().toISOString()\n};"
+      },
+      "name": "Prepare Log Entry",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1328,
+        80
+      ],
+      "id": "d1ed92d7-88b7-4756-88be-83b7ed149584"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $credentials.supabaseUrl }}/rest/v1/outreach_log",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $credentials.supabaseServiceKey }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer {{ $credentials.supabaseServiceKey }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=representation"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {}
+      },
+      "name": "Insert Outreach Log",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1104,
+        80
+      ],
+      "id": "c55155aa-98a6-4c46-b8d4-be9346484c1f"
+    },
+    {
+      "parameters": {
+        "jsCode": "const logEntry = Array.isArray($json) ? $json[0] : $json;\nconst emailType = logEntry.email_type;\n\nconst statusMap = {\n  initial: { leadStatus: 'sent', seqField: 'sent_at' },\n  fu1: { leadStatus: 'fu1_sent', seqField: null },\n  fu2: { leadStatus: 'fu2_sent', seqField: null },\n  fu3: { leadStatus: 'fu3_sent', seqField: null }\n};\n\nconst mapping = statusMap[emailType] || statusMap['initial'];\n\nreturn {\n  lead_id: logEntry.lead_id,\n  sequence_id: logEntry.sequence_id,\n  email_type: emailType,\n  lead_status: mapping.leadStatus,\n  now: new Date().toISOString()\n};"
+      },
+      "name": "Map Status Updates",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -880,
+        80
+      ],
+      "id": "b2e6d3ae-b19e-45ad-aa94-f7557735ee8e"
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "={{ $credentials.supabaseUrl }}/rest/v1/leads",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "id",
+              "value": "=eq.{{ $json.lead_id }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $credentials.supabaseServiceKey }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer {{ $credentials.supabaseServiceKey }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { status: $json.lead_status } }}",
+        "options": {}
+      },
+      "name": "Update Lead Status",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -656,
+        80
+      ],
+      "id": "8b894f83-240f-4d63-9edd-625b1228a672"
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $('Map Status Updates').item.json;\nconst emailType = data.email_type;\n\nconst delayDays = { initial: 3, fu1: 2, fu2: 2 };\nconst nextEmailMap = { initial: 'fu1', fu1: 'fu2', fu2: 'fu3' };\n\nif (emailType === 'fu3') {\n  return { schedule_next: false };\n}\n\nconst delay = delayDays[emailType];\nconst nextType = nextEmailMap[emailType];\nconst scheduledFor = new Date(Date.now() + delay * 24 * 60 * 60 * 1000).toISOString();\n\nreturn {\n  schedule_next: true,\n  lead_id: data.lead_id,\n  sequence_id: data.sequence_id,\n  next_email_type: nextType,\n  scheduled_for: scheduledFor\n};"
+      },
+      "name": "Calculate Next Send Date",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -448,
+        80
+      ],
+      "id": "282f8c78-6c8b-48b1-a093-f55a65e1c2ed"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "should-schedule",
+              "leftValue": "={{ $json.schedule_next }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "name": "Schedule Next Email?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -224,
+        80
+      ],
+      "id": "0a9c7659-090c-4b96-ba10-a65c276c6586"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $credentials.supabaseUrl }}/rest/v1/outreach_log",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $credentials.supabaseServiceKey }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer {{ $credentials.supabaseServiceKey }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { lead_id: $json.lead_id, email_sequence_id: $json.sequence_id, email_type: $json.next_email_type, status: 'scheduled', scheduled_for: $json.scheduled_for } }}",
+        "options": {}
+      },
+      "name": "Schedule Follow-up in Log",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "e5462f0f-11fe-4730-b487-f9504fc33665",
+      "notes": "Inserts a 'scheduled' row into outreach_log. Workflow 5b (Follow-up Scheduler) reads this table and fires when scheduled_for is due."
+    },
+    {
+      "parameters": {},
+      "name": "Sequence Complete",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        0,
+        208
+      ],
+      "id": "00318446-eb40-48d7-9811-cba6f630e872"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { success: true, message: 'Email sent and follow-up scheduled', tracking_id: $('Build Email + Tracking').item.json.tracking_id } }}",
+        "options": {}
+      },
+      "name": "Respond to Dashboard",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        224,
+        80
+      ],
+      "id": "5364ddbe-974b-4ea6-8f1c-0554ec66b7ea"
+    }
+  ],
+  "connections": {
+    "Webhook - Approve & Send": {
+      "main": [
+        [
+          {
+            "node": "Get Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Lead": {
+      "main": [
+        [
+          {
+            "node": "Get Email Sequence",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Email Sequence": {
+      "main": [
+        [
+          {
+            "node": "Build Email + Tracking",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Email + Tracking": {
+      "main": [
+        [
+          {
+            "node": "Calculate Random Jitter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate Random Jitter": {
+      "main": [
+        [
+          {
+            "node": "Wait (3-7 min jitter)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait (3-7 min jitter)": {
+      "main": [
+        [
+          {
+            "node": "Send Email (Gmail)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Email (Gmail)": {
+      "main": [
+        [
+          {
+            "node": "Prepare Log Entry",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Log Entry": {
+      "main": [
+        [
+          {
+            "node": "Insert Outreach Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert Outreach Log": {
+      "main": [
+        [
+          {
+            "node": "Map Status Updates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Map Status Updates": {
+      "main": [
+        [
+          {
+            "node": "Update Lead Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Lead Status": {
+      "main": [
+        [
+          {
+            "node": "Calculate Next Send Date",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate Next Send Date": {
+      "main": [
+        [
+          {
+            "node": "Schedule Next Email?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Next Email?": {
+      "main": [
+        [
+          {
+            "node": "Schedule Follow-up in Log",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Sequence Complete",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Follow-up in Log": {
+      "main": [
+        [
+          {
+            "node": "Respond to Dashboard",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sequence Complete": {
+      "main": [
+        [
+          {
+            "node": "Respond to Dashboard",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": {},
+  "versionId": "8b36932a-8f38-408b-80c3-77be352e311b",
+  "activeVersionId": null,
+  "triggerCount": 0,
+  "shared": [
+    {
+      "updatedAt": "2026-06-13T20:08:08.459Z",
+      "createdAt": "2026-06-13T20:08:08.459Z",
+      "role": "workflow:owner",
+      "workflowId": "vMW8AO016lfo09tR",
+      "projectId": "5GBCFFrIrIkPnjdc"
+    }
+  ],
+  "activeVersion": null,
+  "tags": []
+}
