@@ -1,0 +1,389 @@
+{
+  "updatedAt": "2026-06-13T20:01:55.002Z",
+  "createdAt": "2026-06-13T20:01:55.002Z",
+  "id": "ZoWDHnpzV5UDcJ9R",
+  "name": "4. Email Generation (Pitch + Follow-ups)",
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours"
+            }
+          ]
+        }
+      },
+      "name": "Schedule Trigger (hourly)",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "45137d5d-408e-4742-a01e-833c98be6692"
+    },
+    {
+      "parameters": {
+        "url": "={{ $credentials.supabaseUrl }}/rest/v1/leads",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "status",
+              "value": "eq.analyzed"
+            },
+            {
+              "name": "select",
+              "value": "*"
+            },
+            {
+              "name": "limit",
+              "value": "10"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $credentials.supabaseServiceKey }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer {{ $credentials.supabaseServiceKey }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Get Analyzed Leads",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        224,
+        0
+      ],
+      "id": "2f994498-9f7c-4736-8446-8b2027f8e39e"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "name": "Split Out Leads",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        448,
+        0
+      ],
+      "id": "d087f910-b175-4bda-b9e3-43f636c2856e"
+    },
+    {
+      "parameters": {
+        "url": "={{ $credentials.supabaseUrl }}/rest/v1/website_audits",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "lead_id",
+              "value": "=eq.{{ $json.id }}"
+            },
+            {
+              "name": "select",
+              "value": "*"
+            },
+            {
+              "name": "limit",
+              "value": "1"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $credentials.supabaseServiceKey }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer {{ $credentials.supabaseServiceKey }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Get Website Audit",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        672,
+        0
+      ],
+      "id": "e333f9a8-9fde-4c4b-8feb-674d87eccbc5"
+    },
+    {
+      "parameters": {
+        "jsCode": "const lead = $('Split Out Leads').item.json;\nconst auditArr = $json;\nconst audit = Array.isArray(auditArr) ? auditArr[0] : auditArr;\n\nconst allIssues = [\n  ...(audit.visual_issues || []),\n  ...(audit.technical_issues || [])\n];\n\nconst severityRank = { high: 3, medium: 2, low: 1 };\nallIssues.sort((a, b) => (severityRank[b.severity] || 0) - (severityRank[a.severity] || 0));\n\nconst issueList = allIssues.map((i, idx) => `${idx + 1}. ${i.issue} (${i.severity}): ${i.description}`).join('\\n');\n\nconst firstName = (lead.contact_name || '').split(' ')[0] || 'there';\n\nreturn {\n  lead_id: lead.id,\n  business_name: lead.business_name,\n  website: lead.website,\n  contact_name: lead.contact_name,\n  first_name: firstName,\n  email: lead.email,\n  niche: lead.niche,\n  top_issue: audit.top_issue || allIssues[0]?.issue || 'website improvements',\n  top_issue_description: allIssues[0]?.description || '',\n  issue_2: allIssues[1]?.issue || null,\n  issue_2_description: allIssues[1]?.description || '',\n  issue_3: allIssues[2]?.issue || null,\n  issue_3_description: allIssues[2]?.description || '',\n  full_issue_list: issueList,\n  performance_score: audit.pagespeed_performance_score,\n  seo_score: audit.pagespeed_seo_score\n};"
+      },
+      "name": "Prepare Email Context",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        880,
+        0
+      ],
+      "id": "c86940d5-1fb8-4637-9fe9-a167c536daf9"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "={{ $credentials.anthropicApiKey }}"
+            },
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { model: \"claude-sonnet-4-6\", max_tokens: 2000, messages: [{ role: \"user\", content: \"You are a cold email copywriter for SNC, an AI automation agency. Write 4 cold emails (initial pitch + 3 follow-ups) for a B2B outreach campaign targeting a small business owner.\\n\\nLEAD INFO:\\nBusiness: \" + $json.business_name + \"\\nWebsite: \" + $json.website + \"\\nFirst name: \" + $json.first_name + \"\\nNiche: \" + $json.niche + \"\\n\\nWEBSITE ISSUES FOUND (ranked by severity):\\n\" + $json.full_issue_list + \"\\n\\nTop issue for Email 1: \" + $json.top_issue + \" - \" + $json.top_issue_description + \"\\nIssue for FU1: \" + ($json.issue_2 || $json.top_issue) + \" - \" + ($json.issue_2_description || '') + \"\\nIssue for FU2: \" + ($json.issue_3 || $json.top_issue) + \" - \" + ($json.issue_3_description || '') + \"\\n\\nRULES (follow strictly):\\n- Each email focuses on ONE issue only. Never mention two issues in the same sentence.\\n- Email 1: lead with the top issue, end with a soft CTA (e.g. asking if they want to see a quick fix or a prototype)\\n- FU1: different issue angle, cut any 'just following up' phrase, different CTA from Email 1\\n- FU2: different issue again, different CTA from FU1\\n- FU3: binary close - force a yes/no decision (e.g. 'Worth a quick look, yes or no?'). Do NOT say 'Last one from me' or signal giving up in the subject line.\\n- Subject lines must be specific and vary per email - no generic subjects\\n- Tone: direct, casual, human - NOT corporate, NOT AI-sounding\\n- Keep emails SHORT (under 100 words each body)\\n- Sign off as: Senul, SNC\\n- Do NOT include placeholders like [your name] - use the actual names provided\\n\\nRespond ONLY with valid JSON, no markdown, no preamble, in this exact format:\\n{\\\"email_1_subject\\\": \\\"\\\", \\\"email_1_body\\\": \\\"\\\", \\\"email_1_issue_used\\\": \\\"\\\", \\\"fu1_subject\\\": \\\"\\\", \\\"fu1_body\\\": \\\"\\\", \\\"fu1_issue_used\\\": \\\"\\\", \\\"fu2_subject\\\": \\\"\\\", \\\"fu2_body\\\": \\\"\\\", \\\"fu2_issue_used\\\": \\\"\\\", \\\"fu3_subject\\\": \\\"\\\", \\\"fu3_body\\\": \\\"\\\", \\\"fu3_issue_used\\\": \\\"\\\"}\" }] } }}",
+        "options": {}
+      },
+      "name": "Generate Emails (Claude AI)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1104,
+        0
+      ],
+      "id": "efb600ea-4a09-438a-b983-d3c4e53fc681"
+    },
+    {
+      "parameters": {
+        "jsCode": "const context = $('Prepare Email Context').item.json;\nconst response = $json;\n\nlet emails = {};\ntry {\n  const textBlock = (response.content || []).find(c => c.type === 'text');\n  const raw = (textBlock?.text || '{}').replace(/```json|```/g, '').trim();\n  emails = JSON.parse(raw);\n} catch(e) {\n  throw new Error('Failed to parse AI email response: ' + e.message);\n}\n\nreturn {\n  lead_id: context.lead_id,\n  ...emails,\n  status: 'pending_review'\n};"
+      },
+      "name": "Parse Email Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1328,
+        0
+      ],
+      "id": "a692f0d0-af27-4aff-9b2e-6b09c61a7234"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $credentials.supabaseUrl }}/rest/v1/email_sequences",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $credentials.supabaseServiceKey }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer {{ $credentials.supabaseServiceKey }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {}
+      },
+      "name": "Insert Email Sequence",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1552,
+        0
+      ],
+      "id": "03638cba-4084-42e5-b92f-20485661d283"
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "={{ $credentials.supabaseUrl }}/rest/v1/leads",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "id",
+              "value": "=eq.{{ $('Prepare Email Context').item.json.lead_id }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $credentials.supabaseServiceKey }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer {{ $credentials.supabaseServiceKey }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { status: 'ready_for_review' } }}",
+        "options": {}
+      },
+      "name": "Update Lead - Ready For Review",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1760,
+        0
+      ],
+      "id": "44da0b17-b6bb-42f8-a356-bba65a5d1efc"
+    }
+  ],
+  "connections": {
+    "Schedule Trigger (hourly)": {
+      "main": [
+        [
+          {
+            "node": "Get Analyzed Leads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Analyzed Leads": {
+      "main": [
+        [
+          {
+            "node": "Split Out Leads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out Leads": {
+      "main": [
+        [
+          {
+            "node": "Get Website Audit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Website Audit": {
+      "main": [
+        [
+          {
+            "node": "Prepare Email Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Email Context": {
+      "main": [
+        [
+          {
+            "node": "Generate Emails (Claude AI)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Emails (Claude AI)": {
+      "main": [
+        [
+          {
+            "node": "Parse Email Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Email Response": {
+      "main": [
+        [
+          {
+            "node": "Insert Email Sequence",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert Email Sequence": {
+      "main": [
+        [
+          {
+            "node": "Update Lead - Ready For Review",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": {},
+  "versionId": "eecf1183-d122-42b0-8df5-4b95f4183724",
+  "activeVersionId": null,
+  "triggerCount": 0,
+  "shared": [
+    {
+      "updatedAt": "2026-06-13T20:01:55.004Z",
+      "createdAt": "2026-06-13T20:01:55.004Z",
+      "role": "workflow:owner",
+      "workflowId": "ZoWDHnpzV5UDcJ9R",
+      "projectId": "5GBCFFrIrIkPnjdc"
+    }
+  ],
+  "activeVersion": null,
+  "tags": []
+}
