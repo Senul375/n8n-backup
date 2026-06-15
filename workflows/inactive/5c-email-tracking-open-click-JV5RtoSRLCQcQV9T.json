@@ -1,0 +1,473 @@
+{
+  "updatedAt": "2026-06-13T20:14:21.661Z",
+  "createdAt": "2026-06-13T20:14:21.661Z",
+  "id": "JV5RtoSRLCQcQV9T",
+  "name": "5c. Email Tracking (Open + Click)",
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "path": "open",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "name": "Open Pixel Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -448,
+        160
+      ],
+      "webhookId": "email-open-tracker",
+      "id": "8f051d0e-f017-4077-8ad2-a2a354705ba9",
+      "notes": "Email clients load this 1x1 pixel image when the email is opened. URL format: https://your-n8n-url/webhook/open?tid=TRACKING_ID"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "has-tid",
+              "leftValue": "={{ $json.query.tid }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "name": "Has Tracking ID? (Open)",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -224,
+        160
+      ],
+      "id": "96c3eb9b-0f5a-401f-9863-9429729aef97"
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "={{ $credentials.supabaseUrl }}/rest/v1/outreach_log",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "tracking_id",
+              "value": "=eq.{{ $json.query.tid }}"
+            },
+            {
+              "name": "opened_at",
+              "value": "is.null"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $credentials.supabaseServiceKey }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer {{ $credentials.supabaseServiceKey }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { opened_at: new Date().toISOString(), status: 'opened' } }}",
+        "options": {}
+      },
+      "name": "Log Open Event",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        0,
+        112
+      ],
+      "id": "1b4c65b5-5dd1-4901-956d-938b20e200fa",
+      "notes": "Only updates if opened_at is null (first open). Subsequent opens are ignored to avoid noise."
+    },
+    {
+      "parameters": {
+        "respondWith": "binary",
+        "options": {
+          "responseCode": 200,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "image/gif"
+              },
+              {
+                "name": "Cache-Control",
+                "value": "no-store, no-cache, must-revalidate, max-age=0"
+              }
+            ]
+          }
+        }
+      },
+      "name": "Return 1x1 Pixel (Open)",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        224,
+        112
+      ],
+      "id": "733e30f7-7a67-4438-ad4a-aaa2932383ac",
+      "notes": "Returns a transparent 1x1 GIF so the email client renders it silently."
+    },
+    {
+      "parameters": {
+        "respondWith": "binary",
+        "options": {
+          "responseCode": 200,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "image/gif"
+              },
+              {
+                "name": "Cache-Control",
+                "value": "no-store, no-cache, must-revalidate, max-age=0"
+              }
+            ]
+          }
+        }
+      },
+      "name": "Return 1x1 Pixel (No TID)",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        240
+      ],
+      "id": "561e615d-ab94-4960-b4d4-5d8408c6ef98"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Create a minimal 1x1 transparent GIF in binary\nconst gifBytes = Buffer.from('R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7', 'base64');\nreturn { json: {}, binary: { data: { data: gifBytes.toString('base64'), mimeType: 'image/gif', fileName: 'pixel.gif' } } };"
+      },
+      "name": "Generate Pixel Binary (1)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "2f48d36d-3db4-4fd6-b2bb-f4f446b059c3",
+      "notes": "Creates the actual 1x1 transparent GIF binary that gets returned as the response."
+    },
+    {
+      "parameters": {
+        "jsCode": "const gifBytes = Buffer.from('R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7', 'base64');\nreturn { json: {}, binary: { data: { data: gifBytes.toString('base64'), mimeType: 'image/gif', fileName: 'pixel.gif' } } };"
+      },
+      "name": "Generate Pixel Binary (2)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -224,
+        240
+      ],
+      "id": "059ae73a-4049-48c8-879e-c37c16ef3d07"
+    },
+    {
+      "parameters": {
+        "path": "click",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "name": "Click Redirect Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -448,
+        560
+      ],
+      "webhookId": "email-click-tracker",
+      "id": "ff649383-7c48-44e4-adb5-1c9f7098a06c",
+      "notes": "Links in emails are wrapped to hit this first. URL format: https://your-n8n-url/webhook/click?tid=TRACKING_ID&url=ENCODED_DESTINATION"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "has-tid",
+              "leftValue": "={{ $json.query.tid }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "has-url",
+              "leftValue": "={{ $json.query.url }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "name": "Has TID + URL? (Click)",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -224,
+        560
+      ],
+      "id": "fae0a4ff-b8a8-439e-baa6-73ee0770cd60"
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "={{ $credentials.supabaseUrl }}/rest/v1/outreach_log",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "tracking_id",
+              "value": "=eq.{{ $json.query.tid }}"
+            },
+            {
+              "name": "clicked_at",
+              "value": "is.null"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $credentials.supabaseServiceKey }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer {{ $credentials.supabaseServiceKey }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { clicked_at: new Date().toISOString(), status: 'clicked' } }}",
+        "options": {}
+      },
+      "name": "Log Click Event",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        0,
+        512
+      ],
+      "id": "13cf02ea-a103-4658-958a-d9f4d7a85c2d",
+      "notes": "Only updates if clicked_at is null (first click). Records the engagement."
+    },
+    {
+      "parameters": {
+        "respondWith": "redirect",
+        "redirectURL": "={{ $('Click Redirect Webhook').item.json.query.url }}",
+        "options": {
+          "responseCode": 302
+        }
+      },
+      "name": "Redirect to Destination",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        224,
+        512
+      ],
+      "id": "132ebee0-e10d-4e67-8fa1-7664df5655b6",
+      "notes": "302 redirect sends the user to the actual URL they clicked."
+    },
+    {
+      "parameters": {
+        "respondWith": "redirect",
+        "redirectURL": "https://sncai.info",
+        "options": {
+          "responseCode": 302
+        }
+      },
+      "name": "Redirect Fallback",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        672
+      ],
+      "id": "98bb11ef-2412-46ab-9340-c37691c06377",
+      "notes": "If no tracking ID or URL, just redirect to your site instead of showing an error."
+    }
+  ],
+  "connections": {
+    "Open Pixel Webhook": {
+      "main": [
+        [
+          {
+            "node": "Has Tracking ID? (Open)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Tracking ID? (Open)": {
+      "main": [
+        [
+          {
+            "node": "Log Open Event",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Generate Pixel Binary (2)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Open Event": {
+      "main": [
+        [
+          {
+            "node": "Generate Pixel Binary (1)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Pixel Binary (1)": {
+      "main": [
+        [
+          {
+            "node": "Return 1x1 Pixel (Open)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Pixel Binary (2)": {
+      "main": [
+        [
+          {
+            "node": "Return 1x1 Pixel (No TID)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Click Redirect Webhook": {
+      "main": [
+        [
+          {
+            "node": "Has TID + URL? (Click)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has TID + URL? (Click)": {
+      "main": [
+        [
+          {
+            "node": "Log Click Event",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Redirect Fallback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Click Event": {
+      "main": [
+        [
+          {
+            "node": "Redirect to Destination",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": {},
+  "versionId": "28a4aa34-e9dc-4276-9062-17ba47febbb6",
+  "activeVersionId": null,
+  "triggerCount": 0,
+  "shared": [
+    {
+      "updatedAt": "2026-06-13T20:14:21.663Z",
+      "createdAt": "2026-06-13T20:14:21.663Z",
+      "role": "workflow:owner",
+      "workflowId": "JV5RtoSRLCQcQV9T",
+      "projectId": "5GBCFFrIrIkPnjdc"
+    }
+  ],
+  "activeVersion": null,
+  "tags": []
+}
