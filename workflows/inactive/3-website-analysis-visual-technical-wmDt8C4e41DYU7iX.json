@@ -1,0 +1,450 @@
+{
+  "updatedAt": "2026-06-13T19:17:31.839Z",
+  "createdAt": "2026-06-13T19:17:31.839Z",
+  "id": "wmDt8C4e41DYU7iX",
+  "name": "3. Website Analysis (Visual + Technical)",
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours"
+            }
+          ]
+        }
+      },
+      "name": "Schedule Trigger (hourly)",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -880,
+        128
+      ],
+      "id": "6dc63cc4-e38f-4058-a65c-e01183dd182a"
+    },
+    {
+      "parameters": {
+        "url": "={{ $credentials.supabaseUrl }}/rest/v1/leads",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "status",
+              "value": "eq.enriched"
+            },
+            {
+              "name": "select",
+              "value": "*"
+            },
+            {
+              "name": "limit",
+              "value": "10"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $credentials.supabaseServiceKey }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer {{ $credentials.supabaseServiceKey }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Get Enriched Leads",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -656,
+        128
+      ],
+      "id": "c6f7e5ac-f384-4a40-860a-53eac938b781",
+      "notes": "Capped at 10 per run - this workflow is the most expensive (screenshot + PageSpeed + AI vision per lead)."
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "name": "Split Out Leads",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -448,
+        128
+      ],
+      "id": "02b78ebe-b9e5-48da-8c59-5dd99741e165"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $credentials.screenshotApiUrl }}/screenshot",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { url: $json.website, dismiss_cookies: true, full_page: false } }}",
+        "options": {}
+      },
+      "name": "Take Screenshot",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -224,
+        128
+      ],
+      "id": "54108f52-b65a-444b-86e5-828dca931ddc",
+      "notes": "Calls your self-hosted FastAPI/Playwright screenshot service. ADJUST the URL path and response field names below to match your actual API - assumed it returns { screenshot_url: '...', screenshot_base64: '...' }."
+    },
+    {
+      "parameters": {
+        "url": "https://www.googleapis.com/pagespeedonline/v5/runPagespeed",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "url",
+              "value": "={{ $('Split Out Leads').item.json.website }}"
+            },
+            {
+              "name": "key",
+              "value": "={{ $credentials.googlePlacesApiKey }}"
+            },
+            {
+              "name": "strategy",
+              "value": "mobile"
+            },
+            {
+              "name": "category",
+              "value": "performance"
+            },
+            {
+              "name": "category",
+              "value": "seo"
+            },
+            {
+              "name": "category",
+              "value": "accessibility"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "PageSpeed Insights",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "9fd94a81-c009-49ce-bcf9-f970c1577cb2",
+      "notes": "PageSpeed Insights API uses the same key type as Google Maps - enable 'PageSpeed Insights API' in your GCP project, can reuse the same API key or create a separate one."
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $json;\nconst lighthouse = data.lighthouseResult || {};\nconst categories = lighthouse.categories || {};\nconst audits = lighthouse.audits || {};\n\nconst performance_score = Math.round((categories.performance?.score || 0) * 100);\nconst seo_score = Math.round((categories.seo?.score || 0) * 100);\nconst accessibility_score = Math.round((categories.accessibility?.score || 0) * 100);\n\nconst core_web_vitals = {\n  lcp: audits['largest-contentful-paint']?.displayValue || null,\n  cls: audits['cumulative-layout-shift']?.displayValue || null,\n  tbt: audits['total-blocking-time']?.displayValue || null,\n  speed_index: audits['speed-index']?.displayValue || null\n};\n\nconst technical_issues = [];\n\nif (performance_score < 50) {\n  technical_issues.push({ issue: 'Slow page load speed', severity: 'high', description: 'Mobile performance score: ' + performance_score + '/100' });\n} else if (performance_score < 80) {\n  technical_issues.push({ issue: 'Page load speed could be improved', severity: 'medium', description: 'Mobile performance score: ' + performance_score + '/100' });\n}\n\nif (seo_score < 80) {\n  technical_issues.push({ issue: 'SEO issues detected', severity: seo_score < 50 ? 'high' : 'medium', description: 'SEO score: ' + seo_score + '/100' });\n}\n\nif (accessibility_score < 80) {\n  technical_issues.push({ issue: 'Accessibility issues detected', severity: accessibility_score < 50 ? 'high' : 'medium', description: 'Accessibility score: ' + accessibility_score + '/100' });\n}\n\nconst checkAudits = [\n  { key: 'viewport', label: 'Page is not mobile-friendly (no viewport meta tag)' },\n  { key: 'image-alt', label: 'Images missing alt text (SEO/accessibility)' },\n  { key: 'meta-description', label: 'Missing meta description (SEO)' },\n  { key: 'document-title', label: 'Missing or poor page title (SEO)' },\n  { key: 'tap-targets', label: 'Touch targets too small on mobile' },\n  { key: 'font-size', label: 'Text too small to read on mobile' }\n];\n\ncheckAudits.forEach(function(item) {\n  var audit = audits[item.key];\n  if (audit && audit.score !== null && audit.score < 1) {\n    technical_issues.push({ issue: item.label, severity: 'medium', description: audit.title });\n  }\n});\n\nreturn {\n  pagespeed_performance_score: performance_score,\n  pagespeed_seo_score: seo_score,\n  pagespeed_accessibility_score: accessibility_score,\n  pagespeed_mobile_score: performance_score,\n  core_web_vitals: core_web_vitals,\n  technical_issues: technical_issues\n};"
+      },
+      "name": "Parse PageSpeed Results",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        224,
+        0
+      ],
+      "id": "b2bd4946-fe19-44e1-bc76-db84f9563e77"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "={{ $credentials.anthropicApiKey }}"
+            },
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { model: \"claude-sonnet-4-6\", max_tokens: 1000, messages: [{ role: \"user\", content: [{ type: \"image\", source: { type: \"base64\", media_type: \"image/png\", data: $('Take Screenshot').item.json.screenshot_base64 } }, { type: \"text\", text: \"This is a screenshot of a business website homepage. Identify visual/UX issues a small business owner would care about (outdated design, poor layout, bad mobile experience if visible, unclear calls-to-action, cluttered content, broken visual elements, unprofessional appearance, etc). Note: cookie consent banners have already been dismissed before this screenshot was taken, so do not flag cookie banners as an issue. Respond ONLY with a JSON array, no markdown, no preamble, in this exact format: [{\\\"issue\\\": \\\"short issue name\\\", \\\"severity\\\": \\\"high|medium|low\\\", \\\"description\\\": \\\"1-2 sentence description\\\"}]. List 2-4 issues maximum, most important first.\" }] }] } }}",
+        "options": {}
+      },
+      "name": "AI Vision Analysis",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        0,
+        240
+      ],
+      "id": "35c66609-cbeb-4c4d-a630-83ea2fa54554",
+      "notes": "Uses Claude Sonnet 4.6 vision. Requires screenshot_base64 from the screenshot service - adjust field name to match your API's actual response."
+    },
+    {
+      "parameters": {
+        "jsCode": "const response = $json;\nlet visual_issues = [];\n\ntry {\n  const textBlock = (response.content || []).find(function(c) { return c.type === 'text'; });\n  const raw = (textBlock && textBlock.text ? textBlock.text : '[]').replace(/```json|```/g, '').trim();\n  visual_issues = JSON.parse(raw);\n} catch (e) {\n  visual_issues = [];\n}\n\nreturn { visual_issues: visual_issues };"
+      },
+      "name": "Parse AI Vision Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        224,
+        240
+      ],
+      "id": "1fe93f2b-a177-478d-ae21-07a3ce3cb136"
+    },
+    {
+      "parameters": {
+        "jsCode": "const lead = $('Split Out Leads').item.json;\nconst pagespeed = $('Parse PageSpeed Results').item.json;\nconst ai = $('Parse AI Vision Response').item.json;\nconst screenshot = $('Take Screenshot').item.json;\n\nconst allIssues = [].concat(pagespeed.technical_issues || [], ai.visual_issues || []);\n\nconst severityRank = { high: 3, medium: 2, low: 1 };\nallIssues.sort(function(a, b) { return (severityRank[b.severity] || 0) - (severityRank[a.severity] || 0); });\n\nconst top_issue = (allIssues[0] && allIssues[0].issue) || 'General website improvements';\n\nconst summary = allIssues.length\n  ? 'Found ' + allIssues.length + ' issue(s) across visual and technical review. Top priority: ' + top_issue + '.'\n  : 'No major issues found.';\n\nreturn {\n  lead_id: lead.id,\n  screenshot_url: screenshot.screenshot_url || null,\n  pagespeed_performance_score: pagespeed.pagespeed_performance_score,\n  pagespeed_seo_score: pagespeed.pagespeed_seo_score,\n  pagespeed_accessibility_score: pagespeed.pagespeed_accessibility_score,\n  pagespeed_mobile_score: pagespeed.pagespeed_mobile_score,\n  core_web_vitals: pagespeed.core_web_vitals,\n  visual_issues: ai.visual_issues,\n  technical_issues: pagespeed.technical_issues,\n  top_issue: top_issue,\n  summary: summary\n};"
+      },
+      "name": "Combine Audit Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        448,
+        128
+      ],
+      "id": "3e189af4-66d4-488c-9138-6d11f105aef6"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $credentials.supabaseUrl }}/rest/v1/website_audits",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $credentials.supabaseServiceKey }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer {{ $credentials.supabaseServiceKey }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {}
+      },
+      "name": "Insert Website Audit",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        672,
+        128
+      ],
+      "id": "a71ab29b-8fde-4962-beb9-8ade6c344b40"
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "={{ $credentials.supabaseUrl }}/rest/v1/leads",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "id",
+              "value": "=eq.{{ $json.lead_id }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $credentials.supabaseServiceKey }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer {{ $credentials.supabaseServiceKey }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { status: 'analyzed' } }}",
+        "options": {}
+      },
+      "name": "Update Lead - Analyzed",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        880,
+        128
+      ],
+      "id": "3dd956c7-0d44-4f32-ae09-6de3521229ad"
+    }
+  ],
+  "connections": {
+    "Schedule Trigger (hourly)": {
+      "main": [
+        [
+          {
+            "node": "Get Enriched Leads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Enriched Leads": {
+      "main": [
+        [
+          {
+            "node": "Split Out Leads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out Leads": {
+      "main": [
+        [
+          {
+            "node": "Take Screenshot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Take Screenshot": {
+      "main": [
+        [
+          {
+            "node": "PageSpeed Insights",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "AI Vision Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PageSpeed Insights": {
+      "main": [
+        [
+          {
+            "node": "Parse PageSpeed Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Vision Analysis": {
+      "main": [
+        [
+          {
+            "node": "Parse AI Vision Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse PageSpeed Results": {
+      "main": [
+        [
+          {
+            "node": "Combine Audit Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse AI Vision Response": {
+      "main": [
+        [
+          {
+            "node": "Combine Audit Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Combine Audit Data": {
+      "main": [
+        [
+          {
+            "node": "Insert Website Audit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert Website Audit": {
+      "main": [
+        [
+          {
+            "node": "Update Lead - Analyzed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": {},
+  "versionId": "95befe4c-e13d-4127-994f-2a47f0833ae6",
+  "activeVersionId": null,
+  "triggerCount": 0,
+  "shared": [
+    {
+      "updatedAt": "2026-06-13T19:17:31.844Z",
+      "createdAt": "2026-06-13T19:17:31.844Z",
+      "role": "workflow:owner",
+      "workflowId": "wmDt8C4e41DYU7iX",
+      "projectId": "5GBCFFrIrIkPnjdc"
+    }
+  ],
+  "activeVersion": null,
+  "tags": []
+}
