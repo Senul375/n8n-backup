@@ -1,0 +1,1501 @@
+{
+  "updatedAt": "2026-06-15T17:27:28.696Z",
+  "createdAt": "2026-06-13T13:41:36.482Z",
+  "id": "9IqMwssup0ThQFPf",
+  "name": "1. Lead Discovery (Google Maps) - claude",
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Lead Discovery",
+        "formDescription": "Enter the niche and location to search for leads",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Niche",
+              "placeholder": "e.g. dental clinics",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Location",
+              "placeholder": "e.g. Manchester, UK",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "On Form Submission",
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [
+        -1456,
+        80
+      ],
+      "webhookId": "cc297bfb-ed80-4000-bbd3-43e76faf48a6",
+      "id": "18707e1f-799e-467f-9011-36d53982d763"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "niche",
+              "name": "niche",
+              "type": "string",
+              "value": ""
+            },
+            {
+              "id": "location",
+              "name": "location",
+              "type": "string",
+              "value": "="
+            },
+            {
+              "id": "query",
+              "name": "query",
+              "type": "string",
+              "value": "= in "
+            },
+            {
+              "id": "0b2e2c4a-ff54-409a-b257-00be2f9c8cc8",
+              "name": "Google_Maps_API",
+              "value": "AIzaSyC6ksZOqDtte69YfY2eTM1b61Z4mhSKjRk",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Build Search Query",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1136,
+        80
+      ],
+      "id": "e80328ea-1941-4112-bd2c-d81197bf3883"
+    },
+    {
+      "parameters": {
+        "url": "https://maps.googleapis.com/maps/api/place/textsearch/json",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "query",
+              "value": "={{ $json.query }}"
+            },
+            {
+              "name": "key",
+              "value": "={{ $json.Google_Maps_API }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Initial Search (Page 1)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -912,
+        80
+      ],
+      "id": "d5f00f44-bfa8-4823-9237-2bed0dd997a8"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "has-next-page",
+              "leftValue": "={{ $json.next_page_token }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "name": "Has Next Page?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -688,
+        272
+      ],
+      "id": "207f5f4b-7b44-450d-a4b5-2c9b04f77cb1"
+    },
+    {
+      "parameters": {
+        "amount": 3
+      },
+      "name": "Wait (token activation)",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -480,
+        400
+      ],
+      "id": "e3cadd9c-1832-4d64-ac67-480bbf32c4fa",
+      "webhookId": "91fd87e3-ba49-4765-8891-563ea7bfc4a9",
+      "notes": "Google requires a short delay before next_page_token becomes valid. 3s is safe (min required is ~2s)."
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "pagetoken",
+              "name": "pagetoken",
+              "type": "string",
+              "value": "={{ $json.next_page_token }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Set Page Token",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -256,
+        400
+      ],
+      "id": "8e74cedb-d974-4ff6-b425-9c99c02e69a9"
+    },
+    {
+      "parameters": {
+        "url": "https://maps.googleapis.com/maps/api/place/textsearch/json",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "pagetoken",
+              "value": "={{ $json.pagetoken }}"
+            },
+            {
+              "name": "key",
+              "value": "={{ $json.Google_Maps_API }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Next Page Search",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -32,
+        400
+      ],
+      "id": "a6b1b01a-45d8-4e99-83d9-e3456bfb5c41",
+      "notes": "Loops back into 'Has Next Page?' - continues until Google stops returning next_page_token (max 3 pages / 60 results total)."
+    },
+    {
+      "parameters": {},
+      "name": "No More Pages",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        -480,
+        160
+      ],
+      "id": "94e58f17-cf89-4671-91aa-66a5aab0570c"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "results",
+        "options": {}
+      },
+      "name": "Split Results",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -688,
+        -48
+      ],
+      "id": "30683181-b9a8-4e0e-8a88-2a299dcc25d3"
+    },
+    {
+      "parameters": {
+        "url": "https://maps.googleapis.com/maps/api/place/details/json",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "place_id",
+              "value": "={{ $json.place_id }}"
+            },
+            {
+              "name": "fields",
+              "value": "name,formatted_phone_number,website,formatted_address,rating,place_id"
+            },
+            {
+              "name": "key",
+              "value": "={{ $('Build Search Query').item.json.Google_Maps_API }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Get Place Details",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -480,
+        -48
+      ],
+      "id": "9265e751-f50d-4b2c-b6c5-6a2946e3fb88"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "has-website",
+              "leftValue": "={{ $json.result.website }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "name": "Has Website?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -256,
+        -48
+      ],
+      "id": "48cb8322-00ee-46ab-b2a9-e0755f8eb693"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "business_name",
+              "name": "business_name",
+              "type": "string",
+              "value": "={{ $json.result.name }}"
+            },
+            {
+              "id": "niche",
+              "name": "niche",
+              "type": "string",
+              "value": "={{ $('Build Search Query').item.json.niche }}"
+            },
+            {
+              "id": "location",
+              "name": "location",
+              "type": "string",
+              "value": "={{ $('Build Search Query').item.json.location }}"
+            },
+            {
+              "id": "address",
+              "name": "address",
+              "type": "string",
+              "value": "={{ $json.result.formatted_address }}"
+            },
+            {
+              "id": "phone",
+              "name": "phone",
+              "type": "string",
+              "value": "={{ $json.result.formatted_phone_number }}"
+            },
+            {
+              "id": "website",
+              "name": "website",
+              "type": "string",
+              "value": "={{ $json.result.website }}"
+            },
+            {
+              "id": "google_place_id",
+              "name": "google_place_id",
+              "type": "string",
+              "value": "={{ $json.result.place_id }}"
+            },
+            {
+              "id": "rating",
+              "name": "rating",
+              "type": "number",
+              "value": "={{ $json.result.rating }}"
+            },
+            {
+              "id": "status",
+              "name": "status",
+              "type": "string",
+              "value": "discovered"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Map Lead Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -32,
+        -128
+      ],
+      "id": "acb0130e-e277-45d1-af74-0226a8a69158"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "business_name",
+              "name": "business_name",
+              "type": "string",
+              "value": "={{ $json.result.name }}"
+            },
+            {
+              "id": "niche",
+              "name": "niche",
+              "type": "string",
+              "value": "={{ $('Build Search Query').item.json.niche }}"
+            },
+            {
+              "id": "location",
+              "name": "location",
+              "type": "string",
+              "value": "={{ $('Build Search Query').item.json.location }}"
+            },
+            {
+              "id": "address",
+              "name": "address",
+              "type": "string",
+              "value": "={{ $json.result.formatted_address }}"
+            },
+            {
+              "id": "phone",
+              "name": "phone",
+              "type": "string",
+              "value": "={{ $json.result.formatted_phone_number }}"
+            },
+            {
+              "id": "google_place_id",
+              "name": "google_place_id",
+              "type": "string",
+              "value": "={{ $json.result.place_id }}"
+            },
+            {
+              "id": "rating",
+              "name": "rating",
+              "type": "number",
+              "value": "={{ $json.result.rating }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Map No-Website Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -32,
+        32
+      ],
+      "id": "8450ac14-bafe-464c-8948-0022650b43ea"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1344,
+        -128
+      ],
+      "id": "e56ba1ad-5adf-43b7-95ed-ecea03a83177",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "tableId": "leads",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "business_name",
+              "fieldValue": "={{ $json.business_name }}"
+            },
+            {
+              "fieldId": "niche",
+              "fieldValue": "={{ $json.niche }}"
+            },
+            {
+              "fieldId": "location",
+              "fieldValue": "={{ $json.location }}"
+            },
+            {
+              "fieldId": "phone",
+              "fieldValue": "={{ $json.phone }}"
+            },
+            {
+              "fieldId": "address",
+              "fieldValue": "={{ $json.address }}"
+            },
+            {
+              "fieldId": "website",
+              "fieldValue": "={{ $json.website }}"
+            },
+            {
+              "fieldId": "google_place_id",
+              "fieldValue": "={{ $json.google_place_id }}"
+            },
+            {
+              "fieldId": "rating",
+              "fieldValue": "={{ $json.rating }}"
+            },
+            {
+              "fieldId": "status",
+              "fieldValue": "={{ $json.status }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        192,
+        -128
+      ],
+      "id": "189e2e4e-9216-41f7-ba1c-f22c871f87d8",
+      "name": "Create a row1",
+      "credentials": {
+        "supabaseApi": {
+          "id": "4UcvDgBqf10SrNQ1",
+          "name": "Supabase account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "tableId": "leads_no_website",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "business_name",
+              "fieldValue": "={{ $json.business_name }}"
+            },
+            {
+              "fieldId": "niche",
+              "fieldValue": "={{ $json.niche }}"
+            },
+            {
+              "fieldId": "location",
+              "fieldValue": "={{ $json.location }}"
+            },
+            {
+              "fieldId": "address",
+              "fieldValue": "={{ $json.address }}"
+            },
+            {
+              "fieldId": "phone",
+              "fieldValue": "={{ $json.phone }}"
+            },
+            {
+              "fieldId": "google_place_id",
+              "fieldValue": "={{ $json.google_place_id }}"
+            },
+            {
+              "fieldId": "rating",
+              "fieldValue": "={{ $json.rating }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        288,
+        48
+      ],
+      "id": "b62c14c2-e3eb-4945-a2d2-ac5e1d967852",
+      "name": "Create a row",
+      "credentials": {
+        "supabaseApi": {
+          "id": "4UcvDgBqf10SrNQ1",
+          "name": "Supabase account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "d6cce974-1cee-4c9c-9d53-f0233211078c",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -1408,
+        240
+      ],
+      "id": "c08de003-4dc5-4c68-b9c8-55e31b59c956",
+      "name": "Webhook",
+      "webhookId": "d6cce974-1cee-4c9c-9d53-f0233211078c"
+    }
+  ],
+  "connections": {
+    "On Form Submission": {
+      "main": [
+        []
+      ]
+    },
+    "Build Search Query": {
+      "main": [
+        [
+          {
+            "node": "Initial Search (Page 1)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Initial Search (Page 1)": {
+      "main": [
+        [
+          {
+            "node": "Split Results",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Has Next Page?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Next Page?": {
+      "main": [
+        [
+          {
+            "node": "Wait (token activation)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No More Pages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait (token activation)": {
+      "main": [
+        [
+          {
+            "node": "Set Page Token",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Page Token": {
+      "main": [
+        [
+          {
+            "node": "Next Page Search",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Next Page Search": {
+      "main": [
+        [
+          {
+            "node": "Split Results",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Has Next Page?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Results": {
+      "main": [
+        [
+          {
+            "node": "Get Place Details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Place Details": {
+      "main": [
+        [
+          {
+            "node": "Has Website?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Website?": {
+      "main": [
+        [
+          {
+            "node": "Map Lead Fields",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Map No-Website Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Map Lead Fields": {
+      "main": [
+        [
+          {
+            "node": "Create a row1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Map No-Website Fields": {
+      "main": [
+        [
+          {
+            "node": "Create a row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Build Search Query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Build Search Query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "versionId": "d9b37ae9-bc61-4cea-abda-d05468a18415",
+  "activeVersionId": "8506954a-e72e-447e-9330-8429e2281989",
+  "triggerCount": 2,
+  "shared": [
+    {
+      "updatedAt": "2026-06-13T13:41:36.485Z",
+      "createdAt": "2026-06-13T13:41:36.485Z",
+      "role": "workflow:owner",
+      "workflowId": "9IqMwssup0ThQFPf",
+      "projectId": "5GBCFFrIrIkPnjdc"
+    }
+  ],
+  "activeVersion": {
+    "updatedAt": "2026-06-15T17:11:49.000Z",
+    "createdAt": "2026-06-15T17:06:57.067Z",
+    "versionId": "8506954a-e72e-447e-9330-8429e2281989",
+    "workflowId": "9IqMwssup0ThQFPf",
+    "nodes": [
+      {
+        "parameters": {
+          "formTitle": "Lead Discovery",
+          "formDescription": "Enter the niche and location to search for leads",
+          "formFields": {
+            "values": [
+              {
+                "fieldLabel": "Niche",
+                "placeholder": "e.g. dental clinics",
+                "requiredField": true
+              },
+              {
+                "fieldLabel": "Location",
+                "placeholder": "e.g. Manchester, UK",
+                "requiredField": true
+              }
+            ]
+          },
+          "options": {}
+        },
+        "name": "On Form Submission",
+        "type": "n8n-nodes-base.formTrigger",
+        "typeVersion": 2.2,
+        "position": [
+          -1456,
+          80
+        ],
+        "webhookId": "cc297bfb-ed80-4000-bbd3-43e76faf48a6",
+        "id": "18707e1f-799e-467f-9011-36d53982d763"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "niche",
+                "name": "niche",
+                "type": "string",
+                "value": ""
+              },
+              {
+                "id": "location",
+                "name": "location",
+                "type": "string",
+                "value": "="
+              },
+              {
+                "id": "query",
+                "name": "query",
+                "type": "string",
+                "value": "= in "
+              },
+              {
+                "id": "0b2e2c4a-ff54-409a-b257-00be2f9c8cc8",
+                "name": "Google_Maps_API",
+                "value": "AIzaSyC6ksZOqDtte69YfY2eTM1b61Z4mhSKjRk",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "name": "Build Search Query",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          -1136,
+          80
+        ],
+        "id": "e80328ea-1941-4112-bd2c-d81197bf3883"
+      },
+      {
+        "parameters": {
+          "url": "https://maps.googleapis.com/maps/api/place/textsearch/json",
+          "sendQuery": true,
+          "queryParameters": {
+            "parameters": [
+              {
+                "name": "query",
+                "value": "={{ $json.query }}"
+              },
+              {
+                "name": "key",
+                "value": "={{ $json.Google_Maps_API }}"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "name": "Initial Search (Page 1)",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          -912,
+          80
+        ],
+        "id": "d5f00f44-bfa8-4823-9237-2bed0dd997a8"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 2
+            },
+            "conditions": [
+              {
+                "id": "has-next-page",
+                "leftValue": "={{ $json.next_page_token }}",
+                "rightValue": "",
+                "operator": {
+                  "type": "string",
+                  "operation": "exists",
+                  "singleValue": true
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "name": "Has Next Page?",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          -688,
+          272
+        ],
+        "id": "207f5f4b-7b44-450d-a4b5-2c9b04f77cb1"
+      },
+      {
+        "parameters": {
+          "amount": 3
+        },
+        "name": "Wait (token activation)",
+        "type": "n8n-nodes-base.wait",
+        "typeVersion": 1.1,
+        "position": [
+          -480,
+          400
+        ],
+        "id": "e3cadd9c-1832-4d64-ac67-480bbf32c4fa",
+        "webhookId": "91fd87e3-ba49-4765-8891-563ea7bfc4a9",
+        "notes": "Google requires a short delay before next_page_token becomes valid. 3s is safe (min required is ~2s)."
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "pagetoken",
+                "name": "pagetoken",
+                "type": "string",
+                "value": "={{ $json.next_page_token }}"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "name": "Set Page Token",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          -256,
+          400
+        ],
+        "id": "8e74cedb-d974-4ff6-b425-9c99c02e69a9"
+      },
+      {
+        "parameters": {
+          "url": "https://maps.googleapis.com/maps/api/place/textsearch/json",
+          "sendQuery": true,
+          "queryParameters": {
+            "parameters": [
+              {
+                "name": "pagetoken",
+                "value": "={{ $json.pagetoken }}"
+              },
+              {
+                "name": "key",
+                "value": "={{ $json.Google_Maps_API }}"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "name": "Next Page Search",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          -32,
+          400
+        ],
+        "id": "a6b1b01a-45d8-4e99-83d9-e3456bfb5c41",
+        "notes": "Loops back into 'Has Next Page?' - continues until Google stops returning next_page_token (max 3 pages / 60 results total)."
+      },
+      {
+        "parameters": {},
+        "name": "No More Pages",
+        "type": "n8n-nodes-base.noOp",
+        "typeVersion": 1,
+        "position": [
+          -480,
+          160
+        ],
+        "id": "94e58f17-cf89-4671-91aa-66a5aab0570c"
+      },
+      {
+        "parameters": {
+          "fieldToSplitOut": "results",
+          "options": {}
+        },
+        "name": "Split Results",
+        "type": "n8n-nodes-base.splitOut",
+        "typeVersion": 1,
+        "position": [
+          -688,
+          -48
+        ],
+        "id": "30683181-b9a8-4e0e-8a88-2a299dcc25d3"
+      },
+      {
+        "parameters": {
+          "url": "https://maps.googleapis.com/maps/api/place/details/json",
+          "sendQuery": true,
+          "queryParameters": {
+            "parameters": [
+              {
+                "name": "place_id",
+                "value": "={{ $json.place_id }}"
+              },
+              {
+                "name": "fields",
+                "value": "name,formatted_phone_number,website,formatted_address,rating,place_id"
+              },
+              {
+                "name": "key",
+                "value": "={{ $('Build Search Query').item.json.Google_Maps_API }}"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "name": "Get Place Details",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          -480,
+          -48
+        ],
+        "id": "9265e751-f50d-4b2c-b6c5-6a2946e3fb88"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 2
+            },
+            "conditions": [
+              {
+                "id": "has-website",
+                "leftValue": "={{ $json.result.website }}",
+                "rightValue": "",
+                "operator": {
+                  "type": "string",
+                  "operation": "exists",
+                  "singleValue": true
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "name": "Has Website?",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          -256,
+          -48
+        ],
+        "id": "48cb8322-00ee-46ab-b2a9-e0755f8eb693"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "business_name",
+                "name": "business_name",
+                "type": "string",
+                "value": "={{ $json.result.name }}"
+              },
+              {
+                "id": "niche",
+                "name": "niche",
+                "type": "string",
+                "value": "={{ $('Build Search Query').item.json.niche }}"
+              },
+              {
+                "id": "location",
+                "name": "location",
+                "type": "string",
+                "value": "={{ $('Build Search Query').item.json.location }}"
+              },
+              {
+                "id": "address",
+                "name": "address",
+                "type": "string",
+                "value": "={{ $json.result.formatted_address }}"
+              },
+              {
+                "id": "phone",
+                "name": "phone",
+                "type": "string",
+                "value": "={{ $json.result.formatted_phone_number }}"
+              },
+              {
+                "id": "website",
+                "name": "website",
+                "type": "string",
+                "value": "={{ $json.result.website }}"
+              },
+              {
+                "id": "google_place_id",
+                "name": "google_place_id",
+                "type": "string",
+                "value": "={{ $json.result.place_id }}"
+              },
+              {
+                "id": "rating",
+                "name": "rating",
+                "type": "number",
+                "value": "={{ $json.result.rating }}"
+              },
+              {
+                "id": "status",
+                "name": "status",
+                "type": "string",
+                "value": "discovered"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "name": "Map Lead Fields",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          -32,
+          -128
+        ],
+        "id": "acb0130e-e277-45d1-af74-0226a8a69158"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "business_name",
+                "name": "business_name",
+                "type": "string",
+                "value": "={{ $json.result.name }}"
+              },
+              {
+                "id": "niche",
+                "name": "niche",
+                "type": "string",
+                "value": "={{ $('Build Search Query').item.json.niche }}"
+              },
+              {
+                "id": "location",
+                "name": "location",
+                "type": "string",
+                "value": "={{ $('Build Search Query').item.json.location }}"
+              },
+              {
+                "id": "address",
+                "name": "address",
+                "type": "string",
+                "value": "={{ $json.result.formatted_address }}"
+              },
+              {
+                "id": "phone",
+                "name": "phone",
+                "type": "string",
+                "value": "={{ $json.result.formatted_phone_number }}"
+              },
+              {
+                "id": "google_place_id",
+                "name": "google_place_id",
+                "type": "string",
+                "value": "={{ $json.result.place_id }}"
+              },
+              {
+                "id": "rating",
+                "name": "rating",
+                "type": "number",
+                "value": "={{ $json.result.rating }}"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "name": "Map No-Website Fields",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          -32,
+          32
+        ],
+        "id": "8450ac14-bafe-464c-8948-0022650b43ea"
+      },
+      {
+        "parameters": {},
+        "type": "n8n-nodes-base.manualTrigger",
+        "typeVersion": 1,
+        "position": [
+          -1344,
+          -128
+        ],
+        "id": "e56ba1ad-5adf-43b7-95ed-ecea03a83177",
+        "name": "When clicking ‘Execute workflow’"
+      },
+      {
+        "parameters": {
+          "tableId": "leads",
+          "fieldsUi": {
+            "fieldValues": [
+              {
+                "fieldId": "business_name",
+                "fieldValue": "={{ $json.business_name }}"
+              },
+              {
+                "fieldId": "niche",
+                "fieldValue": "={{ $json.niche }}"
+              },
+              {
+                "fieldId": "location",
+                "fieldValue": "={{ $json.location }}"
+              },
+              {
+                "fieldId": "phone",
+                "fieldValue": "={{ $json.phone }}"
+              },
+              {
+                "fieldId": "address",
+                "fieldValue": "={{ $json.address }}"
+              },
+              {
+                "fieldId": "website",
+                "fieldValue": "={{ $json.website }}"
+              },
+              {
+                "fieldId": "google_place_id",
+                "fieldValue": "={{ $json.google_place_id }}"
+              },
+              {
+                "fieldId": "rating",
+                "fieldValue": "={{ $json.rating }}"
+              }
+            ]
+          }
+        },
+        "type": "n8n-nodes-base.supabase",
+        "typeVersion": 1,
+        "position": [
+          192,
+          -128
+        ],
+        "id": "189e2e4e-9216-41f7-ba1c-f22c871f87d8",
+        "name": "Create a row1",
+        "credentials": {
+          "supabaseApi": {
+            "id": "4UcvDgBqf10SrNQ1",
+            "name": "Supabase account 2"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "tableId": "leads_no_website",
+          "fieldsUi": {
+            "fieldValues": [
+              {
+                "fieldId": "business_name",
+                "fieldValue": "={{ $json.business_name }}"
+              },
+              {
+                "fieldId": "niche",
+                "fieldValue": "={{ $json.niche }}"
+              },
+              {
+                "fieldId": "location",
+                "fieldValue": "={{ $json.location }}"
+              },
+              {
+                "fieldId": "address",
+                "fieldValue": "={{ $json.address }}"
+              },
+              {
+                "fieldId": "phone",
+                "fieldValue": "={{ $json.phone }}"
+              },
+              {
+                "fieldId": "google_place_id",
+                "fieldValue": "={{ $json.google_place_id }}"
+              },
+              {
+                "fieldId": "rating",
+                "fieldValue": "={{ $json.rating }}"
+              }
+            ]
+          }
+        },
+        "type": "n8n-nodes-base.supabase",
+        "typeVersion": 1,
+        "position": [
+          288,
+          48
+        ],
+        "id": "b62c14c2-e3eb-4945-a2d2-ac5e1d967852",
+        "name": "Create a row",
+        "credentials": {
+          "supabaseApi": {
+            "id": "4UcvDgBqf10SrNQ1",
+            "name": "Supabase account 2"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "d6cce974-1cee-4c9c-9d53-f0233211078c",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2.1,
+        "position": [
+          -1408,
+          240
+        ],
+        "id": "c08de003-4dc5-4c68-b9c8-55e31b59c956",
+        "name": "Webhook",
+        "webhookId": "d6cce974-1cee-4c9c-9d53-f0233211078c"
+      }
+    ],
+    "connections": {
+      "On Form Submission": {
+        "main": [
+          []
+        ]
+      },
+      "Build Search Query": {
+        "main": [
+          [
+            {
+              "node": "Initial Search (Page 1)",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Initial Search (Page 1)": {
+        "main": [
+          [
+            {
+              "node": "Split Results",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Has Next Page?",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Has Next Page?": {
+        "main": [
+          [
+            {
+              "node": "Wait (token activation)",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "No More Pages",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Wait (token activation)": {
+        "main": [
+          [
+            {
+              "node": "Set Page Token",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set Page Token": {
+        "main": [
+          [
+            {
+              "node": "Next Page Search",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Next Page Search": {
+        "main": [
+          [
+            {
+              "node": "Split Results",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Has Next Page?",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Split Results": {
+        "main": [
+          [
+            {
+              "node": "Get Place Details",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get Place Details": {
+        "main": [
+          [
+            {
+              "node": "Has Website?",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Has Website?": {
+        "main": [
+          [
+            {
+              "node": "Map Lead Fields",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Map No-Website Fields",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Map Lead Fields": {
+        "main": [
+          [
+            {
+              "node": "Create a row1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Map No-Website Fields": {
+        "main": [
+          [
+            {
+              "node": "Create a row",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "When clicking ‘Execute workflow’": {
+        "main": [
+          [
+            {
+              "node": "Build Search Query",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Webhook": {
+        "main": [
+          [
+            {
+              "node": "Build Search Query",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "senul adeeth",
+    "name": "Version 8506954a",
+    "description": "",
+    "autosaved": true
+  },
+  "tags": []
+}
