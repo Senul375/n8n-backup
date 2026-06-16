@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-12T22:19:40.458Z",
+  "updatedAt": "2026-06-15T22:31:03.267Z",
   "createdAt": "2026-06-11T15:54:24.261Z",
   "id": "UqnNK60CBI7B6qeC",
   "name": "Weekly n8n Workflow Backup to GitHub",
@@ -245,6 +245,43 @@
       ],
       "id": "3deedeb0-850d-4e27-9c26-5a9b34fb7071",
       "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        -160,
+        -288
+      ],
+      "id": "d52dbbab-22aa-47a7-82af-ae73174c4417",
+      "name": "Limit"
+    },
+    {
+      "parameters": {
+        "sendTo": "senuladeeth9@gmail.com",
+        "subject": "n8n backup - Done",
+        "emailType": "text",
+        "message": "your n8n backup to github has being done for the this week ",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        48,
+        -288
+      ],
+      "id": "854c1cdd-cf5b-43c9-be6d-a345d8513810",
+      "name": "Send a message",
+      "webhookId": "c5fb659d-07e4-4e23-99ce-5ba271759dc5",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "ClO23cw4LdmPiacG",
+          "name": "Business email"
+        }
+      }
     }
   ],
   "connections": {
@@ -294,7 +331,13 @@
     },
     "Loop Over Workflows": {
       "main": [
-        [],
+        [
+          {
+            "node": "Limit",
+            "type": "main",
+            "index": 0
+          }
+        ],
         [
           {
             "node": "Prepare File Data",
@@ -358,6 +401,17 @@
           }
         ]
       ]
+    },
+    "Limit": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "settings": {
@@ -372,10 +426,12 @@
       "recurrenceRules": []
     }
   },
-  "meta": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
   "pinData": {},
-  "versionId": "78112a66-956f-49dc-a8c2-bd80d909f41d",
-  "activeVersionId": "78112a66-956f-49dc-a8c2-bd80d909f41d",
+  "versionId": "68bf0992-d978-4548-b665-e4177614ac9c",
+  "activeVersionId": "68bf0992-d978-4548-b665-e4177614ac9c",
   "triggerCount": 1,
   "shared": [
     {
@@ -387,9 +443,9 @@
     }
   ],
   "activeVersion": {
-    "updatedAt": "2026-06-12T22:17:54.000Z",
-    "createdAt": "2026-06-12T22:17:50.234Z",
-    "versionId": "78112a66-956f-49dc-a8c2-bd80d909f41d",
+    "updatedAt": "2026-06-15T22:31:05.000Z",
+    "createdAt": "2026-06-15T22:31:03.268Z",
+    "versionId": "68bf0992-d978-4548-b665-e4177614ac9c",
     "workflowId": "UqnNK60CBI7B6qeC",
     "nodes": [
       {
@@ -631,6 +687,43 @@
         ],
         "id": "3deedeb0-850d-4e27-9c26-5a9b34fb7071",
         "name": "When clicking ‘Execute workflow’"
+      },
+      {
+        "parameters": {},
+        "type": "n8n-nodes-base.limit",
+        "typeVersion": 1,
+        "position": [
+          -160,
+          -288
+        ],
+        "id": "d52dbbab-22aa-47a7-82af-ae73174c4417",
+        "name": "Limit"
+      },
+      {
+        "parameters": {
+          "sendTo": "senuladeeth9@gmail.com",
+          "subject": "n8n backup - Done",
+          "emailType": "text",
+          "message": "your n8n backup to github has being done for the this week ",
+          "options": {
+            "appendAttribution": false
+          }
+        },
+        "type": "n8n-nodes-base.gmail",
+        "typeVersion": 2.2,
+        "position": [
+          48,
+          -288
+        ],
+        "id": "854c1cdd-cf5b-43c9-be6d-a345d8513810",
+        "name": "Send a message",
+        "webhookId": "c5fb659d-07e4-4e23-99ce-5ba271759dc5",
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "ClO23cw4LdmPiacG",
+            "name": "Business email"
+          }
+        }
       }
     ],
     "connections": {
@@ -680,7 +773,13 @@
       },
       "Loop Over Workflows": {
         "main": [
-          [],
+          [
+            {
+              "node": "Limit",
+              "type": "main",
+              "index": 0
+            }
+          ],
           [
             {
               "node": "Prepare File Data",
@@ -744,10 +843,21 @@
             }
           ]
         ]
+      },
+      "Limit": {
+        "main": [
+          [
+            {
+              "node": "Send a message",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
       }
     },
     "authors": "senul adeeth",
-    "name": "Version 78112a66",
+    "name": "Version 68bf0992",
     "description": "",
     "autosaved": true
   },
