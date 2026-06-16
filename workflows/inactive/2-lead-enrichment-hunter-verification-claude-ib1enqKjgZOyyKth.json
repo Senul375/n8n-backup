@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-13T15:18:49.340Z",
+  "updatedAt": "2026-06-16T15:38:41.043Z",
   "createdAt": "2026-06-13T13:52:36.394Z",
   "id": "ib1enqKjgZOyyKth",
   "name": "2. Lead Enrichment (Hunter + Verification) - claude",
@@ -594,7 +594,7 @@
     "templateCredsSetupCompleted": true
   },
   "pinData": {},
-  "versionId": "740cd0df-c8c0-4698-92c8-d3d3239110c6",
+  "versionId": "623f0de3-ffa0-4f78-9f61-02aa85b95b4a",
   "activeVersionId": null,
   "triggerCount": 0,
   "shared": [
