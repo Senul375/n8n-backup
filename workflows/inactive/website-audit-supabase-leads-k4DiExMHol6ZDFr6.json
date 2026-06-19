@@ -1,0 +1,410 @@
+{
+  "updatedAt": "2026-06-16T17:48:59.461Z",
+  "createdAt": "2026-06-16T17:48:59.461Z",
+  "id": "k4DiExMHol6ZDFr6",
+  "name": "Website Audit (Supabase leads)",
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "f12d2bf0-c28f-49ad-b008-c8e42a6b1bac",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -608,
+        192
+      ]
+    },
+    {
+      "parameters": {
+        "url": "YOUR_SUPABASE_URL/rest/v1/leads?audit_status=eq.pending&website=not.is.null&select=id,website,name&limit=10",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "YOUR_SUPABASE_SERVICE_ROLE_KEY"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_SUPABASE_SERVICE_ROLE_KEY"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "479fe781-b693-4fe8-a4ea-03c5f80b2a54",
+      "name": "Get Pending Leads",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -400,
+        192
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "\n// Supabase REST returns an array. Turn it into one item per lead.\nconst res = $input.first().json;\nconst arr = Array.isArray(res) ? res : (Array.isArray(res.body) ? res.body : []);\nreturn arr.map(r => ({ json: r }));\n"
+      },
+      "id": "b9291cca-5fe3-4413-94d9-fcaa1b27d54d",
+      "name": "Split Leads",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -208,
+        192
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "9dea1170-d3f5-4e25-ae0c-f571747b6645",
+      "name": "Loop Over Leads",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        0,
+        192
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "f21d1e33-45f5-4c46-8e56-e1c7931e7961",
+      "name": "Done",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "\n// Normalise the URL and carry id/name forward.\nconst lead = $input.item.json;\nlet url = (lead.website || '').trim();\nif (url && !/^https?:\\/\\//i.test(url)) url = 'https://' + url;\nreturn { json: { id: lead.id, website: url, name: lead.name || null } };\n"
+      },
+      "id": "ea4a0437-6bda-42bf-a58e-5c5b2efb69f4",
+      "name": "Prep",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        224,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.website }}",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true,
+              "responseFormat": "text"
+            }
+          },
+          "timeout": 20000
+        }
+      },
+      "id": "d368ea18-8b32-4035-85ce-069628f8a7d2",
+      "name": "Fetch HTML",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        432,
+        240
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "\n// Lightweight technical checks parsed from the homepage HTML.\nconst resp = $('Fetch HTML').item.json;\nconst lead = $('Prep').item.json;\nconst html = (resp && resp.body) ? String(resp.body) : '';\nconst status = resp ? resp.statusCode : null;\nconst reachable = status != null && status >= 200 && status < 400;\nconst isHttps = /^https:\\/\\//i.test(lead.website || '');\n\nconst lower = html.toLowerCase();\nconst hasViewport = /<meta[^>]+name=[\"']viewport[\"']/i.test(html);\nconst titleMatch = html.match(/<title[^>]*>([\\s\\S]*?)<\\/title>/i);\nconst title = titleMatch ? titleMatch[1].trim() : '';\nconst descMatch = html.match(/<meta[^>]+name=[\"']description[\"'][^>]+content=[\"']([^\"']*)[\"']/i);\nconst metaDescription = descMatch ? descMatch[1].trim() : '';\n\nconst hasTel = /href=[\"']tel:/i.test(html);\nconst hasMailto = /href=[\"']mailto:/i.test(html);\nconst hasForm = /<form/i.test(html);\nconst hasBooking = /(calendly|acuity|cal\\.com|booking|appointment|schedule a)/i.test(lower);\nconst contactMethods = [hasTel && 'phone', hasMailto && 'email', hasForm && 'form', hasBooking && 'booking'].filter(Boolean);\n\nconst widgets = ['intercom','drift','tawk','crisp','hubspot','zendesk','livechat','tidio','freshchat','manychat'];\nconst chatWidget = widgets.find(w => lower.includes(w)) || null;\n\nconst years = (html.match(/(?:\\u00a9|&copy;|copyright)[^0-9]{0,12}(20\\d{2})/gi) || [])\n  .map(m => parseInt((m.match(/20\\d{2}/) || [])[0])).filter(Boolean);\nconst latestYear = years.length ? Math.max(...years) : null;\nconst currentYear = new Date().getFullYear();\nconst staleCopyright = latestYear != null ? (currentYear - latestYear >= 2) : null;\n\nconst tech = {\n  reachable, statusCode: status, isHttps, hasViewport,\n  title, titleLength: title.length,\n  metaDescription, metaDescriptionLength: metaDescription.length,\n  contactMethods, hasContactMethod: contactMethods.length > 0,\n  chatWidget, hasChatWidget: !!chatWidget,\n  copyrightYear: latestYear, staleCopyright\n};\nreturn { json: { id: lead.id, website: lead.website, tech } };\n"
+      },
+      "id": "04a5c4b0-cbc8-4173-b44f-e546e23503b2",
+      "name": "Tech Analysis",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        624,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "url": "=YOUR_SCREENSHOT_API_URL?url={{ $('Prep').item.json.website }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          },
+          "timeout": 30000
+        }
+      },
+      "id": "ab930fc9-3637-4614-a758-9918920fc740",
+      "name": "Screenshot",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        832,
+        240
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "\n// Pull screenshot base64 + tech findings, build the Gemini request body.\nconst tech = $('Tech Analysis').item.json.tech || {};\nconst id = $('Prep').item.json.id;\nconst website = $('Prep').item.json.website;\n\nlet screenshotBase64 = '';\ntry {\n  const bin = $input.item.binary;\n  if (bin && bin.data && bin.data.data) screenshotBase64 = bin.data.data;\n} catch (e) {}\n\nconst prompt = `You are auditing a small business website for a cold-outreach agency. `\n  + `Automated technical checks (JSON): ${JSON.stringify(tech)}. `\n  + (screenshotBase64\n      ? `A screenshot of the homepage is attached. `\n      : `No screenshot available, judge from the technical findings only. `)\n  + `Identify only the MAJOR issues, things a business owner would care about and that hurt conversions or credibility. `\n  + `Return STRICT JSON, no markdown, exactly this shape: `\n  + `{\"score\": <integer 0-100, lower means worse>, \"summary\": \"<one sentence>\", `\n  + `\"issues\": [{\"issue\":\"...\",\"severity\":\"high|medium|low\",\"evidence\":\"...\"}], `\n  + `\"top_issue\": \"<the single strongest, most specific, pitchable issue in one sentence>\"}`;\n\nconst parts = [{ text: prompt }];\nif (screenshotBase64) parts.push({ inline_data: { mime_type: 'image/png', data: screenshotBase64 } });\n\nconst geminiBody = {\n  contents: [{ parts }],\n  generationConfig: { temperature: 0.2, response_mime_type: 'application/json' }\n};\n\nreturn { json: { id, website, tech, hasScreenshot: !!screenshotBase64, geminiBody } };\n"
+      },
+      "id": "60366d7e-35ef-41aa-b852-a293b00c5ae7",
+      "name": "Build Gemini Input",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1024,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/YOUR_GEMINI_MODEL:generateContent?key=YOUR_GEMINI_API_KEY",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.geminiBody }}",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "id": "49f6742a-a03f-4f66-aa78-ffb8a741efdf",
+      "name": "Gemini Analysis",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1232,
+        240
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "\n// Parse Gemini, fold in hard technical red flags, build the update body.\nconst ctx = $('Build Gemini Input').item.json;\nconst tech = ctx.tech || {};\n\nlet parsed = null, ok = false, errMsg = null;\ntry {\n  const resp = $input.item.json;\n  const txt = resp && resp.candidates && resp.candidates[0]\n    && resp.candidates[0].content && resp.candidates[0].content.parts\n    && resp.candidates[0].content.parts[0] && resp.candidates[0].content.parts[0].text;\n  if (txt) { parsed = JSON.parse(txt); ok = true; }\n  else { errMsg = 'No text returned by Gemini'; }\n} catch (e) { errMsg = String(e); }\n\nconst techFlags = [];\nif (tech.reachable === false) techFlags.push({issue:'Website is unreachable or returning an error', severity:'high', evidence:'HTTP status ' + tech.statusCode});\nif (tech.isHttps === false) techFlags.push({issue:'No HTTPS / insecure site', severity:'high', evidence:'not served over https'});\nif (tech.hasViewport === false) techFlags.push({issue:'Not mobile friendly (no viewport meta tag)', severity:'high', evidence:'missing viewport meta'});\nif (tech.hasContactMethod === false) techFlags.push({issue:'No clear way to contact the business', severity:'high', evidence:'no phone, email, form or booking link found'});\nif (!tech.title) techFlags.push({issue:'Missing page title (SEO)', severity:'medium', evidence:'no <title> tag'});\nif (!tech.metaDescription) techFlags.push({issue:'Missing meta description (SEO)', severity:'low', evidence:'no meta description'});\nif (tech.hasChatWidget === false) techFlags.push({issue:'No live chat or AI assistant to capture visitors', severity:'medium', evidence:'no chat widget detected'});\nif (tech.staleCopyright === true) techFlags.push({issue:'Outdated / stale site', severity:'low', evidence:'copyright year ' + tech.copyrightYear});\n\nconst aiIssues = ok && Array.isArray(parsed.issues) ? parsed.issues : [];\nconst allIssues = [...techFlags, ...aiIssues];\n\nconst score = (ok && typeof parsed.score === 'number')\n  ? parsed.score\n  : (allIssues.some(i => i.severity === 'high') ? 30 : 60);\nconst summary = ok ? (parsed.summary || '') : ('Analysis failed: ' + (errMsg || 'unknown'));\nconst topIssue = ok ? (parsed.top_issue || '') : ((techFlags[0] && techFlags[0].issue) || '');\nconst auditStatus = (ok || techFlags.length > 0) ? 'done' : 'failed';\n\nreturn { json: {\n  id: ctx.id,\n  updateBody: {\n    audit_status: auditStatus,\n    audit_score: score,\n    audit_issues: allIssues,\n    audit_summary: summary,\n    top_issue: topIssue,\n    screenshot_url: null,\n    audited_at: new Date().toISOString()\n  }\n}};\n"
+      },
+      "id": "febeabfe-26d4-40e1-a1de-8cb48f4d4a3d",
+      "name": "Build Update",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1424,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=YOUR_SUPABASE_URL/rest/v1/leads?id=eq.{{ $json.id }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "YOUR_SUPABASE_SERVICE_ROLE_KEY"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_SUPABASE_SERVICE_ROLE_KEY"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.updateBody }}",
+        "options": {}
+      },
+      "id": "23589b3a-40ba-40e5-bbd7-63ebbdb98faf",
+      "name": "Update Lead",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1632,
+        240
+      ],
+      "onError": "continueRegularOutput"
+    }
+  ],
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get Pending Leads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Pending Leads": {
+      "main": [
+        [
+          {
+            "node": "Split Leads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Leads": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Leads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Leads": {
+      "main": [
+        [
+          {
+            "node": "Done",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Prep",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prep": {
+      "main": [
+        [
+          {
+            "node": "Fetch HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch HTML": {
+      "main": [
+        [
+          {
+            "node": "Tech Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tech Analysis": {
+      "main": [
+        [
+          {
+            "node": "Screenshot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Screenshot": {
+      "main": [
+        [
+          {
+            "node": "Build Gemini Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Gemini Input": {
+      "main": [
+        [
+          {
+            "node": "Gemini Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini Analysis": {
+      "main": [
+        [
+          {
+            "node": "Build Update",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Update": {
+      "main": [
+        [
+          {
+            "node": "Update Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Lead": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Leads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": {},
+  "versionId": "4cbb3b8b-4018-4222-b4d7-8c049c06047f",
+  "activeVersionId": null,
+  "triggerCount": 0,
+  "shared": [
+    {
+      "updatedAt": "2026-06-16T17:48:59.464Z",
+      "createdAt": "2026-06-16T17:48:59.464Z",
+      "role": "workflow:owner",
+      "workflowId": "k4DiExMHol6ZDFr6",
+      "projectId": "5GBCFFrIrIkPnjdc"
+    }
+  ],
+  "activeVersion": null,
+  "tags": []
+}
