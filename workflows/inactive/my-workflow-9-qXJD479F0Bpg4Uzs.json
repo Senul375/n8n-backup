@@ -1,0 +1,1057 @@
+{
+  "updatedAt": "2026-06-18T15:25:01.076Z",
+  "createdAt": "2026-06-18T15:20:34.438Z",
+  "id": "qXJD479F0Bpg4Uzs",
+  "name": "My workflow 9",
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -384,
+        -288
+      ],
+      "id": "c44ab738-81bc-4acc-9bb9-e27629cfc75a",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "95965a6b-baf5-46c5-852e-a88a4be04d9f",
+              "name": "Google_Maps_API",
+              "value": "AIzaSyC6ksZOqDtte69YfY2eTM1b61Z4mhSKjRk",
+              "type": "string"
+            },
+            {
+              "id": "e0a9a743-f310-4eea-bfe4-55d5a25effd9",
+              "name": "query",
+              "value": "={{ $json.query.niche }}",
+              "type": "string"
+            },
+            {
+              "id": "1c7f4e33-3c43-4c3a-8fd8-b42d168c2fc7",
+              "name": "location",
+              "value": "={{ $json.query.location }}",
+              "type": "string"
+            },
+            {
+              "id": "b8da2aea-848e-4b55-912a-e60ff2e01cec",
+              "name": "radius",
+              "value": "1000",
+              "type": "string"
+            },
+            {
+              "id": "f8588993-203f-4fdd-a4d1-e1c32b3fd44b",
+              "name": "Spreadsheet_id",
+              "value": "1F_EQtucCajHSJZrUT_S32nJqdYWtMhw_kKm6XInuRVI",
+              "type": "string"
+            },
+            {
+              "id": "90c98d91-f6e0-4592-8024-0e5b3066d225",
+              "name": "sheet_name",
+              "value": "sheet 1",
+              "type": "string"
+            },
+            {
+              "id": "33ddb2c0-29b3-4800-a69a-3d9affd9f613",
+              "name": "Max_Item",
+              "value": 300,
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        64,
+        -288
+      ],
+      "id": "6f722452-1263-4b37-922d-411c9eae0247",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "url": "https://maps.googleapis.com/maps/api/geocode/json",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "address",
+              "value": "={{ $json.location }}"
+            },
+            {
+              "name": "key",
+              "value": "=AIzaSyC6ksZOqDtte69YfY2eTM1b61Z4mhSKjRk"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        192,
+        -288
+      ],
+      "id": "6f36c1d3-c3a5-479f-9da7-ae1a4954c0ee",
+      "name": "Get cordinetes"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://places.googleapis.com/v1/places:searchText",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Goog-Api-Key",
+              "value": "={{ $('Edit Fields').item.json.Google_Maps_API }}"
+            },
+            {
+              "name": "X-Goog-FieldMask",
+              "value": "places.id,places.displayName.text,places.formattedAddress,places.priceLevel,places.nationalPhoneNumber,places.websiteUri,places.rating,places.internationalPhoneNumber,nextPageToken"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"textQuery\": \"{{ $('Edit Fields').item.json.query }} {{ $('Edit Fields').item.json.location }}\",\n  \"locationBias\": {\n    \"circle\": {\n      \"center\": {\n        \"latitude\": {{ $json.results[0].geometry.location.lat }},\n        \"longitude\": {{ $json.results[0].geometry.location.lng }}\n      },\n      \"radius\": {{ $('Edit Fields').item.json.radius }}\n    }\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        336,
+        -288
+      ],
+      "id": "de313169-9db0-44c4-9318-e07bcb5a8266",
+      "name": "Get Places"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "places",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        496,
+        -288
+      ],
+      "id": "4e358165-938e-4ce7-89fe-01f4a8ef1d88",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "business_name"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        912,
+        -288
+      ],
+      "id": "efd39cc0-fd27-4227-b653-d81a2635de82",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "dataTableId": {
+          "__rl": true,
+          "value": "N5LjcMLEIlInaJMg",
+          "mode": "list",
+          "cachedResultName": "next page token",
+          "cachedResultUrl": "/projects/5GBCFFrIrIkPnjdc/datatables/N5LjcMLEIlInaJMg"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "nextpagetoken": "={{ $('Get Places').item.json.nextPageToken }}"
+          },
+          "matchingColumns": [
+            "nextpagetoken"
+          ],
+          "schema": [
+            {
+              "id": "nextpagetoken",
+              "displayName": "nextpagetoken",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1136,
+        -288
+      ],
+      "id": "d51332dd-f33d-458e-b440-0fddc57d6eef",
+      "name": "Insert row"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "d538b999-0584-46e5-818e-530c3c4e9c8a",
+              "leftValue": "={{ $json.nextpagetoken }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1520,
+        -288
+      ],
+      "id": "371b8da8-248e-4cda-a05e-4db861dfceb5",
+      "name": "If"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        464,
+        -80
+      ],
+      "id": "cf051201-78dd-4d64-a6c6-711eaa069820",
+      "name": "Wait",
+      "webhookId": "321c2695-a138-41f4-bd9e-eefb7adee6cf"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "N5LjcMLEIlInaJMg",
+          "mode": "list",
+          "cachedResultName": "next page token",
+          "cachedResultUrl": "/projects/5GBCFFrIrIkPnjdc/datatables/N5LjcMLEIlInaJMg"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyValue": "={{ $('Insert row').first().json.id }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        672,
+        -80
+      ],
+      "id": "772050f0-e987-4c4f-a5aa-9a47304422e6",
+      "name": "Get row(s)"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "places",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        1184,
+        -80
+      ],
+      "id": "228bc47a-7b0a-48a4-b31d-a6b8ee6ade28",
+      "name": "Split Out1"
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "displayName"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        1648,
+        -80
+      ],
+      "id": "53525de6-37f7-42df-870f-17c3b9dc2435",
+      "name": "Aggregate1"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "value": "N5LjcMLEIlInaJMg",
+          "mode": "list",
+          "cachedResultName": "next page token",
+          "cachedResultUrl": "/projects/5GBCFFrIrIkPnjdc/datatables/N5LjcMLEIlInaJMg"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyValue": "={{ $('Get row(s)').first().json.id }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "nextpagetoken": "={{ $('Get Places1').first().json.nextPageToken }}"
+          },
+          "matchingColumns": [
+            "nextpagetoken"
+          ],
+          "schema": [
+            {
+              "id": "nextpagetoken",
+              "displayName": "nextpagetoken",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1856,
+        -80
+      ],
+      "id": "a1498d80-b2a5-480b-959b-5e25c786aaab",
+      "name": "Update row(s)"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://places.googleapis.com/v1/places:searchText",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Goog-Api-Key",
+              "value": "={{ $('Edit Fields').item.json.Google_Maps_API }}"
+            },
+            {
+              "name": "X-Goog-FieldMask",
+              "value": "places.id,places.displayName.text,places.formattedAddress,places.priceLevel,places.nationalPhoneNumber,places.websiteUri,places.rating,places.internationalPhoneNumber,nextPageToken"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"textQuery\": \"{{ $('Edit Fields').item.json.query + ', ' + $('Edit Fields').item.json.location }}\",\n  \"locationBias\": {\n    \"circle\": {\n      \"center\": {\n        \"latitude\": {{ $node[\"Get cordinetes\"].json.results[0].geometry.location.lat }},\n        \"longitude\": {{ $node[\"Get cordinetes\"].json.results[0].geometry.location.lng }}\n      },\n      \"radius\": {{ $node[\"Edit Fields\"].json.radius }}\n    }\n  }\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        992,
+        -80
+      ],
+      "id": "6a79eb25-e287-442d-ad08-79ced640fd40",
+      "name": "Get Places1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "d538b999-0584-46e5-818e-530c3c4e9c8a",
+              "leftValue": "={{ $json.nextpagetoken }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        2032,
+        -80
+      ],
+      "id": "e7f15ce9-ae38-43e4-b14d-ce1b05b0c52d",
+      "name": "If1"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        592,
+        144
+      ],
+      "id": "8b60d787-4332-4525-b882-91912ededd35",
+      "name": "Wait1",
+      "webhookId": "321c2695-a138-41f4-bd9e-eefb7adee6cf"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "N5LjcMLEIlInaJMg",
+          "mode": "list",
+          "cachedResultName": "next page token",
+          "cachedResultUrl": "/projects/5GBCFFrIrIkPnjdc/datatables/N5LjcMLEIlInaJMg"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyValue": "={{ $('Insert row').first().json.id }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        784,
+        144
+      ],
+      "id": "e4e5b4cc-da9c-4b94-bf76-cee1984c27af",
+      "name": "Get row(s)1"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "places",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        1184,
+        144
+      ],
+      "id": "2e8d412a-6355-478f-b9d0-97cc9c9fe7e1",
+      "name": "Split Out2"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://places.googleapis.com/v1/places:searchText",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Goog-Api-Key",
+              "value": "={{ $('Edit Fields').item.json.Google_Maps_API }}"
+            },
+            {
+              "name": "X-Goog-FieldMask",
+              "value": "places.id,places.displayName.text,places.formattedAddress,places.priceLevel,places.nationalPhoneNumber,places.websiteUri,places.rating,places.internationalPhoneNumber,nextPageToken"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"textQuery\": \"{{ $('Edit Fields').item.json.query + ', ' + $('Edit Fields').item.json.location }}\",\n  \"locationBias\": {\n    \"circle\": {\n      \"center\": {\n        \"latitude\": {{ $node[\"Get cordinetes\"].json.results[0].geometry.location.lat }},\n        \"longitude\": {{ $node[\"Get cordinetes\"].json.results[0].geometry.location.lng }}\n      },\n      \"radius\": {{ $node[\"Edit Fields\"].json.radius }}\n    }\n  }\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        976,
+        144
+      ],
+      "id": "e2eb609f-456a-4ea8-bec4-5f17a1685c5c",
+      "name": "Get Places2"
+    },
+    {
+      "parameters": {
+        "tableId": "leads",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "business_name",
+              "fieldValue": "={{ $json.displayName.text }}"
+            },
+            {
+              "fieldId": "niche",
+              "fieldValue": "={{ $('Edit Fields').item.json.query }}"
+            },
+            {
+              "fieldId": "location",
+              "fieldValue": "={{ $('Edit Fields').item.json.location }}"
+            },
+            {
+              "fieldId": "address",
+              "fieldValue": "={{ $json.formattedAddress }}"
+            },
+            {
+              "fieldId": "phone",
+              "fieldValue": "={{ $json.nationalPhoneNumber }}"
+            },
+            {
+              "fieldId": "website",
+              "fieldValue": "={{ $json.websiteUri }}"
+            },
+            {
+              "fieldId": "google_place_id",
+              "fieldValue": "={{ $json.id }}"
+            },
+            {
+              "fieldId": "rating",
+              "fieldValue": "={{ $json.rating }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        704,
+        -288
+      ],
+      "id": "b0441312-917c-4dd0-9900-e32b6d71dbeb",
+      "name": "Create a row",
+      "credentials": {
+        "supabaseApi": {
+          "id": "4UcvDgBqf10SrNQ1",
+          "name": "Supabase account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "tableId": "leads",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "business_name",
+              "fieldValue": "={{ $json.displayName.text }}"
+            },
+            {
+              "fieldId": "niche",
+              "fieldValue": "={{ $('Edit Fields').item.json.query }}"
+            },
+            {
+              "fieldId": "location",
+              "fieldValue": "={{ $('Edit Fields').item.json.location }}"
+            },
+            {
+              "fieldId": "address",
+              "fieldValue": "={{ $json.formattedAddress }}"
+            },
+            {
+              "fieldId": "phone",
+              "fieldValue": "={{ $json.nationalPhoneNumber }}"
+            },
+            {
+              "fieldId": "website",
+              "fieldValue": "={{ $json.websiteUri }}"
+            },
+            {
+              "fieldId": "google_place_id",
+              "fieldValue": "={{ $json.id }}"
+            },
+            {
+              "fieldId": "rating",
+              "fieldValue": "={{ $json.rating }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1408,
+        -80
+      ],
+      "id": "4b1ba1c1-4994-4418-a48d-0b6410c08c66",
+      "name": "Create a row3",
+      "credentials": {
+        "supabaseApi": {
+          "id": "4UcvDgBqf10SrNQ1",
+          "name": "Supabase account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "tableId": "leads",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "business_name",
+              "fieldValue": "={{ $json.displayName.text }}"
+            },
+            {
+              "fieldId": "niche",
+              "fieldValue": "={{ $('Edit Fields').item.json.query }}"
+            },
+            {
+              "fieldId": "location",
+              "fieldValue": "={{ $('Edit Fields').item.json.location }}"
+            },
+            {
+              "fieldId": "address",
+              "fieldValue": "={{ $json.formattedAddress }}"
+            },
+            {
+              "fieldId": "phone",
+              "fieldValue": "={{ $json.nationalPhoneNumber }}"
+            },
+            {
+              "fieldId": "website",
+              "fieldValue": "={{ $json.websiteUri }}"
+            },
+            {
+              "fieldId": "google_place_id",
+              "fieldValue": "={{ $json.id }}"
+            },
+            {
+              "fieldId": "rating",
+              "fieldValue": "={{ $json.rating }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1392,
+        144
+      ],
+      "id": "1c169cd1-6bf1-4c2d-aeb6-673dbd64cd22",
+      "name": "Create a row4",
+      "credentials": {
+        "supabaseApi": {
+          "id": "4UcvDgBqf10SrNQ1",
+          "name": "Supabase account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "aa258b23-0b4e-48d7-aab9-de7f3d20538e",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -400,
+        -16
+      ],
+      "id": "b80fd16d-4c79-4d3e-8b2c-934549009e19",
+      "name": "Webhook",
+      "webhookId": "aa258b23-0b4e-48d7-aab9-de7f3d20538e"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1600,
+        144
+      ],
+      "id": "acfaa9bc-621b-4ddc-9c10-9895e23d46b4",
+      "name": "Wait2",
+      "webhookId": "5d69b4f2-5e24-4bce-b6d8-59b69bc2aaa3"
+    },
+    {
+      "parameters": {
+        "url": "https://n8n.35.225.222.54.sslip.io/webhook-test/77e4adf5-cd8f-4ef5-9862-18770879dbe6",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1760,
+        144
+      ],
+      "id": "126885b6-90af-4fce-a1c2-292a3250d787",
+      "name": "HTTP Request"
+    }
+  ],
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Get cordinetes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get cordinetes": {
+      "main": [
+        [
+          {
+            "node": "Get Places",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Places": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Create a row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Insert row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert row": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Get row(s)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s)": {
+      "main": [
+        [
+          {
+            "node": "Get Places1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out1": {
+      "main": [
+        [
+          {
+            "node": "Create a row3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate1": {
+      "main": [
+        [
+          {
+            "node": "Update row(s)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update row(s)": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Places1": {
+      "main": [
+        [
+          {
+            "node": "Split Out1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "Get row(s)1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s)1": {
+      "main": [
+        [
+          {
+            "node": "Get Places2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out2": {
+      "main": [
+        [
+          {
+            "node": "Create a row4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Places2": {
+      "main": [
+        [
+          {
+            "node": "Split Out2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a row": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a row3": {
+      "main": [
+        [
+          {
+            "node": "Aggregate1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a row4": {
+      "main": [
+        [
+          {
+            "node": "Wait2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait2": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "n8n.35.225.222.54.sslip.io",
+            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36",
+            "content-length": "0",
+            "accept": "*/*",
+            "accept-encoding": "gzip, deflate, br, zstd",
+            "accept-language": "en-US,en;q=0.9",
+            "origin": "https://rococo-cuchufli-7e4197.netlify.app",
+            "priority": "u=1, i",
+            "referer": "https://rococo-cuchufli-7e4197.netlify.app/",
+            "sec-ch-ua": "\"Google Chrome\";v=\"149\", \"Chromium\";v=\"149\", \"Not)A;Brand\";v=\"24\"",
+            "sec-ch-ua-mobile": "?0",
+            "sec-ch-ua-platform": "\"Windows\"",
+            "sec-fetch-dest": "empty",
+            "sec-fetch-mode": "no-cors",
+            "sec-fetch-site": "cross-site",
+            "x-forwarded-for": "31.52.5.247",
+            "x-forwarded-host": "n8n.35.225.222.54.sslip.io",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "4c5ca81a9b1e",
+            "x-real-ip": "31.52.5.247"
+          },
+          "params": {},
+          "query": {
+            "run_id": "227ee004-f0d7-4033-88d9-e61dde3f9024",
+            "niche": "resturents",
+            "location": "london"
+          },
+          "body": {},
+          "webhookUrl": "https://n8n.35.225.222.54.sslip.io/webhook-test/aa258b23-0b4e-48d7-aab9-de7f3d20538e",
+          "executionMode": "test"
+        }
+      }
+    ]
+  },
+  "versionId": "5612b016-9727-4955-954b-79f96e2e3bb7",
+  "activeVersionId": null,
+  "triggerCount": 0,
+  "shared": [
+    {
+      "updatedAt": "2026-06-18T15:20:34.452Z",
+      "createdAt": "2026-06-18T15:20:34.452Z",
+      "role": "workflow:owner",
+      "workflowId": "qXJD479F0Bpg4Uzs",
+      "projectId": "5GBCFFrIrIkPnjdc"
+    }
+  ],
+  "activeVersion": null,
+  "tags": []
+}
