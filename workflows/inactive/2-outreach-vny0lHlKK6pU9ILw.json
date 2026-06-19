@@ -1,0 +1,3044 @@
+{
+  "updatedAt": "2026-06-17T15:56:31.241Z",
+  "createdAt": "2026-06-16T17:25:51.089Z",
+  "id": "vny0lHlKK6pU9ILw",
+  "name": "2 - outreach",
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1376,
+        400
+      ],
+      "id": "e1a09e09-b72e-4e35-a663-d8f42272bd6a",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "sendTo": "senuladeeth9@gmail.com",
+        "subject": "8n FIND PERSONS ERROR ... PLEASE CHECK ..",
+        "message": "n8n FIND PERSONS ERROR ... PLEASE CHECK ...\n\n\nn8n workflow link:  \nhttps://n8n.sncai.online/workflow/4wHmhE4YXXcg5RwdysXZJ",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -560,
+        496
+      ],
+      "id": "374ae6e9-1103-4d95-9a92-29d7c8f6ab30",
+      "name": "Send a message",
+      "webhookId": "700d83d9-667f-41cd-962b-9a0bf1d96582",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "E8cd6USpMe20YyZW",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -128,
+        176
+      ],
+      "id": "69248dee-1657-4154-a333-76a05229b685",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "sendTo": "senuladeeth9@gmail.com",
+        "subject": "n8n FIND PERSONS DAILY TASK COMPLETE",
+        "emailType": "text",
+        "message": "n8n FIND PERSONS DAILY TASK COMPLETE \nn8n workflow link:\nhttp://n8n-hogccccc0gco8ws48k0s0gok.34.29.139.65.sslip.io/workflow/6J2UhgTNxGICxeOj",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        448,
+        -32
+      ],
+      "id": "b9cf7d6d-2ad9-40a1-893d-3aa4680dad2d",
+      "name": "Daily Limit 40",
+      "webhookId": "a9f967a9-5d70-4034-931d-b9cb883714c3",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "E8cd6USpMe20YyZW",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "maxItems": "={{ $('Edit Fields').first().json.Max_item }}"
+      },
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        -592,
+        320
+      ],
+      "id": "e4a2ebbd-39ba-4270-b0f2-dd44dea58376",
+      "name": "Daily Limit "
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "68c60c55-6097-4358-b686-44a5f0e8988c",
+              "leftValue": "={{ $('Edit Fields').first().json.Max_item }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -400,
+        320
+      ],
+      "id": "8337441f-a2b3-4ad8-9571-456e16cc734a",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "sendTo": "senuladeeth9@gmail.com",
+        "subject": "N8N error ",
+        "emailType": "text",
+        "message": "n8n FIND PERSONS : no task found",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -176,
+        512
+      ],
+      "id": "6ef5224f-c29e-4dc4-8272-2248a25deed7",
+      "name": "Daily Limit 41",
+      "webhookId": "5b399fb6-3691-4e49-876d-f64ddcf77c88",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "E8cd6USpMe20YyZW",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.output }}",
+                    "rightValue": "{",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    },
+                    "id": "905ce7a0-9528-4cdb-94a1-4fc9cced64a5"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "All Good"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "e9bd8962-2dab-4708-814a-fd37955b16f2",
+                    "leftValue": "={{ $json.error }}",
+                    "rightValue": "too many requests",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "too many"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "none"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        1056,
+        256
+      ],
+      "id": "2d8a9daa-7305-41b8-ae53-d25857e0a8b3",
+      "name": "Switch1"
+    },
+    {
+      "parameters": {
+        "jsCode": "// This Code node expects input like:\n// { \"output\": \"{\\n  \\\"Company Name\\\": \\\"...\\\",\\n  \\\"Person Name\\\": [ ... ]\\n}\" }\n\nconst item = $input.item.json;\n\n// 1) Get the raw string from the Switch output\nconst rawText = (item.output || \"\").trim();\n\nif (!rawText) {\n  return [{\n    json: {\n      error: \"Missing 'output' field or it's empty\",\n      received: item\n    }\n  }];\n}\n\n// 2) rawText should already be JSON (starts with { or [), but we also support cases\n// where extra text appears and we need to extract the JSON block.\nlet jsonString = rawText;\n\n// If it doesn't start with { or [, try extracting the first JSON object/array\nif (!(jsonString.startsWith(\"{\") || jsonString.startsWith(\"[\"))) {\n  const objMatch = jsonString.match(/\\{[\\s\\S]*\\}/);\n  const arrMatch = jsonString.match(/\\[[\\s\\S]*\\]/);\n  const match = objMatch || arrMatch;\n\n  if (!match) {\n    return [{\n      json: {\n        error: \"No JSON found in 'output' string\",\n        received_text: rawText\n      }\n    }];\n  }\n\n  jsonString = match[0];\n}\n\n// 3) Parse\nlet parsed;\ntry {\n  parsed = JSON.parse(jsonString);\n} catch (e) {\n  return [{\n    json: {\n      error: \"JSON.parse failed on 'output'\",\n      details: e.message,\n      raw: rawText\n    }\n  }];\n}\n\n// 4) Normalize format:\n// If parsed is an array, try to find the first object that has \"Company Name\"\nlet data = parsed;\nif (Array.isArray(parsed)) {\n  data = parsed.find(x => x && typeof x === \"object\" && x[\"Company Name\"]) || parsed[0] || {};\n}\n\n// 5) Extract fields\nconst companyName = data[\"Company Name\"] || \"Unknown\";\nconst people = Array.isArray(data[\"Person Name\"]) ? data[\"Person Name\"] : [];\n\n// 6) If no people, return one item (keeps workflow stable)\nif (people.length === 0) {\n  return [{\n    json: {\n      company_name: companyName,\n      status: \"No people found\",\n      original: data\n    }\n  }];\n}\n\n// 7) Output one item per person\nreturn people.map(person => ({\n  json: {\n    company_name: companyName,\n    name: person?.name ?? \"NA\",\n    title: person?.title ?? \"NA\",\n    email: person?.email ?? \"NA\",\n    linkedin: person?.LinkedIn ?? \"NA\",\n    instagram: person?.Instagram ?? \"NA\",\n    twitter: person?.Twitter ?? \"NA\",\n    facebook: person?.Facebook ?? \"NA\"\n  }\n}));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1328,
+        240
+      ],
+      "id": "b8602011-5cab-4bf1-962b-28c0ff87f1d5",
+      "name": "Code in JavaScript3",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "amount": 17
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        96,
+        320
+      ],
+      "id": "5802653a-613b-4f1b-b8f3-ef191f2da2f7",
+      "name": "Wait",
+      "webhookId": "6b150a00-d276-4648-acee-42d9f1c665c7"
+    },
+    {
+      "parameters": {
+        "sendTo": "adeethsenul61@gmail.com",
+        "subject": "8n FIND PERSONS ERROR ... PLEASE CHECK .. too many",
+        "message": "\nn8n FIND PERSONS ** ERROR **\n\nAGENT 1 FAILED FOR SOME REASON\n\nhttps://n8n.sncai.online/workflow/4wHmhE4YXXcg5RwdysXZJ/d2d228",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1872,
+        512
+      ],
+      "id": "f1dad90b-7c65-44b3-8bed-89b627de8c49",
+      "name": "Send a message3",
+      "webhookId": "877c6011-431e-45ef-927c-9e3d5e3b8cf8",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "E8cd6USpMe20YyZW",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "82773fa9-8ae5-4ae9-b42f-2598e8e2a132",
+              "name": "Max_item",
+              "value": 100,
+              "type": "number"
+            },
+            {
+              "id": "cb99453b-aa4e-4625-b831-89fdcd91780a",
+              "name": "web_search_count",
+              "value": 5,
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1200,
+        400
+      ],
+      "id": "acb00555-90a3-465e-8027-6ec8a79851a1",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "maxItems": "=1"
+      },
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        272,
+        320
+      ],
+      "id": "f7cb8057-1088-43b2-bd57-8e00668027b9",
+      "name": "Limit"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1-gVddh8f8OkLNNPl6MY6pKjD73wqGf6b0m8zNjOYUpA",
+          "mode": "list",
+          "cachedResultName": "Step 1 - Recruitment agency",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-gVddh8f8OkLNNPl6MY6pKjD73wqGf6b0m8zNjOYUpA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1288768779,
+          "mode": "list",
+          "cachedResultName": "Sheet3",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-gVddh8f8OkLNNPl6MY6pKjD73wqGf6b0m8zNjOYUpA/edit#gid=1288768779"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "row_number": "={{ $('Get row(s) in sheet').item.json.row_number }}",
+            "person searched": "done"
+          },
+          "matchingColumns": [
+            "row_number"
+          ],
+          "schema": [
+            {
+              "id": "Company name",
+              "displayName": "Company name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "place id",
+              "displayName": "place id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "national phone number",
+              "displayName": "national phone number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "international phone number",
+              "displayName": "international phone number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "rating",
+              "displayName": "rating",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "website url",
+              "displayName": "website url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "format address",
+              "displayName": "format address",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "person searched",
+              "displayName": "person searched",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "hunter searched",
+              "displayName": "hunter searched",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "done research",
+              "displayName": "done research",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2272,
+        288
+      ],
+      "id": "24cfd6d8-1ca6-4a26-8778-3d8459de0c29",
+      "name": "Update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "XurJbcuuPZn14SYW",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "temp"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        160,
+        -32
+      ],
+      "id": "d95d105b-ac8b-4538-b764-04bb5a95f488",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "amount": 3
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        448,
+        320
+      ],
+      "id": "4c2adab4-ea0c-495c-9f74-92697e3b85d8",
+      "name": "Wait1",
+      "webhookId": "5aa25776-35b9-46f6-a13b-47d108611b4f"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4.1-MINI"
+        },
+        "responses": {
+          "values": [
+            {
+              "content": "=company name : {{ $json.displayName }}\nwebsite : {{ $json.websiteUri }}"
+            },
+            {
+              "role": "system",
+              "content": "Role:\nYou are a Senior OSINT Researcher. Your job is to identify the OWNERS, FOUNDERS, or BOARD-LEVEL DIRECTORS of a company (not regular employees) and return verified contact and profile information.\n\nTools available:\n1) Gemini Search\n2) Brave Search\n3) SerpAPI Search\n\nTool rules:\n- Start with Gemini Search.\n- Use Gemini Search only once per company.\n- If Gemini returns at least one OWNER/FOUNDER/BOARD DIRECTOR name, STOP and do not use any other tools.\n- Only use Brave Search if Gemini returns no OWNER/FOUNDER/BOARD DIRECTOR names.\n- Only use SerpAPI if both Gemini and Brave return no OWNER/FOUNDER/BOARD DIRECTOR names.\n- Do not retry any tool.\n- Do not describe tool usage.\n- Do not output tool calls, reasoning, or tool logs.\n\nInput:\nYou will receive:\n- Company Name (required)\n- Website (if available)\n- Description (if available)\n\nTask (STRICT):\n1) Identify only:\n   - Owner / Co-owner\n   - Founder / Co-founder\n   - Chairman / Chairwoman\n   - Board Director / Non-executive Director\n   - Managing Director (ONLY if no owner/founder/director is available)\n   - CEO (ONLY if no owner/founder/director is available)\n2) EXCLUDE roles like:\n   - Head of Legal, Head of Sales, Managers, Staff, Consultants, Coaches, etc.\n3) Use reliable sources such as:\n   - Official website (About / Team / Leadership)\n   - LinkedIn (company leadership + profiles)\n   - Company registries (e.g., Companies House)\n   - Reputable business directories\n   - Reputable news / press releases\n4) For each included person, collect:\n   - Professional email (only if explicitly shown)\n   - LinkedIn URL\n   - Instagram URL\n   - Twitter/X URL\n   - Facebook URL\n5) If any data cannot be found, use \"NA\".\n\nRules:\n- Never guess or invent names, emails, or links.\n- Never infer emails from patterns.\n- Only include verified information.\n- If you cannot find any Owner/Founder/Director, return ONE senior leader (CEO/MD) only, not multiple staff members.\n\nOutput (ABSOLUTE):\n- Return ONLY valid JSON text.\n- Do NOT use markdown.\n- Do NOT use code fences like ```json.\n- Do NOT add any extra words before or after the JSON.\n- The response must start with { and end with } exactly.\n\nFormat:\n{\n  \"Company Name\": \"<company name>\",\n  \"Person Name\": [\n    {\n      \"name\": \"<full name or NA>\",\n      \"title\": \"<Owner/Founder/Director/CEO/MD or NA>\",\n      \"email\": \"<email or NA>\",\n      \"LinkedIn\": \"<url or NA>\",\n      \"Instagram\": \"<url or NA>\",\n      \"Twitter\": \"<url or NA>\",\n      \"Facebook\": \"<url or NA>\"\n    }\n  ]\n}\n"
+            }
+          ]
+        },
+        "builtInTools": {
+          "webSearch": {
+            "searchContextSize": "medium"
+          }
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.1,
+      "position": [
+        -80,
+        928
+      ],
+      "id": "6c67d3e2-8cc4-4962-a4d5-b661525ee6c1",
+      "name": "Message a model",
+      "credentials": {
+        "openAiApi": {
+          "id": "JWdBP7y4HI27UEHp",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e906d7d8-ba86-499c-b67c-8805f30a10fb",
+              "name": "output",
+              "value": "={{ $json.candidates[0].content.parts[0].text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        896,
+        256
+      ],
+      "id": "f3af82de-0909-42b1-9d54-ad3b1ba5a462",
+      "name": "Edit Fields2"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1-gVddh8f8OkLNNPl6MY6pKjD73wqGf6b0m8zNjOYUpA",
+          "mode": "list",
+          "cachedResultName": "Step 1 - Recruitment agency",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-gVddh8f8OkLNNPl6MY6pKjD73wqGf6b0m8zNjOYUpA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1102239370,
+          "mode": "list",
+          "cachedResultName": "Sheet4",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-gVddh8f8OkLNNPl6MY6pKjD73wqGf6b0m8zNjOYUpA/edit#gid=1102239370"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "company name": "={{ $('Get row(s) in sheet').item.json.displayName }}",
+            "place id": "={{ $('Get row(s) in sheet').item.json.id }}",
+            "rating": "={{ $('Get row(s) in sheet').item.json.rating }}",
+            "linkedn": "={{ $json.linkedin }}",
+            "twitter": "={{ $json.twitter }}",
+            "national phone number": "={{ $('Get row(s) in sheet').item.json.nationalPhoneNumber }}",
+            "international phone number": "={{ $('Get row(s) in sheet').item.json.internationalPhoneNumber }}",
+            "format address": "={{ $('Get row(s) in sheet').item.json['format adress'] }}",
+            "website url": "={{ $('Get row(s) in sheet').item.json.websiteUri }}",
+            "instagram": "={{ $json.instagram }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "company name",
+              "displayName": "company name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "place id",
+              "displayName": "place id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "national phone number",
+              "displayName": "national phone number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "international phone number",
+              "displayName": "international phone number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "format address",
+              "displayName": "format address",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "rating",
+              "displayName": "rating",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "website url",
+              "displayName": "website url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "persona name",
+              "displayName": "persona name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "linkedn",
+              "displayName": "linkedn",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "instagram",
+              "displayName": "instagram",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "twitter",
+              "displayName": "twitter",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "facebook",
+              "displayName": "facebook",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2032,
+        288
+      ],
+      "id": "43847482-d53e-4e78-b7ae-0a81e658c4ff",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "XurJbcuuPZn14SYW",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=company name : {{ $json['Company name'] }}\nwebsite : {{ $json['website url'] }}"
+            },
+            {
+              "content": "Role:\nYou are a Senior OSINT Researcher. Your job is to identify the OWNERS, FOUNDERS, or BOARD-LEVEL DIRECTORS of a company (not regular employees) and return verified contact and profile information.\n\nTools available:\n1) Gemini Search\n\n\nInput:\nYou will receive:\n- Company Name (required)\n- Website (if available)\n- Description (if available)\n\nTask (STRICT):\n1) Identify only:\n   - Owner / Co-owner\n   - Founder / Co-founder\n   - Chairman / Chairwoman\n   - Board Director / Non-executive Director\n   - Managing Director (ONLY if no owner/founder/director is available)\n   - CEO (ONLY if no owner/founder/director is available)\n2) EXCLUDE roles like:\n   - Head of Legal, Head of Sales, Managers, Staff, Consultants, Coaches, etc.\n3) Use reliable sources such as:\n   - Official website (About / Team / Leadership)\n   - LinkedIn (company leadership + profiles)\n   - Company registries (e.g., Companies House)\n   - Reputable business directories\n   - Reputable news / press releases\n4) For each included person, collect:\n   - Professional email (only if explicitly shown)\n   - LinkedIn URL\n   - Instagram URL\n   - Twitter/X URL\n   - Facebook URL\n5) If any data cannot be found, use \"NA\".\n\nRules:\n- Never guess or invent names, emails, or links.\n- Never infer emails from patterns.\n- Only include verified information.\n- If you cannot find any Owner/Founder/Director, return ONE senior leader (CEO/MD) only, not multiple staff members.\n\nOutput (ABSOLUTE):\n- Return ONLY valid JSON text.\n- Do NOT use markdown.\n- Do NOT use code fences like ```json.\n- Do NOT add any extra words before or after the JSON.\n- The response must start with { and end with } exactly.\n\nFormat:\n{\n  \"Company Name\": \"<company name>\",\n  \"Person Name\": [\n    {\n      \"name\": \"<full name or NA>\",\n      \"title\": \"<Owner/Founder/Director/CEO/MD or NA>\",\n      \"email\": \"<email or NA>\",\n      \"LinkedIn\": \"<url or NA>\",\n      \"Instagram\": \"<url or NA>\",\n      \"Twitter\": \"<url or NA>\",\n      \"Facebook\": \"<url or NA>\"\n    }\n  ]\n}\n",
+              "role": "model"
+            }
+          ]
+        },
+        "simplify": false,
+        "builtInTools": {
+          "googleSearch": true
+        },
+        "options": {
+          "systemMessage": "Role: You are a Senior OSINT Researcher. Your job is to identify the OWNERS, FOUNDERS, or BOARD-LEVEL DIRECTORS of a company (not regular employees) and return verified contact and profile information.  Tools available: 1) Gemini Search   Input: You will receive: - Company Name (required) - Website (if available) - Description (if available)  Task (STRICT): 1) Identify only:    - Owner / Co-owner    - Founder / Co-founder    - Chairman / Chairwoman    - Board Director / Non-executive Director    - Managing Director (ONLY if no owner/founder/director is available)    - CEO (ONLY if no owner/founder/director is available) 2) EXCLUDE roles like:    - Head of Legal, Head of Sales, Managers, Staff, Consultants, Coaches, etc. 3) Use reliable sources such as:    - Official website (About / Team / Leadership)    - LinkedIn (company leadership + profiles)    - Company registries (e.g., Companies House)    - Reputable business directories    - Reputable news / press releases 4) For each included person, collect:    - Professional email (only if explicitly shown)    - LinkedIn URL    - Instagram URL    - Twitter/X URL    - Facebook URL 5) If any data cannot be found, use \"NA\".  Rules: - Never guess or invent names, emails, or links. - Never infer emails from patterns. - Only include verified information. - If you cannot find any Owner/Founder/Director, return ONE senior leader (CEO/MD) only, not multiple staff members.  Output (ABSOLUTE): - Return ONLY valid JSON text. - Do NOT use markdown. - Do NOT use code fences like ```json. - Do NOT add any extra words before or after the JSON. - The response must start with { and end with } exactly.  Format: {   \"Company Name\": \"<company name>\",   \"Person Name\": [     {       \"name\": \"<full name or NA>\",       \"title\": \"<Owner/Founder/Director/CEO/MD or NA>\",       \"email\": \"<email or NA>\",       \"LinkedIn\": \"<url or NA>\",       \"Instagram\": \"<url or NA>\",       \"Twitter\": \"<url or NA>\",       \"Facebook\": \"<url or NA>\"     }   ] }"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.2,
+      "position": [
+        592,
+        288
+      ],
+      "id": "b772d0db-5179-480a-a321-97bbe0fbce99",
+      "name": "Message a model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "J1l2ZUht2A09BOqf",
+          "name": "ak - gemini api key paid version"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "leads",
+        "limit": "={{ $json.Max_item }}"
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -880,
+        400
+      ],
+      "id": "ad74ec1a-2809-4532-9a76-7850ca1529f4",
+      "name": "Get many rows",
+      "credentials": {
+        "supabaseApi": {
+          "id": "4UcvDgBqf10SrNQ1",
+          "name": "Supabase account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update"
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1744,
+        240
+      ],
+      "id": "33bcb742-1e14-4cdc-90ea-cfcd89aa7683",
+      "name": "Update a row",
+      "credentials": {
+        "supabaseApi": {
+          "id": "4UcvDgBqf10SrNQ1",
+          "name": "Supabase account 2"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1536,
+        240
+      ],
+      "id": "dc8e1c33-a3de-4f3b-93be-7debb833eb7c",
+      "name": "Create a row",
+      "credentials": {
+        "supabaseApi": {
+          "id": "4UcvDgBqf10SrNQ1",
+          "name": "Supabase account 2"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Daily Limit ": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Daily Limit 41",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript3",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a message3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript3": {
+      "main": [
+        [
+          {
+            "node": "Create a row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message3": {
+      "main": [
+        []
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Get many rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit": {
+      "main": [
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Daily Limit 40",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "Message a model1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields2": {
+      "main": [
+        [
+          {
+            "node": "Switch1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many rows": {
+      "main": [
+        [
+          {
+            "node": "Daily Limit ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a row": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a row": {
+      "main": [
+        [
+          {
+            "node": "Update a row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {
+    "Edit Fields": [
+      {
+        "json": {
+          "Max_item": 100,
+          "web_search_count": 5
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ],
+    "Get many rows": [
+      {
+        "json": {
+          "id": "271a593b-826c-4a4f-b6b5-9dded994dbe7",
+          "business_name": "Fallow",
+          "niche": "restaurant",
+          "location": "london",
+          "address": "52 Haymarket, London SW1Y 4RP, UK",
+          "phone": "020 8017 1788",
+          "website": "http://www.fallowrestaurant.com/",
+          "google_place_id": "ChIJSWN4ldUEdkgRGqo3OSnf1CY",
+          "rating": 4.7,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-15T16:35:53.561011+00:00",
+          "updated_at": "2026-06-15T16:35:53.561011+00:00"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "488441f5-7c95-4be9-92b5-39956612b84a",
+          "business_name": "Tattu London",
+          "niche": "restaurant",
+          "location": "london",
+          "address": "The Now Building Rooftop, Outernet, Denmark St, London WC2H 0LA, UK",
+          "phone": "020 3778 1985",
+          "website": "https://tattu.co.uk/locations/tattu-london/",
+          "google_place_id": "ChIJHdd94hwbdkgRihDCyn0FD1Y",
+          "rating": 4.7,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-15T16:35:53.561011+00:00",
+          "updated_at": "2026-06-15T16:35:53.561011+00:00"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "11745415-a274-4027-aea5-9d1901fe1535",
+          "business_name": "HIDE",
+          "niche": "restaurant",
+          "location": "london",
+          "address": "85 Piccadilly, London W1J 7NB, UK",
+          "phone": "020 3146 8666",
+          "website": "https://hide.co.uk/?utm_source=gbp&utm_medium=organic",
+          "google_place_id": "ChIJn1DE_XsFdkgR6NyYk4IWd64",
+          "rating": 4.5,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-15T16:35:53.561011+00:00",
+          "updated_at": "2026-06-15T16:35:53.561011+00:00"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "e87df067-76b1-4384-89b3-fc8471cfd7ae",
+          "business_name": "Blacklock Covent Garden",
+          "niche": "restaurant",
+          "location": "london",
+          "address": "16a Bedford St, London WC2E 9HE, UK",
+          "phone": "020 3034 1394",
+          "website": "https://theblacklock.com/coventgarden-reservations/?utm_source=GMB&utm_medium=website+click&utm_campaign=SDM&utm_id=GMB",
+          "google_place_id": "ChIJyeTsrLoFdkgRdsewS8ne0fQ",
+          "rating": 4.7,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-15T16:35:53.561011+00:00",
+          "updated_at": "2026-06-15T16:35:53.561011+00:00"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "d75ed9a5-5b56-464f-a174-13cabe9fb7db",
+          "business_name": "OMA",
+          "niche": "restaurant",
+          "location": "london",
+          "address": "3 Bedale St, London SE1 9AL, UK",
+          "phone": "020 8129 6760",
+          "website": "http://oma.london/",
+          "google_place_id": "ChIJ4co2k5kDdkgROKjVBk6wD8k",
+          "rating": 4.7,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-15T16:35:53.561011+00:00",
+          "updated_at": "2026-06-15T16:35:53.561011+00:00"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "a05533a0-523d-4bc6-9dd6-885395d1ed45",
+          "business_name": "The Wolseley Piccadilly",
+          "niche": "restaurant",
+          "location": "london",
+          "address": "160 Piccadilly, London W1J 9EB, UK",
+          "phone": "020 7499 6996",
+          "website": "https://www.thewolseleypiccadilly.com/",
+          "google_place_id": "ChIJr_4cVy8FdkgRIrNbO93eUFM",
+          "rating": 4.4,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-15T16:35:53.561011+00:00",
+          "updated_at": "2026-06-15T16:35:53.561011+00:00"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "03bdc5b1-396c-4ca1-a3cb-5720d08b9e67",
+          "business_name": "Gymkhana",
+          "niche": "restaurant",
+          "location": "london",
+          "address": "42 Albemarle St, London W1S 4JH, UK",
+          "phone": "020 3011 5900",
+          "website": "http://www.gymkhanarestaurants.com/",
+          "google_place_id": "ChIJtwn55ikFdkgRAvOuPIWeLM0",
+          "rating": 4.4,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-15T16:35:53.561011+00:00",
+          "updated_at": "2026-06-15T16:35:53.561011+00:00"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "1be642d1-dec1-4cfc-a983-f862849b629b",
+          "business_name": "Osteria romana",
+          "niche": "restaurant",
+          "location": "london",
+          "address": "3-4 Park Cl, London SW1X 7PQ, UK",
+          "phone": "020 7584 5819",
+          "website": "http://osteriaromana.co.uk/",
+          "google_place_id": "ChIJb8xZZzgFdkgRvrsQVk8WJcI",
+          "rating": 4.8,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-15T16:35:53.561011+00:00",
+          "updated_at": "2026-06-15T16:35:53.561011+00:00"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "3acf24d1-635d-48b6-ac95-a7db34433f89",
+          "business_name": "Hawksmoor Air Street",
+          "niche": "restaurant",
+          "location": "london",
+          "address": "5A Air St, London W1J 0AD, UK",
+          "phone": "020 7406 3980",
+          "website": "https://thehawksmoor.com/locations/airstreet/?y_source=1_MjQyMjUwMzYtNzE1LWxvY2F0aW9uLndlYnNpdGU%3D",
+          "google_place_id": "ChIJl5tPHtQEdkgRW15WLM9-Ef0",
+          "rating": 4.5,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-15T16:35:53.561011+00:00",
+          "updated_at": "2026-06-15T16:35:53.561011+00:00"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "a88567b7-5364-4292-980b-c94e417e732c",
+          "business_name": "Happy London",
+          "niche": "restaurant",
+          "location": "london",
+          "address": "25-29 Coventry St, Piccadilly Circus, London W1D 7AG, UK",
+          "phone": "020 3883 7874",
+          "website": "https://happyrestaurants.com/",
+          "google_place_id": "ChIJ-0sYC0UFdkgR22MCL9yb9sQ",
+          "rating": 4.4,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-15T16:35:53.561011+00:00",
+          "updated_at": "2026-06-15T16:35:53.561011+00:00"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "235cf196-4c7b-465f-aeef-7e1b07a8153b",
+          "business_name": "Rules",
+          "niche": "restaurant",
+          "location": "london",
+          "address": "35 Maiden Ln, London WC2E 7LB, UK",
+          "phone": "020 7836 5314",
+          "website": "http://www.rules.co.uk/",
+          "google_place_id": "ChIJbUnC58oEdkgR4pwzPtYGrbY",
+          "rating": 4.6,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-15T16:35:53.561011+00:00",
+          "updated_at": "2026-06-15T16:35:53.561011+00:00"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "38daa11f-d265-4c31-b409-92737e0a6509",
+          "business_name": "Clos Maggiore",
+          "niche": "restaurant",
+          "location": "london",
+          "address": "33 King St, London WC2E 8JD, UK",
+          "phone": "020 4580 1174",
+          "website": "http://www.closmaggiore.com/?utm_source=google&utm_medium=organic&utm_campaign=googlemybusiness",
+          "google_place_id": "ChIJFWhXXcwEdkgRkKBKheUNnC4",
+          "rating": 4.4,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-15T16:35:53.561011+00:00",
+          "updated_at": "2026-06-15T16:35:53.561011+00:00"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "40b6d30a-b8a4-4998-a418-2c372b2bb1b3",
+          "business_name": "Bill's Covent Garden Restaurant",
+          "niche": "restaurant",
+          "location": "london",
+          "address": "St Martin's Courtyard, Slingsby Pl, London WC2H 9EF, UK",
+          "phone": "020 8054 5400",
+          "website": "https://bills-website.co.uk/restaurants/covent-garden/?utm_source=LocalGoogle&utm_medium=Organic",
+          "google_place_id": "ChIJxe02As0EdkgRZeOhNiEbtt8",
+          "rating": 4.6,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-15T16:35:53.561011+00:00",
+          "updated_at": "2026-06-15T16:35:53.561011+00:00"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "b1926085-ff33-4a8f-b1e9-4c7821369992",
+          "business_name": "Darwin Brasserie",
+          "niche": "restaurant",
+          "location": "london",
+          "address": "1, Level 36, Sky Garden Walk, London EC3M 8AF, UK",
+          "phone": "0333 772 0020",
+          "website": "https://skygarden.london/restaurants/darwin-brasserie/",
+          "google_place_id": "ChIJO_02aFIDdkgRf2-gsHxdgEQ",
+          "rating": 4.4,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-15T16:35:53.561011+00:00",
+          "updated_at": "2026-06-15T16:35:53.561011+00:00"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "ff545f62-9a07-45b6-91d8-174940a67d22",
+          "business_name": "Prezzo",
+          "niche": "restaurant",
+          "location": "london",
+          "address": "31-32 Northumberland Ave, London WC2N 5BW, UK",
+          "phone": "020 3910 9777",
+          "website": "https://www.prezzo.co.uk/restaurants/london-northumberland-avenue/",
+          "google_place_id": "ChIJZf2Jlc4EdkgRv83xDpKQfHA",
+          "rating": 4.5,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-15T16:35:53.561011+00:00",
+          "updated_at": "2026-06-15T16:35:53.561011+00:00"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "e3d93666-d3ae-410b-97ed-03b99134cf0a",
+          "business_name": "Cicchetti Piccadilly - London Piccadilly",
+          "niche": "restaurant",
+          "location": "london",
+          "address": "Cicchetti, 172-173 Piccadilly, London W1J 9EJ, UK",
+          "phone": "020 7362 0999",
+          "website": "https://sancarlo.co.uk/restaurants/london/cicchetti-piccadilly/",
+          "google_place_id": "ChIJTztGq9YEdkgRXRLmtU4BTqs",
+          "rating": 4.4,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-15T16:35:53.561011+00:00",
+          "updated_at": "2026-06-15T16:35:53.561011+00:00"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "a3b77ac7-f349-40a2-8533-5e32addd01d8",
+          "business_name": "Ekstedt at The Yard",
+          "niche": "restaurant",
+          "location": "london",
+          "address": "3-5 Great Scotland Yard, London SW1A 2HN, UK",
+          "phone": "020 7925 4749",
+          "website": "https://www.ekstedtattheyard.com/",
+          "google_place_id": "ChIJL-HmB88EdkgRfH-wI_8ELLQ",
+          "rating": 4.8,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-15T16:35:53.561011+00:00",
+          "updated_at": "2026-06-15T16:35:53.561011+00:00"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "2105609d-ccc6-48ae-9b8f-3d51bf658242",
+          "business_name": "Blacklock City",
+          "niche": "restaurant",
+          "location": "london",
+          "address": "13 Philpot Ln, London EC3M 8AA, UK",
+          "phone": "020 7998 7676",
+          "website": "https://theblacklock.com/restaurants/city/?utm_source=CITY_GMB&utm_medium=GMB",
+          "google_place_id": "ChIJHx_iOFIDdkgRWZ0BWg8A3So",
+          "rating": 4.7,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-15T16:35:53.561011+00:00",
+          "updated_at": "2026-06-15T16:35:53.561011+00:00"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "e4a122bc-a66f-40bc-a3d1-f62f7cd215d6",
+          "business_name": "Olea Social",
+          "niche": "restaurant",
+          "location": "london",
+          "address": "10 Upper St Martin's Ln, London WC2H 9FB, UK",
+          "phone": "020 3149 1016",
+          "website": "http://www.oleasocial.co.uk/",
+          "google_place_id": "ChIJ_aG9xo4FdkgRfibauonvBkY",
+          "rating": 4.6,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-15T16:35:53.561011+00:00",
+          "updated_at": "2026-06-15T16:35:53.561011+00:00"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "6c22c0ef-0653-4cd1-9044-6067ce3ab5c1",
+          "business_name": "Duck & Waffle",
+          "niche": "restaurant",
+          "location": "london",
+          "address": "110 Bishopsgate, London EC2N 4AY, UK",
+          "phone": "020 3640 7310",
+          "website": "https://duckandwaffle.com/london/?utm_source=gbp&utm_medium=organic&utm_campaign=london_gbp",
+          "google_place_id": "ChIJX__2lbIcdkgRPCpSjiwV5LM",
+          "rating": 4.4,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-15T16:35:53.561011+00:00",
+          "updated_at": "2026-06-15T16:35:53.561011+00:00"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "d1c64d07-798d-4042-8899-32d430433278",
+          "business_name": "Indiana",
+          "niche": "",
+          "location": "",
+          "address": "Indiana, USA",
+          "phone": null,
+          "website": "http://www.in.gov/",
+          "google_place_id": "ChIJHRv42bxQa4gRcuwyy84vEH4",
+          "rating": null,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-15T17:07:13.887512+00:00",
+          "updated_at": "2026-06-15T17:07:13.887512+00:00"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "8602a78e-e812-440d-b0ef-07dc87c43237",
+          "business_name": "Reed Recruitment Agency",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "Ste 6D, 6th Floor, The Balance, 2 Pinfold St, Sheffield City Centre, Sheffield S1 2GU, UK",
+          "phone": "0114 228 8901",
+          "website": "https://www.reed.com/offices/reed-recruitment-sheffield?utm_source=google&utm_medium=organic&utm_campaign=gbpwebsite-reed-recruitment-sheffield",
+          "google_place_id": "ChIJ7YwuDIKCeUgR01BYc-aWA5Q",
+          "rating": 4.7,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:42:07.395693+00:00",
+          "updated_at": "2026-06-16T17:42:07.395693+00:00"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "f356caf9-51f7-4c1b-a66d-8688dd6ea4c9",
+          "business_name": "Andy File Associates Ltd - Recruitment",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "Aizlewoods Mill, Nursery St, Sheffield S3 8GG, UK",
+          "phone": "0114 282 1281",
+          "website": "http://andyfileassociates.com/",
+          "google_place_id": "ChIJK48NSHp4eUgRUcyglZAkzx0",
+          "rating": 5,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:42:07.395693+00:00",
+          "updated_at": "2026-06-16T17:42:07.395693+00:00"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "ef0bb56d-8b7d-4b68-bb17-7d1f922b6373",
+          "business_name": "Alpha Recruitment #AlphaJobs",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "6-8 South St, Sheffield S2 5QY, UK",
+          "phone": "0114 303 8055",
+          "website": "http://www.alphajobs.net/",
+          "google_place_id": "ChIJT8JpWXh4eUgRP8iDN2aVrMk",
+          "rating": 4.9,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:42:07.395693+00:00",
+          "updated_at": "2026-06-16T17:42:07.395693+00:00"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "204e69c7-f67d-4192-a70e-cb16b401bebf",
+          "business_name": "Chase Recruitment Limited",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "Unit 4, Scotland St, Sheffield S3 7AT, UK",
+          "phone": "0114 223 6000",
+          "website": "http://www.chase-rec.com/",
+          "google_place_id": "ChIJO-otbYGCeUgRufKC8NwHtcw",
+          "rating": 4.9,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:42:07.395693+00:00",
+          "updated_at": "2026-06-16T17:42:07.395693+00:00"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "f64bb1ae-5cf1-4dc3-88c8-628aba064d29",
+          "business_name": "Link2 Recruitment",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "Suite 2, 35 Paradise St, Sheffield City Centre, Sheffield S3 8PZ, UK",
+          "phone": "0114 553 7111",
+          "website": "http://www.link2recruitment.co.uk/",
+          "google_place_id": "ChIJS8TaTEV5eUgRQhOosuSf2KA",
+          "rating": 5,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:42:07.395693+00:00",
+          "updated_at": "2026-06-16T17:42:07.395693+00:00"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "ed533357-4acc-47ec-975a-60a601a1eb55",
+          "business_name": "Benchmark Recruit",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "electric works, 3 Concourse Way, Sheffield City Centre, Sheffield S1 2BJ, UK",
+          "phone": "07714 771600",
+          "website": "https://www.benchmarkrecruit.co.uk/",
+          "google_place_id": "ChIJYSNRcIOCeUgReB4kYmVLEeY",
+          "rating": 4.9,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:42:07.395693+00:00",
+          "updated_at": "2026-06-16T17:42:07.395693+00:00"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "a4558fe5-323f-4f85-9abb-3f0808c98dd8",
+          "business_name": "Sue Ross Recruitment Ltd",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "Blenheim Reach, 861 Ecclesall Rd, Sheffield S11 8TH, UK",
+          "phone": "0114 278 6600",
+          "website": "http://www.suerossrecruitment.co.uk/",
+          "google_place_id": "ChIJ95uP6Xh4eUgRfBonzRXSV2s",
+          "rating": 4.7,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:42:07.395693+00:00",
+          "updated_at": "2026-06-16T17:42:07.395693+00:00"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "3a798501-3aff-464e-a3ce-d9285cef64ec",
+          "business_name": "Page 1 Recruitment",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "1 Concourse Way, Sheffield City Centre, Sheffield S1 2BJ, UK",
+          "phone": "0114 700 3533",
+          "website": "https://www.page1recruitment.co.uk/",
+          "google_place_id": "ChIJ_eh6XrF5eUgR-7GT0O1QPPg",
+          "rating": 5,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:42:07.395693+00:00",
+          "updated_at": "2026-06-16T17:42:07.395693+00:00"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "c1a3b7c7-51d4-448d-9321-7dd2ac93680c",
+          "business_name": "Tradewind Recruitment",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "New Oxford, House 10, 30 Barker's Pool, Sheffield City Centre, Sheffield S1 2HB, UK",
+          "phone": "0114 287 0650",
+          "website": "https://www.twrecruitment.com/sheffield",
+          "google_place_id": "ChIJQXVZdn94eUgRuOtFsR3XCxU",
+          "rating": 4.9,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:42:07.395693+00:00",
+          "updated_at": "2026-06-16T17:42:07.395693+00:00"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "24df7536-1c0f-4ff9-9641-746e23bfa4f5",
+          "business_name": "Blue Arrow Sheffield",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "Wharf House, victoria quays, Sheffield S1 2GY, UK",
+          "phone": "0114 272 2600",
+          "website": "https://www.bluearrow.co.uk/jobs/",
+          "google_place_id": "ChIJrYle83h4eUgRex-1ObbiuFw",
+          "rating": 4.3,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:42:07.395693+00:00",
+          "updated_at": "2026-06-16T17:42:07.395693+00:00"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "adb8f453-8821-4447-adb6-dc579f165f0b",
+          "business_name": "Forde Recruitment Ltd",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "39 Townhead St, Sheffield City Centre, Sheffield S1 2EB, UK",
+          "phone": "0114 276 0501",
+          "website": "http://www.forde-recruitment.co.uk/",
+          "google_place_id": "ChIJXdRbXH94eUgRIQ2q6lAk2rc",
+          "rating": 4.3,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:42:07.395693+00:00",
+          "updated_at": "2026-06-16T17:42:07.395693+00:00"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "d538ad4a-5b76-4fc4-ae57-43b560d792fd",
+          "business_name": "Michael Page, Recruitment Agency Sheffield - now operated from Leeds",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "VENTANA HOUSE, 2 Sheaf St, Sheffield City Centre, Sheffield S1 2BJ, UK",
+          "phone": "0330 390 3050",
+          "website": "https://www.michaelpage.co.uk/contact-us/leeds-office",
+          "google_place_id": "ChIJ83fGNp2CeUgRzhaPq9m-lyA",
+          "rating": 4.2,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:42:07.395693+00:00",
+          "updated_at": "2026-06-16T17:42:07.395693+00:00"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "05ed1959-73a7-4616-a2ed-25b23877aa95",
+          "business_name": "Divine 247 Recruitment Ltd",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "Spaces Acero, 1 Concourse Way, Sheffield City Centre, Sheffield S1 2BJ, UK",
+          "phone": "0333 577 0882",
+          "website": "https://divine247.co.uk/",
+          "google_place_id": "ChIJAQAQRp2CeUgRWw-mKejpahY",
+          "rating": 4.8,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:42:07.395693+00:00",
+          "updated_at": "2026-06-16T17:42:07.395693+00:00"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "ba65e192-6568-48ca-ac6d-e24a9233436e",
+          "business_name": "TFS Healthcare",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "32 Eyre St, Sheffield City Centre, Sheffield S1 4QZ, UK",
+          "phone": "020 3826 6040",
+          "website": "http://www.tfshealthcare.co.uk/",
+          "google_place_id": "ChIJMRCJL1cDdkgRBl3OcoQCGOU",
+          "rating": 4.1,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:42:07.395693+00:00",
+          "updated_at": "2026-06-16T17:42:07.395693+00:00"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "876ecf34-f70e-408d-a32c-5c0f0f4dcf66",
+          "business_name": "Hays Recruitment Agency - Sheffield",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "Fl 2, Fountain Precinct, Balm Grn, Sheffield City Centre, Sheffield S1 2JA, UK",
+          "phone": "0114 276 0536",
+          "website": "https://www.hays.co.uk/job-search/in-sheffield-uk?utm_source=google-places&utm_medium=local-listing&utm_campaign=sheffield",
+          "google_place_id": "ChIJBYaYb4KCeUgRX_zMudoFDDw",
+          "rating": 3.7,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:42:07.395693+00:00",
+          "updated_at": "2026-06-16T17:42:07.395693+00:00"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "0df57c10-bb5a-48ef-b46c-0120eff5e79b",
+          "business_name": "TSR Recruitment - Sheffield",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "Unit 4d Parkway Rise, Sheffield S9 4WQ, UK",
+          "phone": "0114 551 5555",
+          "website": "http://www.tsrecruitment.co.uk/",
+          "google_place_id": "ChIJLVhnWu6deUgR-JcQmlOE4M4",
+          "rating": 4.9,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:42:07.395693+00:00",
+          "updated_at": "2026-06-16T17:42:07.395693+00:00"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "aee7dec1-7c70-4e24-8fd2-61a291d8d992",
+          "business_name": "A for Appointments",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "S4 Globe Works, Penistone Rd, Sheffield S6 3AE, UK",
+          "phone": "0114 275 7744",
+          "website": "https://www.aforappointments.com/",
+          "google_place_id": "ChIJrafGlHiCeUgRnG_mmgN1wfo",
+          "rating": 4.5,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:42:07.395693+00:00",
+          "updated_at": "2026-06-16T17:42:07.395693+00:00"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "298a38ef-6f4c-4c79-b199-46f321865b5a",
+          "business_name": "Anna Maher Recruitment",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "Omnia One, 125 Queen St, Sheffield City Centre, Sheffield S1 2DU, UK",
+          "phone": "07715 454545",
+          "website": "http://www.amrl.co.uk/",
+          "google_place_id": "ChIJnTXm8dSDeUgR-62giEETDEw",
+          "rating": 5,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:42:07.395693+00:00",
+          "updated_at": "2026-06-16T17:42:07.395693+00:00"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "1e5fd5f4-41e9-456d-9df8-547d901fee25",
+          "business_name": "Lodestone Recruitment Ltd",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "Suite 3 Meadowhall Riverside, Meadowhall Rd, Sheffield S9 1BW, UK",
+          "phone": "0114 491 0370",
+          "website": "http://lodestonerecruitment.co.uk/",
+          "google_place_id": "ChIJP_dahEx3eUgRmhbPvXvGzpw",
+          "rating": 5,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:42:07.395693+00:00",
+          "updated_at": "2026-06-16T17:42:07.395693+00:00"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "b1e0744b-ccd0-49bb-b9c9-4f8997b41873",
+          "business_name": "PSR Solutions (Sheffield)",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "2nd Floor, 32 Eyre St, Sheffield City Centre, Sheffield S1 4QZ, UK",
+          "phone": "0114 436 6366",
+          "website": "http://www.psrsolutions.co.uk/",
+          "google_place_id": "ChIJL76VwXqCeUgROYmEPTPx8QI",
+          "rating": 4.7,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:42:07.395693+00:00",
+          "updated_at": "2026-06-16T17:42:07.395693+00:00"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "8fe8da25-04e2-4a97-915d-21d0126647f9",
+          "business_name": "Reed Recruitment Agency",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "Ste 6D, 6th Floor, The Balance, 2 Pinfold St, Sheffield City Centre, Sheffield S1 2GU, UK",
+          "phone": "0114 228 8901",
+          "website": "https://www.reed.com/offices/reed-recruitment-sheffield?utm_source=google&utm_medium=organic&utm_campaign=gbpwebsite-reed-recruitment-sheffield",
+          "google_place_id": "ChIJ7YwuDIKCeUgR01BYc-aWA5Q",
+          "rating": 4.7,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:53:58.586691+00:00",
+          "updated_at": "2026-06-16T17:53:58.586691+00:00"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "26a2f5df-4216-4ece-bdba-904b8caceea0",
+          "business_name": "Alpha Recruitment #AlphaJobs",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "6-8 South St, Sheffield S2 5QY, UK",
+          "phone": "0114 303 8055",
+          "website": "http://www.alphajobs.net/",
+          "google_place_id": "ChIJT8JpWXh4eUgRP8iDN2aVrMk",
+          "rating": 4.9,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:53:58.586691+00:00",
+          "updated_at": "2026-06-16T17:53:58.586691+00:00"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "199824a5-7dd7-4c11-b867-5a8cec1a9d26",
+          "business_name": "Link2 Recruitment",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "Suite 2, 35 Paradise St, Sheffield City Centre, Sheffield S3 8PZ, UK",
+          "phone": "0114 553 7111",
+          "website": "http://www.link2recruitment.co.uk/",
+          "google_place_id": "ChIJS8TaTEV5eUgRQhOosuSf2KA",
+          "rating": 5,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:53:58.586691+00:00",
+          "updated_at": "2026-06-16T17:53:58.586691+00:00"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "1c0d2c91-d42c-4774-9ced-94867caa5096",
+          "business_name": "Chase Recruitment Limited",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "Unit 4, Scotland St, Sheffield S3 7AT, UK",
+          "phone": "0114 223 6000",
+          "website": "http://www.chase-rec.com/",
+          "google_place_id": "ChIJO-otbYGCeUgRufKC8NwHtcw",
+          "rating": 4.9,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:53:58.586691+00:00",
+          "updated_at": "2026-06-16T17:53:58.586691+00:00"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "26a8c49f-f2c3-4e72-9ef7-8405cf5fe96f",
+          "business_name": "Andy File Associates Ltd - Recruitment",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "Aizlewoods Mill, Nursery St, Sheffield S3 8GG, UK",
+          "phone": "0114 282 1281",
+          "website": "http://andyfileassociates.com/",
+          "google_place_id": "ChIJK48NSHp4eUgRUcyglZAkzx0",
+          "rating": 5,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:53:58.586691+00:00",
+          "updated_at": "2026-06-16T17:53:58.586691+00:00"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "35407290-a554-4e6e-a880-42bfdcfb870d",
+          "business_name": "Benchmark Recruit",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "electric works, 3 Concourse Way, Sheffield City Centre, Sheffield S1 2BJ, UK",
+          "phone": "07714 771600",
+          "website": "https://www.benchmarkrecruit.co.uk/",
+          "google_place_id": "ChIJYSNRcIOCeUgReB4kYmVLEeY",
+          "rating": 4.9,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:53:58.586691+00:00",
+          "updated_at": "2026-06-16T17:53:58.586691+00:00"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "296cc3e0-dcc3-47e3-a4a1-c04721445d90",
+          "business_name": "Sue Ross Recruitment Ltd",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "Blenheim Reach, 861 Ecclesall Rd, Sheffield S11 8TH, UK",
+          "phone": "0114 278 6600",
+          "website": "http://www.suerossrecruitment.co.uk/",
+          "google_place_id": "ChIJ95uP6Xh4eUgRfBonzRXSV2s",
+          "rating": 4.7,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:53:58.586691+00:00",
+          "updated_at": "2026-06-16T17:53:58.586691+00:00"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "8234ec44-aa6a-42f0-af96-59cc417d1815",
+          "business_name": "Page 1 Recruitment",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "1 Concourse Way, Sheffield City Centre, Sheffield S1 2BJ, UK",
+          "phone": "0114 700 3533",
+          "website": "https://www.page1recruitment.co.uk/",
+          "google_place_id": "ChIJ_eh6XrF5eUgR-7GT0O1QPPg",
+          "rating": 5,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:53:58.586691+00:00",
+          "updated_at": "2026-06-16T17:53:58.586691+00:00"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "5a8f8c4e-a9b9-4d56-9e90-771956ea7bc5",
+          "business_name": "Tradewind Recruitment",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "New Oxford, House 10, 30 Barker's Pool, Sheffield City Centre, Sheffield S1 2HB, UK",
+          "phone": "0114 287 0650",
+          "website": "https://www.twrecruitment.com/sheffield",
+          "google_place_id": "ChIJQXVZdn94eUgRuOtFsR3XCxU",
+          "rating": 4.9,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:53:58.586691+00:00",
+          "updated_at": "2026-06-16T17:53:58.586691+00:00"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "3a0e68ae-d9e6-4bc7-8632-97bf14b284dc",
+          "business_name": "Forde Recruitment Ltd",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "39 Townhead St, Sheffield City Centre, Sheffield S1 2EB, UK",
+          "phone": "0114 276 0501",
+          "website": "http://www.forde-recruitment.co.uk/",
+          "google_place_id": "ChIJXdRbXH94eUgRIQ2q6lAk2rc",
+          "rating": 4.3,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:53:58.586691+00:00",
+          "updated_at": "2026-06-16T17:53:58.586691+00:00"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "c7310e90-1ac5-4fa0-af8a-e32235d4b1de",
+          "business_name": "Blue Arrow Sheffield",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "Wharf House, victoria quays, Sheffield S1 2GY, UK",
+          "phone": "0114 272 2600",
+          "website": "https://www.bluearrow.co.uk/jobs/",
+          "google_place_id": "ChIJrYle83h4eUgRex-1ObbiuFw",
+          "rating": 4.3,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:53:58.586691+00:00",
+          "updated_at": "2026-06-16T17:53:58.586691+00:00"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "2eb98fd9-de64-44d2-b486-2abd54eedc67",
+          "business_name": "Michael Page, Recruitment Agency Sheffield - now operated from Leeds",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "VENTANA HOUSE, 2 Sheaf St, Sheffield City Centre, Sheffield S1 2BJ, UK",
+          "phone": "0330 390 3050",
+          "website": "https://www.michaelpage.co.uk/contact-us/leeds-office",
+          "google_place_id": "ChIJ83fGNp2CeUgRzhaPq9m-lyA",
+          "rating": 4.2,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:53:58.586691+00:00",
+          "updated_at": "2026-06-16T17:53:58.586691+00:00"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "8231be27-8e34-4af5-a0f7-f17f311db940",
+          "business_name": "TFS Healthcare",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "32 Eyre St, Sheffield City Centre, Sheffield S1 4QZ, UK",
+          "phone": "020 3826 6040",
+          "website": "http://www.tfshealthcare.co.uk/",
+          "google_place_id": "ChIJMRCJL1cDdkgRBl3OcoQCGOU",
+          "rating": 4.1,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:53:58.586691+00:00",
+          "updated_at": "2026-06-16T17:53:58.586691+00:00"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "4ce08493-d8ef-4e54-84be-39c9d21f1bd9",
+          "business_name": "Divine 247 Recruitment Ltd",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "Spaces Acero, 1 Concourse Way, Sheffield City Centre, Sheffield S1 2BJ, UK",
+          "phone": "0333 577 0882",
+          "website": "https://divine247.co.uk/",
+          "google_place_id": "ChIJAQAQRp2CeUgRWw-mKejpahY",
+          "rating": 4.8,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:53:58.586691+00:00",
+          "updated_at": "2026-06-16T17:53:58.586691+00:00"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "b2d7ad9b-a671-4a35-97be-12cbeb880852",
+          "business_name": "Hays Recruitment Agency - Sheffield",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "Fl 2, Fountain Precinct, Balm Grn, Sheffield City Centre, Sheffield S1 2JA, UK",
+          "phone": "0114 276 0536",
+          "website": "https://www.hays.co.uk/job-search/in-sheffield-uk?utm_source=google-places&utm_medium=local-listing&utm_campaign=sheffield",
+          "google_place_id": "ChIJBYaYb4KCeUgRX_zMudoFDDw",
+          "rating": 3.7,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:53:58.586691+00:00",
+          "updated_at": "2026-06-16T17:53:58.586691+00:00"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "c404c12c-6d74-4728-8071-125d5c0e53c3",
+          "business_name": "TSR Recruitment - Sheffield",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "Unit 4d Parkway Rise, Sheffield S9 4WQ, UK",
+          "phone": "0114 551 5555",
+          "website": "http://www.tsrecruitment.co.uk/",
+          "google_place_id": "ChIJLVhnWu6deUgR-JcQmlOE4M4",
+          "rating": 4.9,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:53:58.586691+00:00",
+          "updated_at": "2026-06-16T17:53:58.586691+00:00"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "d715da11-35c4-43f2-9506-fc1a2229e551",
+          "business_name": "A for Appointments",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "S4 Globe Works, Penistone Rd, Sheffield S6 3AE, UK",
+          "phone": "0114 275 7744",
+          "website": "https://www.aforappointments.com/",
+          "google_place_id": "ChIJrafGlHiCeUgRnG_mmgN1wfo",
+          "rating": 4.5,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:53:58.586691+00:00",
+          "updated_at": "2026-06-16T17:53:58.586691+00:00"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "53638405-ea74-448d-997b-f15e1cfff075",
+          "business_name": "Lodestone Recruitment Ltd",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "Suite 3 Meadowhall Riverside, Meadowhall Rd, Sheffield S9 1BW, UK",
+          "phone": "0114 491 0370",
+          "website": "http://lodestonerecruitment.co.uk/",
+          "google_place_id": "ChIJP_dahEx3eUgRmhbPvXvGzpw",
+          "rating": 5,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:53:58.586691+00:00",
+          "updated_at": "2026-06-16T17:53:58.586691+00:00"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "f1d31cc1-ed9b-418f-bd4c-715c35f64e7d",
+          "business_name": "Anna Maher Recruitment",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "Omnia One, 125 Queen St, Sheffield City Centre, Sheffield S1 2DU, UK",
+          "phone": "07715 454545",
+          "website": "http://www.amrl.co.uk/",
+          "google_place_id": "ChIJnTXm8dSDeUgR-62giEETDEw",
+          "rating": 5,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:53:58.586691+00:00",
+          "updated_at": "2026-06-16T17:53:58.586691+00:00"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "2af5d89d-641e-4e67-9f4a-046847dc0e67",
+          "business_name": "CRA Consulting",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "51 Clarkegrove Rd, Broomhall, Sheffield S10 2NH, UK",
+          "phone": "0114 241 8030",
+          "website": "https://www.craconsultants.com/",
+          "google_place_id": "ChIJhxZr1Xh4eUgRZddqZLcdBZ4",
+          "rating": 5,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:53:58.586691+00:00",
+          "updated_at": "2026-06-16T17:53:58.586691+00:00"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "5d360c4b-5fc5-470d-9615-f085dec49cd1",
+          "business_name": "Reed Recruitment Agency",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "Ste 6D, 6th Floor, The Balance, 2 Pinfold St, Sheffield City Centre, Sheffield S1 2GU, UK",
+          "phone": "0114 228 8901",
+          "website": "https://www.reed.com/offices/reed-recruitment-sheffield?utm_source=google&utm_medium=organic&utm_campaign=gbpwebsite-reed-recruitment-sheffield",
+          "google_place_id": "ChIJ7YwuDIKCeUgR01BYc-aWA5Q",
+          "rating": 4.7,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:56:47.943128+00:00",
+          "updated_at": "2026-06-16T17:56:47.943128+00:00"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "32d30868-f7fc-4638-88bb-62a94d5e6bad",
+          "business_name": "Alpha Recruitment #AlphaJobs",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "6-8 South St, Sheffield S2 5QY, UK",
+          "phone": "0114 303 8055",
+          "website": "http://www.alphajobs.net/",
+          "google_place_id": "ChIJT8JpWXh4eUgRP8iDN2aVrMk",
+          "rating": 4.9,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:56:47.943128+00:00",
+          "updated_at": "2026-06-16T17:56:47.943128+00:00"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "20c742b6-f758-43c7-94e0-8bfe6067eb52",
+          "business_name": "Link2 Recruitment",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "Suite 2, 35 Paradise St, Sheffield City Centre, Sheffield S3 8PZ, UK",
+          "phone": "0114 553 7111",
+          "website": "http://www.link2recruitment.co.uk/",
+          "google_place_id": "ChIJS8TaTEV5eUgRQhOosuSf2KA",
+          "rating": 5,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:56:47.943128+00:00",
+          "updated_at": "2026-06-16T17:56:47.943128+00:00"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "40ea9927-5dcf-4872-8ed3-e8d35edf209d",
+          "business_name": "Chase Recruitment Limited",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "Unit 4, Scotland St, Sheffield S3 7AT, UK",
+          "phone": "0114 223 6000",
+          "website": "http://www.chase-rec.com/",
+          "google_place_id": "ChIJO-otbYGCeUgRufKC8NwHtcw",
+          "rating": 4.9,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:56:47.943128+00:00",
+          "updated_at": "2026-06-16T17:56:47.943128+00:00"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "89a15757-6795-44cf-8a7a-44fa25226e64",
+          "business_name": "Andy File Associates Ltd - Recruitment",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "Aizlewoods Mill, Nursery St, Sheffield S3 8GG, UK",
+          "phone": "0114 282 1281",
+          "website": "http://andyfileassociates.com/",
+          "google_place_id": "ChIJK48NSHp4eUgRUcyglZAkzx0",
+          "rating": 5,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:56:47.943128+00:00",
+          "updated_at": "2026-06-16T17:56:47.943128+00:00"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "988eada6-8967-4889-a303-a9e4284988b8",
+          "business_name": "Benchmark Recruit",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "electric works, 3 Concourse Way, Sheffield City Centre, Sheffield S1 2BJ, UK",
+          "phone": "07714 771600",
+          "website": "https://www.benchmarkrecruit.co.uk/",
+          "google_place_id": "ChIJYSNRcIOCeUgReB4kYmVLEeY",
+          "rating": 4.9,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:56:47.943128+00:00",
+          "updated_at": "2026-06-16T17:56:47.943128+00:00"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "99d9f558-9606-48d7-9d21-b3ddc6e4ec6f",
+          "business_name": "Sue Ross Recruitment Ltd",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "Blenheim Reach, 861 Ecclesall Rd, Sheffield S11 8TH, UK",
+          "phone": "0114 278 6600",
+          "website": "http://www.suerossrecruitment.co.uk/",
+          "google_place_id": "ChIJ95uP6Xh4eUgRfBonzRXSV2s",
+          "rating": 4.7,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:56:47.943128+00:00",
+          "updated_at": "2026-06-16T17:56:47.943128+00:00"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "213beea0-3592-4708-8de3-e0b53fea3940",
+          "business_name": "Page 1 Recruitment",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "1 Concourse Way, Sheffield City Centre, Sheffield S1 2BJ, UK",
+          "phone": "0114 700 3533",
+          "website": "https://www.page1recruitment.co.uk/",
+          "google_place_id": "ChIJ_eh6XrF5eUgR-7GT0O1QPPg",
+          "rating": 5,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:56:47.943128+00:00",
+          "updated_at": "2026-06-16T17:56:47.943128+00:00"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "66349df5-e676-4c97-a6a9-c7d9eb04e4f5",
+          "business_name": "Tradewind Recruitment",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "New Oxford, House 10, 30 Barker's Pool, Sheffield City Centre, Sheffield S1 2HB, UK",
+          "phone": "0114 287 0650",
+          "website": "https://www.twrecruitment.com/sheffield",
+          "google_place_id": "ChIJQXVZdn94eUgRuOtFsR3XCxU",
+          "rating": 4.9,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:56:47.943128+00:00",
+          "updated_at": "2026-06-16T17:56:47.943128+00:00"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "90f8d4d4-3763-4925-9d4e-918204a0dcb8",
+          "business_name": "Forde Recruitment Ltd",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "39 Townhead St, Sheffield City Centre, Sheffield S1 2EB, UK",
+          "phone": "0114 276 0501",
+          "website": "http://www.forde-recruitment.co.uk/",
+          "google_place_id": "ChIJXdRbXH94eUgRIQ2q6lAk2rc",
+          "rating": 4.3,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:56:47.943128+00:00",
+          "updated_at": "2026-06-16T17:56:47.943128+00:00"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "8da76282-2cae-499b-bc2d-ffe27dadae8e",
+          "business_name": "Blue Arrow Sheffield",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "Wharf House, victoria quays, Sheffield S1 2GY, UK",
+          "phone": "0114 272 2600",
+          "website": "https://www.bluearrow.co.uk/jobs/",
+          "google_place_id": "ChIJrYle83h4eUgRex-1ObbiuFw",
+          "rating": 4.3,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:56:47.943128+00:00",
+          "updated_at": "2026-06-16T17:56:47.943128+00:00"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "1f2692cc-6c2b-4685-b6ea-f4df23e6bf7d",
+          "business_name": "Michael Page, Recruitment Agency Sheffield - now operated from Leeds",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "VENTANA HOUSE, 2 Sheaf St, Sheffield City Centre, Sheffield S1 2BJ, UK",
+          "phone": "0330 390 3050",
+          "website": "https://www.michaelpage.co.uk/contact-us/leeds-office",
+          "google_place_id": "ChIJ83fGNp2CeUgRzhaPq9m-lyA",
+          "rating": 4.2,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:56:47.943128+00:00",
+          "updated_at": "2026-06-16T17:56:47.943128+00:00"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "75abe045-7d6c-4969-8afd-36465c26ce67",
+          "business_name": "TFS Healthcare",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "32 Eyre St, Sheffield City Centre, Sheffield S1 4QZ, UK",
+          "phone": "020 3826 6040",
+          "website": "http://www.tfshealthcare.co.uk/",
+          "google_place_id": "ChIJMRCJL1cDdkgRBl3OcoQCGOU",
+          "rating": 4.1,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:56:47.943128+00:00",
+          "updated_at": "2026-06-16T17:56:47.943128+00:00"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "a0a7d870-134f-4e89-bee1-466fcf6272b7",
+          "business_name": "Divine 247 Recruitment Ltd",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "Spaces Acero, 1 Concourse Way, Sheffield City Centre, Sheffield S1 2BJ, UK",
+          "phone": "0333 577 0882",
+          "website": "https://divine247.co.uk/",
+          "google_place_id": "ChIJAQAQRp2CeUgRWw-mKejpahY",
+          "rating": 4.8,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:56:47.943128+00:00",
+          "updated_at": "2026-06-16T17:56:47.943128+00:00"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "91f89934-63ae-40a3-9ae8-404fcd4d11b8",
+          "business_name": "Hays Recruitment Agency - Sheffield",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "Fl 2, Fountain Precinct, Balm Grn, Sheffield City Centre, Sheffield S1 2JA, UK",
+          "phone": "0114 276 0536",
+          "website": "https://www.hays.co.uk/job-search/in-sheffield-uk?utm_source=google-places&utm_medium=local-listing&utm_campaign=sheffield",
+          "google_place_id": "ChIJBYaYb4KCeUgRX_zMudoFDDw",
+          "rating": 3.7,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:56:47.943128+00:00",
+          "updated_at": "2026-06-16T17:56:47.943128+00:00"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "2e7a3f9f-3e4b-47da-9270-6635718df67c",
+          "business_name": "TSR Recruitment - Sheffield",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "Unit 4d Parkway Rise, Sheffield S9 4WQ, UK",
+          "phone": "0114 551 5555",
+          "website": "http://www.tsrecruitment.co.uk/",
+          "google_place_id": "ChIJLVhnWu6deUgR-JcQmlOE4M4",
+          "rating": 4.9,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:56:47.943128+00:00",
+          "updated_at": "2026-06-16T17:56:47.943128+00:00"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "69616b96-a591-41a4-b0ea-6cbe9121e961",
+          "business_name": "A for Appointments",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "S4 Globe Works, Penistone Rd, Sheffield S6 3AE, UK",
+          "phone": "0114 275 7744",
+          "website": "https://www.aforappointments.com/",
+          "google_place_id": "ChIJrafGlHiCeUgRnG_mmgN1wfo",
+          "rating": 4.5,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:56:47.943128+00:00",
+          "updated_at": "2026-06-16T17:56:47.943128+00:00"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "061e6333-93f5-4dc7-8c3c-6801529c1479",
+          "business_name": "Anna Maher Recruitment",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "Omnia One, 125 Queen St, Sheffield City Centre, Sheffield S1 2DU, UK",
+          "phone": "07715 454545",
+          "website": "http://www.amrl.co.uk/",
+          "google_place_id": "ChIJnTXm8dSDeUgR-62giEETDEw",
+          "rating": 5,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:56:47.943128+00:00",
+          "updated_at": "2026-06-16T17:56:47.943128+00:00"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "06487f77-a616-46f2-bc4f-431eeae65308",
+          "business_name": "Lodestone Recruitment Ltd",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "Suite 3 Meadowhall Riverside, Meadowhall Rd, Sheffield S9 1BW, UK",
+          "phone": "0114 491 0370",
+          "website": "http://lodestonerecruitment.co.uk/",
+          "google_place_id": "ChIJP_dahEx3eUgRmhbPvXvGzpw",
+          "rating": 5,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:56:47.943128+00:00",
+          "updated_at": "2026-06-16T17:56:47.943128+00:00"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "37a0db05-a2f8-4554-b7ed-eb3b08622e88",
+          "business_name": "CRA Consulting",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "51 Clarkegrove Rd, Broomhall, Sheffield S10 2NH, UK",
+          "phone": "0114 241 8030",
+          "website": "https://www.craconsultants.com/",
+          "google_place_id": "ChIJhxZr1Xh4eUgRZddqZLcdBZ4",
+          "rating": 5,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:56:47.943128+00:00",
+          "updated_at": "2026-06-16T17:56:47.943128+00:00"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "versionId": "7692b7a7-d460-4c79-b644-65e326291f0e",
+  "activeVersionId": null,
+  "triggerCount": 0,
+  "shared": [
+    {
+      "updatedAt": "2026-06-16T17:25:51.094Z",
+      "createdAt": "2026-06-16T17:25:51.094Z",
+      "role": "workflow:owner",
+      "workflowId": "vny0lHlKK6pU9ILw",
+      "projectId": "5GBCFFrIrIkPnjdc"
+    }
+  ],
+  "activeVersion": null,
+  "tags": []
+}
