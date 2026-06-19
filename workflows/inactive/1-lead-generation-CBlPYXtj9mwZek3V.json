@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-05-28T00:09:20.534Z",
+  "updatedAt": "2026-06-16T17:23:40.820Z",
   "createdAt": "2026-05-02T10:27:11.299Z",
   "id": "CBlPYXtj9mwZek3V",
   "name": "1. Lead generation",
@@ -147,128 +147,6 @@
       ],
       "id": "d9e8937a-9b01-4c2f-91cd-162a93726933",
       "name": "Split Out"
-    },
-    {
-      "parameters": {
-        "operation": "append",
-        "documentId": {
-          "__rl": true,
-          "value": "1-gVddh8f8OkLNNPl6MY6pKjD73wqGf6b0m8zNjOYUpA",
-          "mode": "list",
-          "cachedResultName": "Step 1 - Recruitment agency",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-gVddh8f8OkLNNPl6MY6pKjD73wqGf6b0m8zNjOYUpA/edit?usp=drivesdk"
-        },
-        "sheetName": {
-          "__rl": true,
-          "value": "gid=0",
-          "mode": "list",
-          "cachedResultName": "Sheet1",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-gVddh8f8OkLNNPl6MY6pKjD73wqGf6b0m8zNjOYUpA/edit#gid=0"
-        },
-        "columns": {
-          "mappingMode": "defineBelow",
-          "value": {
-            "rating": "={{ $json.rating }}",
-            "company name": "={{ $json.displayName.text }}",
-            "place id": "={{ $json.id }}",
-            "national phonenumber": "={{ $json.nationalPhoneNumber }}",
-            "international phone number": "=*{{ $json.internationalPhoneNumber }}",
-            "website url": "={{ $json.websiteUri }}",
-            "format address": "={{ $json.formattedAddress }}"
-          },
-          "matchingColumns": [
-            "id"
-          ],
-          "schema": [
-            {
-              "id": "company name",
-              "displayName": "company name",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true,
-              "removed": false
-            },
-            {
-              "id": "place id",
-              "displayName": "place id",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true,
-              "removed": false
-            },
-            {
-              "id": "national phonenumber",
-              "displayName": "national phonenumber",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true,
-              "removed": false
-            },
-            {
-              "id": "international phone number",
-              "displayName": "international phone number",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true,
-              "removed": false
-            },
-            {
-              "id": "rating",
-              "displayName": "rating",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
-            },
-            {
-              "id": "website url",
-              "displayName": "website url",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true,
-              "removed": false
-            },
-            {
-              "id": "format address",
-              "displayName": "format address",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true,
-              "removed": false
-            }
-          ],
-          "attemptToConvertTypes": false,
-          "convertFieldsToString": false
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.googleSheets",
-      "typeVersion": 4.7,
-      "position": [
-        1296,
-        -80
-      ],
-      "id": "a7319e6f-63ed-4678-be26-f21f601cc704",
-      "name": "Append row in sheet",
-      "credentials": {
-        "googleSheetsOAuth2Api": {
-          "id": "XurJbcuuPZn14SYW",
-          "name": "Google Sheets account"
-        }
-      }
     },
     {
       "parameters": {
@@ -422,129 +300,6 @@
     },
     {
       "parameters": {
-        "operation": "append",
-        "documentId": {
-          "__rl": true,
-          "value": "1-gVddh8f8OkLNNPl6MY6pKjD73wqGf6b0m8zNjOYUpA",
-          "mode": "list",
-          "cachedResultName": "Step 1 - Recruitment agency",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-gVddh8f8OkLNNPl6MY6pKjD73wqGf6b0m8zNjOYUpA/edit?usp=drivesdk"
-        },
-        "sheetName": {
-          "__rl": true,
-          "value": "gid=0",
-          "mode": "list",
-          "cachedResultName": "Sheet1",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-gVddh8f8OkLNNPl6MY6pKjD73wqGf6b0m8zNjOYUpA/edit#gid=0"
-        },
-        "columns": {
-          "mappingMode": "defineBelow",
-          "value": {
-            "rating": "={{ $json.rating }}",
-            "company name": "={{ $json.displayName.text }}",
-            "place id": "={{ $json.id }}",
-            "national phonenumber": "={{ $json.nationalPhoneNumber }}",
-            "international phone number": "=*{{ $json.internationalPhoneNumber }}",
-            "website url": "={{ $json.websiteUri }}",
-            "format address": "={{ $json.formattedAddress }}"
-          },
-          "matchingColumns": [
-            "id"
-          ],
-          "schema": [
-            {
-              "id": "company name",
-              "displayName": "company name",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true,
-              "removed": false
-            },
-            {
-              "id": "place id",
-              "displayName": "place id",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true,
-              "removed": false
-            },
-            {
-              "id": "national phonenumber",
-              "displayName": "national phonenumber",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true,
-              "removed": false
-            },
-            {
-              "id": "international phone number",
-              "displayName": "international phone number",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true,
-              "removed": false
-            },
-            {
-              "id": "rating",
-              "displayName": "rating",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true,
-              "removed": false
-            },
-            {
-              "id": "website url",
-              "displayName": "website url",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true,
-              "removed": false
-            },
-            {
-              "id": "format address",
-              "displayName": "format address",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true,
-              "removed": false
-            }
-          ],
-          "attemptToConvertTypes": false,
-          "convertFieldsToString": false
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.googleSheets",
-      "typeVersion": 4.7,
-      "position": [
-        1760,
-        128
-      ],
-      "id": "8c1a4e9f-a333-416e-b19b-3e19adaa9ca9",
-      "name": "Append row in sheet1",
-      "credentials": {
-        "googleSheetsOAuth2Api": {
-          "id": "XurJbcuuPZn14SYW",
-          "name": "Google Sheets account"
-        }
-      }
-    },
-    {
-      "parameters": {
         "fieldsToAggregate": {
           "fieldToAggregate": [
             {
@@ -681,82 +436,6 @@
     },
     {
       "parameters": {
-        "documentId": {
-          "__rl": true,
-          "value": "1o6pC5TnqDNkCWgpqoLJQL4AejtEcBmmLQsVCViUFhTA",
-          "mode": "list",
-          "cachedResultName": "Step 1 - Round 2 - Get Leads",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1o6pC5TnqDNkCWgpqoLJQL4AejtEcBmmLQsVCViUFhTA/edit?usp=drivesdk"
-        },
-        "sheetName": {
-          "__rl": true,
-          "value": "gid=0",
-          "mode": "list",
-          "cachedResultName": "Sheet1",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1o6pC5TnqDNkCWgpqoLJQL4AejtEcBmmLQsVCViUFhTA/edit#gid=0"
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.googleSheets",
-      "typeVersion": 4.7,
-      "position": [
-        1408,
-        320
-      ],
-      "id": "b795ab29-dbf3-491a-8254-538a618115ac",
-      "name": "Get row(s) in sheet",
-      "credentials": {
-        "googleSheetsOAuth2Api": {
-          "id": "XurJbcuuPZn14SYW",
-          "name": "Google Sheets account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "fieldsToAggregate": {
-          "fieldToAggregate": [
-            {
-              "fieldToAggregate": "displayName"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.aggregate",
-      "typeVersion": 1,
-      "position": [
-        1568,
-        320
-      ],
-      "id": "4b5b2329-081b-49c0-9415-cf20b7ac80f1",
-      "name": "Aggregate2"
-    },
-    {
-      "parameters": {
-        "assignments": {
-          "assignments": [
-            {
-              "id": "a4b9d5ed-110b-41a6-aca5-088d137a2ebc",
-              "name": "num_businesses",
-              "value": "={{ $json.displayName.length }}",
-              "type": "number"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 3.4,
-      "position": [
-        1776,
-        320
-      ],
-      "id": "7ab08993-5607-4ece-aff3-92d47e0e4212",
-      "name": "Edit Fields1"
-    },
-    {
-      "parameters": {
         "conditions": {
           "options": {
             "caseSensitive": true,
@@ -787,6 +466,327 @@
       ],
       "id": "43204956-875d-4df7-af2d-15af96854c9c",
       "name": "If2"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1-gVddh8f8OkLNNPl6MY6pKjD73wqGf6b0m8zNjOYUpA",
+          "mode": "list",
+          "cachedResultName": "Step 1 - Recruitment agency",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-gVddh8f8OkLNNPl6MY6pKjD73wqGf6b0m8zNjOYUpA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-gVddh8f8OkLNNPl6MY6pKjD73wqGf6b0m8zNjOYUpA/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "rating": "={{ $json.rating }}",
+            "company name": "={{ $json.displayName.text }}",
+            "place id": "={{ $json.id }}",
+            "national phonenumber": "={{ $json.nationalPhoneNumber }}",
+            "international phone number": "=*{{ $json.internationalPhoneNumber }}",
+            "website url": "={{ $json.websiteUri }}",
+            "format address": "={{ $json.formattedAddress }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "company name",
+              "displayName": "company name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "place id",
+              "displayName": "place id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "national phonenumber",
+              "displayName": "national phonenumber",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "international phone number",
+              "displayName": "international phone number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "rating",
+              "displayName": "rating",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "website url",
+              "displayName": "website url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "format address",
+              "displayName": "format address",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1760,
+        128
+      ],
+      "id": "8c1a4e9f-a333-416e-b19b-3e19adaa9ca9",
+      "name": "Append row in sheet1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "XurJbcuuPZn14SYW",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1-gVddh8f8OkLNNPl6MY6pKjD73wqGf6b0m8zNjOYUpA",
+          "mode": "list",
+          "cachedResultName": "Step 1 - Recruitment agency",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-gVddh8f8OkLNNPl6MY6pKjD73wqGf6b0m8zNjOYUpA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-gVddh8f8OkLNNPl6MY6pKjD73wqGf6b0m8zNjOYUpA/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "rating": "={{ $json.rating }}",
+            "company name": "={{ $json.displayName.text }}",
+            "place id": "={{ $json.id }}",
+            "national phonenumber": "={{ $json.nationalPhoneNumber }}",
+            "international phone number": "=*{{ $json.internationalPhoneNumber }}",
+            "website url": "={{ $json.websiteUri }}",
+            "format address": "={{ $json.formattedAddress }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "company name",
+              "displayName": "company name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "place id",
+              "displayName": "place id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "national phonenumber",
+              "displayName": "national phonenumber",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "international phone number",
+              "displayName": "international phone number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "rating",
+              "displayName": "rating",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "website url",
+              "displayName": "website url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "format address",
+              "displayName": "format address",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1296,
+        -80
+      ],
+      "id": "a7319e6f-63ed-4678-be26-f21f601cc704",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "XurJbcuuPZn14SYW",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a4b9d5ed-110b-41a6-aca5-088d137a2ebc",
+              "name": "num_businesses",
+              "value": "={{ $json.displayName.length }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1776,
+        320
+      ],
+      "id": "7ab08993-5607-4ece-aff3-92d47e0e4212",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "displayName"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        1568,
+        320
+      ],
+      "id": "4b5b2329-081b-49c0-9415-cf20b7ac80f1",
+      "name": "Aggregate2"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1o6pC5TnqDNkCWgpqoLJQL4AejtEcBmmLQsVCViUFhTA",
+          "mode": "list",
+          "cachedResultName": "Step 1 - Round 2 - Get Leads",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1o6pC5TnqDNkCWgpqoLJQL4AejtEcBmmLQsVCViUFhTA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1o6pC5TnqDNkCWgpqoLJQL4AejtEcBmmLQsVCViUFhTA/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1408,
+        320
+      ],
+      "id": "b795ab29-dbf3-491a-8254-538a618115ac",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "XurJbcuuPZn14SYW",
+          "name": "Google Sheets account"
+        }
+      }
     }
   ],
   "connections": {
@@ -839,17 +839,6 @@
         [
           {
             "node": "Append row in sheet",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Append row in sheet": {
-      "main": [
-        [
-          {
-            "node": "Aggregate",
             "type": "main",
             "index": 0
           }
@@ -923,17 +912,6 @@
         ]
       ]
     },
-    "Append row in sheet1": {
-      "main": [
-        [
-          {
-            "node": "Aggregate1",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Aggregate1": {
       "main": [
         [
@@ -973,22 +951,28 @@
         []
       ]
     },
-    "Get row(s) in sheet": {
+    "If2": {
+      "main": [
+        [],
+        []
+      ]
+    },
+    "Append row in sheet1": {
       "main": [
         [
           {
-            "node": "Aggregate2",
+            "node": "Aggregate1",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Aggregate2": {
+    "Append row in sheet": {
       "main": [
         [
           {
-            "node": "Edit Fields1",
+            "node": "Aggregate",
             "type": "main",
             "index": 0
           }
@@ -1006,10 +990,26 @@
         ]
       ]
     },
-    "If2": {
+    "Aggregate2": {
       "main": [
-        [],
-        []
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Aggregate2",
+            "type": "main",
+            "index": 0
+          }
+        ]
       ]
     }
   },
@@ -1023,7 +1023,7 @@
     "templateCredsSetupCompleted": true
   },
   "pinData": {},
-  "versionId": "9f282242-db78-43fd-a9ad-78ba3e892cbc",
+  "versionId": "29202071-e12a-465a-8688-14a7cd71ef2a",
   "activeVersionId": null,
   "triggerCount": 0,
   "shared": [
