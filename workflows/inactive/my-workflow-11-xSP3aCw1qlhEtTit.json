@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-18T16:47:47.306Z",
+  "updatedAt": "2026-06-19T23:37:26.556Z",
   "createdAt": "2026-06-18T16:46:26.984Z",
   "id": "xSP3aCw1qlhEtTit",
   "name": "My workflow 11",
@@ -11,8 +11,8 @@
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
       "position": [
-        -544,
-        -96
+        -640,
+        -112
       ],
       "id": "53bd1697-ce6e-4ab0-8798-de415f86952c",
       "name": "When clicking ‘Execute workflow’"
@@ -1054,58 +1054,14 @@
     },
     {
       "parameters": {
-        "documentId": {
-          "__rl": true,
-          "value": "1aRf_l4brlJ0DxFF9N1RDtIRBfYu7FdovX03jmGV0eSU",
-          "mode": "list",
-          "cachedResultName": "Step 5 - Round 2 - Find Issues",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1aRf_l4brlJ0DxFF9N1RDtIRBfYu7FdovX03jmGV0eSU/edit?usp=drivesdk"
-        },
-        "sheetName": {
-          "__rl": true,
-          "value": "gid=0",
-          "mode": "list",
-          "cachedResultName": "Sheet1",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1aRf_l4brlJ0DxFF9N1RDtIRBfYu7FdovX03jmGV0eSU/edit#gid=0"
-        },
-        "filtersUI": {
-          "values": [
-            {
-              "lookupColumn": "isuue found",
-              "lookupValue": "done"
-            },
-            {
-              "lookupColumn": "email created"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.googleSheets",
-      "typeVersion": 4.7,
-      "position": [
-        -288,
-        -112
-      ],
-      "id": "4c7cf98a-ea3e-4123-8926-d2dc9af7e249",
-      "name": "Get row(s) in sheet1",
-      "credentials": {
-        "googleSheetsOAuth2Api": {
-          "id": "XurJbcuuPZn14SYW",
-          "name": "Google Sheets account"
-        }
-      }
-    },
-    {
-      "parameters": {
         "path": "4a5ea893-7f17-4a67-b7be-2912bff72daa",
         "options": {}
       },
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2.1,
       "position": [
-        -528,
-        192
+        -672,
+        176
       ],
       "id": "dc2fc88c-1648-44e4-8569-359072eb7cde",
       "name": "Webhook",
@@ -1114,6 +1070,7 @@
     {
       "parameters": {
         "operation": "getAll",
+        "tableId": "leads_emails",
         "limit": 100
       },
       "type": "n8n-nodes-base.supabase",
@@ -1133,7 +1090,8 @@
     },
     {
       "parameters": {
-        "operation": "update"
+        "operation": "update",
+        "tableId": "leads_emails"
       },
       "type": "n8n-nodes-base.supabase",
       "typeVersion": 1,
@@ -1156,7 +1114,7 @@
       "main": [
         [
           {
-            "node": "Get row(s) in sheet1",
+            "node": "Get many rows",
             "type": "main",
             "index": 0
           }
@@ -1343,7 +1301,7 @@
       "main": [
         [
           {
-            "node": "Get row(s) in sheet1",
+            "node": "Get many rows",
             "type": "main",
             "index": 0
           }
@@ -1361,26 +1319,9 @@
         ]
       ]
     },
-    "Get row(s) in sheet1": {
-      "main": [
-        [
-          {
-            "node": "Get many rows",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Webhook": {
       "main": [
-        [
-          {
-            "node": "Get row(s) in sheet1",
-            "type": "main",
-            "index": 0
-          }
-        ]
+        []
       ]
     },
     "Get many rows": {
@@ -1414,8 +1355,161 @@
   "meta": {
     "templateCredsSetupCompleted": true
   },
-  "pinData": {},
-  "versionId": "ec3dbe88-97f7-4938-8fbe-a643edae5e0d",
+  "pinData": {
+    "Get many rows": [
+      {
+        "json": {
+          "id": "5715dbb8-718e-4f9d-a4e9-242d717f44d5",
+          "business_name": "Fallow",
+          "niche": "restaurant",
+          "location": "london",
+          "address": "52 Haymarket, London SW1Y 4RP, UK",
+          "phone": "020 8017 1788",
+          "website": "http://www.fallowrestaurant.com/",
+          "google_place_id": "ChIJSWN4ldUEdkgRGqo3OSnf1CY",
+          "rating": 4.7,
+          "created_at": "2026-06-15T16:35:53.561011+00:00",
+          "updated_at": "2026-06-15T16:35:53.561011+00:00",
+          "run_id": null,
+          "email": "toby@fallowrestaurant.com",
+          "first_name": "Toby",
+          "last_name": "Labdon",
+          "position_raw": "Floor & Wine Supervisor & Product Ambassador",
+          "position": "Head Waiter",
+          "linkedin": "https://www.linkedin.com/in/toby-labdon-7a0066222",
+          "twitter": null,
+          "verification_date": null,
+          "status": null,
+          "seniority": "executive",
+          "department": "management"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "de4b66ef-a188-486c-91e3-63f43c1c711c",
+          "business_name": "Fallow",
+          "niche": "restaurant",
+          "location": "london",
+          "address": "52 Haymarket, London SW1Y 4RP, UK",
+          "phone": "020 8017 1788",
+          "website": "http://www.fallowrestaurant.com/",
+          "google_place_id": "ChIJSWN4ldUEdkgRGqo3OSnf1CY",
+          "rating": 4.7,
+          "created_at": "2026-06-15T16:35:53.561011+00:00",
+          "updated_at": "2026-06-15T16:35:53.561011+00:00",
+          "run_id": null,
+          "email": "jack@fallowrestaurant.com",
+          "first_name": "Jack",
+          "last_name": "Croft",
+          "position_raw": "Director",
+          "position": "Director",
+          "linkedin": "https://www.linkedin.com/in/jack-croft-019a05a4",
+          "twitter": null,
+          "verification_date": null,
+          "status": null,
+          "seniority": "executive",
+          "department": "management"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "2cc6f5ab-0331-4b33-ab34-bb59ee41f50f",
+          "business_name": "Fallow",
+          "niche": "restaurant",
+          "location": "london",
+          "address": "52 Haymarket, London SW1Y 4RP, UK",
+          "phone": "020 8017 1788",
+          "website": "http://www.fallowrestaurant.com/",
+          "google_place_id": "ChIJSWN4ldUEdkgRGqo3OSnf1CY",
+          "rating": 4.7,
+          "created_at": "2026-06-15T16:35:53.561011+00:00",
+          "updated_at": "2026-06-15T16:35:53.561011+00:00",
+          "run_id": null,
+          "email": "julia@fallowrestaurant.com",
+          "first_name": "Julia",
+          "last_name": "Gilbert",
+          "position_raw": "Managing Director",
+          "position": "Managing Director",
+          "linkedin": "https://www.linkedin.com/in/julia-gilbert-8474ba1b",
+          "twitter": null,
+          "verification_date": null,
+          "status": null,
+          "seniority": "executive",
+          "department": "executive"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "56de310a-70d5-4554-b268-29071fc06b1d",
+          "business_name": "Fallow",
+          "niche": "restaurant",
+          "location": "london",
+          "address": "52 Haymarket, London SW1Y 4RP, UK",
+          "phone": "020 8017 1788",
+          "website": "http://www.fallowrestaurant.com/",
+          "google_place_id": "ChIJSWN4ldUEdkgRGqo3OSnf1CY",
+          "rating": 4.7,
+          "created_at": "2026-06-15T16:35:53.561011+00:00",
+          "updated_at": "2026-06-15T16:35:53.561011+00:00",
+          "run_id": null,
+          "email": "nina@fallowrestaurant.com",
+          "first_name": "Nina",
+          "last_name": "Leith",
+          "position_raw": "Head of Marketing & Guest Operations",
+          "position": "Director of Marketing",
+          "linkedin": "https://www.linkedin.com/in/nina-leith-04235588",
+          "twitter": null,
+          "verification_date": null,
+          "status": null,
+          "seniority": "executive",
+          "department": "marketing"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "35c254cf-b150-4aba-97fc-87f19d0d2f93",
+          "business_name": "Fallow",
+          "niche": "restaurant",
+          "location": "london",
+          "address": "52 Haymarket, London SW1Y 4RP, UK",
+          "phone": "020 8017 1788",
+          "website": "http://www.fallowrestaurant.com/",
+          "google_place_id": "ChIJSWN4ldUEdkgRGqo3OSnf1CY",
+          "rating": 4.7,
+          "created_at": "2026-06-15T16:35:53.561011+00:00",
+          "updated_at": "2026-06-15T16:35:53.561011+00:00",
+          "run_id": null,
+          "email": "priyance.dabre@fallowrestaurant.com",
+          "first_name": "Priyance",
+          "last_name": "Dabre",
+          "position_raw": "Assistant Head sommelier",
+          "position": "Assistant Head Sommelier",
+          "linkedin": "https://www.linkedin.com/in/priyance-dabre-937a64172",
+          "twitter": null,
+          "verification_date": null,
+          "status": null,
+          "seniority": "executive",
+          "department": "management"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "versionId": "f8916122-51c3-4efc-af99-0958f17e22df",
   "activeVersionId": null,
   "triggerCount": 0,
   "shared": [
