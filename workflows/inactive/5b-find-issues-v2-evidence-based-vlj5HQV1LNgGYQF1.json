@@ -1,0 +1,3341 @@
+{
+  "updatedAt": "2026-06-20T12:45:30.533Z",
+  "createdAt": "2026-06-20T09:57:50.570Z",
+  "id": "vlj5HQV1LNgGYQF1",
+  "name": "5b. Find Issues v2 (evidence-based)",
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "4075bac4-4ca4-4daf-b455-5239de1a8b3f",
+      "name": "Run",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        288,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b2ad10f0-4bbc-4944-91d9-5d36d00bb3ce",
+              "name": "project_id",
+              "value": "n8n-trw-492316",
+              "type": "string"
+            },
+            {
+              "id": "4059aacd-2253-4dfc-b957-fcda8039eb61",
+              "name": "client_email",
+              "value": "ais-gemini-key-65cdff008b1c4f0@862176994722.iam.gserviceaccount.com",
+              "type": "string"
+            },
+            {
+              "id": "f91092aa-db02-45d2-aeba-37e4a70c0e96",
+              "name": "supabase_url",
+              "value": "https://apdxwrqulwljzyhrixrv.supabase.co",
+              "type": "string"
+            },
+            {
+              "id": "e159693c-c23f-48ff-b4bb-7a6ce00f1409",
+              "name": "supabase_key",
+              "value": "PASTE_SUPABASE_SERVICE_ROLE_KEY",
+              "type": "string"
+            },
+            {
+              "id": "f4723da5-debc-4276-bbba-9f1cbcd768b4",
+              "name": "audit_url",
+              "value": "http://35.225.222.54:8080",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "6de3c198-2aaa-4f34-b56c-76a3b01e039f",
+      "name": "Config",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        240,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "useJson": true,
+        "claimsJson": "={\n  \"iss\": \"{{ $json.client_email }}\",\n  \"scope\": \"https://www.googleapis.com/auth/cloud-platform\",\n  \"aud\": \"https://oauth2.googleapis.com/token\",\n  \"exp\": {{ Math.floor(Date.now() / 1000) + 3500 }},\n  \"iat\": {{ Math.floor(Date.now() / 1000) }}\n}",
+        "options": {}
+      },
+      "id": "62855241-ea2b-4215-9dca-0a72ee1a7986",
+      "name": "get google token",
+      "type": "n8n-nodes-base.jwt",
+      "typeVersion": 1,
+      "position": [
+        480,
+        0
+      ],
+      "credentials": {
+        "jwtAuth": {
+          "id": "U6vG3WFEPqvwY5p2",
+          "name": "JWT Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://oauth2.googleapis.com/token",
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "grant_type",
+              "value": "urn:ietf:params:oauth:grant-type:jwt-bearer"
+            },
+            {
+              "name": "assertion",
+              "value": "={{ $json.token }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "7255eb3e-bed4-4b85-bfca-485a947f9903",
+      "name": "get auth 2 token",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        720,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ $('Config').first().json.supabase_url }}/rest/v1/leads?select=id,business_name,website,niche,location&website=not.is.null&order=created_at.desc&limit=25",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $('Config').first().json.supabase_key }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('Config').first().json.supabase_key }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "04be327b-f640-4259-b7ac-f06d2b0a57e4",
+      "name": "Get leads",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1184,
+        368
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nif (items.length === 1 && Array.isArray(items[0].json)) {\n  return items[0].json.map(l => ({ json: l }));\n}\nif (items.length === 1 && items[0].json && Array.isArray(items[0].json.data)) {\n  return items[0].json.data.map(l => ({ json: l }));\n}\nreturn items;\n"
+      },
+      "id": "c3c60298-7825-46fe-a8dc-2abba1881030",
+      "name": "Split leads",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1232,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Config').first().json.audit_url }}/audit",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"url\": \"{{ $json.website }}\",\n  \"id\": \"{{ $json.id }}\"\n}",
+        "options": {
+          "timeout": 90000
+        }
+      },
+      "id": "8ac84699-abf4-46d5-aff7-d540b86f844e",
+      "name": "Audit",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1648,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst a = $input.first().json;                 // audit result\nconst lead = $('Split leads').item.json;       // current lead context\n\nconst measured = (a.issues || []).map(i => ({\n  label: i.label, severity: i.severity, evidence: i.evidence, fix: i.recommendation\n}));\n\nconst prompt = [\n  \"You are auditing a business website for SNC, a web & automation agency.\",\n  \"You are given TWO inputs:\",\n  \"1) MEASURED ISSUES: a JSON list of problems already verified by an automated audit. These are FACTS.\",\n  \"2) Two screenshots (desktop, mobile) of the SAME page, with cookie banners already removed.\",\n  \"\",\n  \"Your job:\",\n  \"- Treat MEASURED ISSUES as the source of truth. Never contradict or re-measure them.\",\n  \"- Inspect the screenshots ONLY for things measurements can't capture: visual design quality,\",\n  \"  clarity of the value proposition, trust signals, clutter, dated look, confusing layout, weak hero/headline.\",\n  \"\",\n  \"HARD RULES:\",\n  \"- NEVER mention cookie banners, popups, or consent dialogs.\",\n  \"- NEVER invent technical / SEO / mobile claims that are not in MEASURED ISSUES.\",\n  \"- A visual point must be clearly visible in the screenshot. If unsure, leave it out.\",\n  \"- Every point must tie to lost customers, in plain language a business owner understands. No jargon.\",\n  \"\",\n  \"Return JSON ONLY in this exact shape:\",\n  '{ \"score\": <0-100>, \"top_issues\": [ { \"issue\": \"...\", \"why_it_matters\": \"...\", \"source\": \"measured\" | \"visual\" } ], \"design_notes\": [\"...\"], \"email_angle\": \"one plain-language sentence hook for a cold email\" }',\n  \"- top_issues: max 4, ranked by impact.\",\n  \"\",\n  \"MEASURED ISSUES: \" + JSON.stringify(measured),\n  \"LEAD: \" + (lead.business_name || \"\") + \" | \" + (lead.niche || \"\") + \" in \" + (lead.location || \"\")\n].join(\"\\n\");\n\nconst parts = [{ text: prompt }];\nconst b = a.screenshots_b64 || {};\nif (b.desktop) parts.push({ inlineData: { mimeType: \"image/png\", data: b.desktop } });\nif (b.mobile)  parts.push({ inlineData: { mimeType: \"image/png\", data: b.mobile } });\n\nconst geminiBody = {\n  contents: [{ role: \"user\", parts }],\n  generationConfig: { temperature: 0.2, responseMimeType: \"application/json\" }\n};\n\nreturn [{ json: {\n  id: a.id || lead.id,\n  business_name: lead.business_name,\n  niche: lead.niche,\n  location: lead.location,\n  measured_score: (a.scores && a.scores.overall) != null ? a.scores.overall : null,\n  screenshot_url: (a.screenshots && a.screenshots.desktop) || \"\",\n  geminiBody\n}}];\n"
+      },
+      "id": "c37e6f57-ea04-494c-a35a-c8a28a17003f",
+      "name": "Build Gemini",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1888,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://aiplatform.googleapis.com/v1/projects/{{ $('Config').first().json.project_id }}/locations/global/publishers/google/models/gemini-2.5-flash:generateContent",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('get auth 2 token').first().json.access_token }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.geminiBody) }}",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "id": "4d7bc2d6-0c19-4d3b-a5eb-c036352d74f5",
+      "name": "Gemini",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        2128,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst g = $input.first().json;\nlet txt = \"\";\ntry { txt = (g.candidates[0].content.parts || []).map(p => p.text || \"\").join(\"\"); } catch (e) {}\nlet parsed = {};\ntry { parsed = JSON.parse(txt.replace(/```json|```/g, \"\").trim()); } catch (e) { parsed = {}; }\n\nconst src = $('Build Gemini').item.json;\nconst patchBody = {\n  audit_score: (parsed.score != null ? parsed.score : src.measured_score),\n  audit_issues: parsed.top_issues || [],\n  audit_notes: parsed.design_notes || [],\n  audit_email_angle: parsed.email_angle || \"\",\n  audit_screenshot: src.screenshot_url || \"\",\n  status: \"audited\"\n};\nreturn [{ json: { id: src.id, patchBody } }];\n"
+      },
+      "id": "a83030bc-3d4d-4972-bf20-5549355af334",
+      "name": "Parse Gemini",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2368,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=http://35.225.222.54:8080/audit",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"url\": \"sncai.info\",\n  \"id\": \"{{ $json.id }}\"\n}",
+        "options": {
+          "timeout": 90000
+        }
+      },
+      "id": "e11618e0-5556-47cb-bfad-2d8ff45ae0f9",
+      "name": "Audit1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        528,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "leads",
+        "limit": 100
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        928,
+        0
+      ],
+      "id": "adefa443-7998-4264-b0b6-646debe8026c",
+      "name": "Get many rows",
+      "credentials": {
+        "supabaseApi": {
+          "id": "4UcvDgBqf10SrNQ1",
+          "name": "Supabase account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update"
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        2576,
+        0
+      ],
+      "id": "4115ba2f-189b-47f9-9fc2-5f9ac8ab5b50",
+      "name": "Update a row",
+      "credentials": {
+        "supabaseApi": {
+          "id": "4UcvDgBqf10SrNQ1",
+          "name": "Supabase account 2"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Run": {
+      "main": [
+        [
+          {
+            "node": "Audit1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config": {
+      "main": [
+        [
+          {
+            "node": "get google token",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get google token": {
+      "main": [
+        [
+          {
+            "node": "get auth 2 token",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get auth 2 token": {
+      "main": [
+        [
+          {
+            "node": "Get many rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get leads": {
+      "main": [
+        []
+      ]
+    },
+    "Split leads": {
+      "main": [
+        [
+          {
+            "node": "Audit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Audit": {
+      "main": [
+        [
+          {
+            "node": "Build Gemini",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Gemini": {
+      "main": [
+        [
+          {
+            "node": "Gemini",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini": {
+      "main": [
+        [
+          {
+            "node": "Parse Gemini",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Gemini": {
+      "main": [
+        [
+          {
+            "node": "Update a row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many rows": {
+      "main": [
+        [
+          {
+            "node": "Split leads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a row": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {
+    "Get many rows": [
+      {
+        "json": {
+          "id": "488441f5-7c95-4be9-92b5-39956612b84a",
+          "business_name": "Tattu London",
+          "niche": "restaurant",
+          "location": "london",
+          "address": "The Now Building Rooftop, Outernet, Denmark St, London WC2H 0LA, UK",
+          "phone": "020 3778 1985",
+          "website": "https://tattu.co.uk/locations/tattu-london/",
+          "google_place_id": "ChIJHdd94hwbdkgRihDCyn0FD1Y",
+          "rating": 4.7,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-15T16:35:53.561011+00:00",
+          "updated_at": "2026-06-15T16:35:53.561011+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": null,
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "11745415-a274-4027-aea5-9d1901fe1535",
+          "business_name": "HIDE",
+          "niche": "restaurant",
+          "location": "london",
+          "address": "85 Piccadilly, London W1J 7NB, UK",
+          "phone": "020 3146 8666",
+          "website": "https://hide.co.uk/?utm_source=gbp&utm_medium=organic",
+          "google_place_id": "ChIJn1DE_XsFdkgR6NyYk4IWd64",
+          "rating": 4.5,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-15T16:35:53.561011+00:00",
+          "updated_at": "2026-06-15T16:35:53.561011+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": null,
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "e87df067-76b1-4384-89b3-fc8471cfd7ae",
+          "business_name": "Blacklock Covent Garden",
+          "niche": "restaurant",
+          "location": "london",
+          "address": "16a Bedford St, London WC2E 9HE, UK",
+          "phone": "020 3034 1394",
+          "website": "https://theblacklock.com/coventgarden-reservations/?utm_source=GMB&utm_medium=website+click&utm_campaign=SDM&utm_id=GMB",
+          "google_place_id": "ChIJyeTsrLoFdkgRdsewS8ne0fQ",
+          "rating": 4.7,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-15T16:35:53.561011+00:00",
+          "updated_at": "2026-06-15T16:35:53.561011+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": null,
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "d75ed9a5-5b56-464f-a174-13cabe9fb7db",
+          "business_name": "OMA",
+          "niche": "restaurant",
+          "location": "london",
+          "address": "3 Bedale St, London SE1 9AL, UK",
+          "phone": "020 8129 6760",
+          "website": "http://oma.london/",
+          "google_place_id": "ChIJ4co2k5kDdkgROKjVBk6wD8k",
+          "rating": 4.7,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-15T16:35:53.561011+00:00",
+          "updated_at": "2026-06-15T16:35:53.561011+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": null,
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "a05533a0-523d-4bc6-9dd6-885395d1ed45",
+          "business_name": "The Wolseley Piccadilly",
+          "niche": "restaurant",
+          "location": "london",
+          "address": "160 Piccadilly, London W1J 9EB, UK",
+          "phone": "020 7499 6996",
+          "website": "https://www.thewolseleypiccadilly.com/",
+          "google_place_id": "ChIJr_4cVy8FdkgRIrNbO93eUFM",
+          "rating": 4.4,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-15T16:35:53.561011+00:00",
+          "updated_at": "2026-06-15T16:35:53.561011+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": null,
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "03bdc5b1-396c-4ca1-a3cb-5720d08b9e67",
+          "business_name": "Gymkhana",
+          "niche": "restaurant",
+          "location": "london",
+          "address": "42 Albemarle St, London W1S 4JH, UK",
+          "phone": "020 3011 5900",
+          "website": "http://www.gymkhanarestaurants.com/",
+          "google_place_id": "ChIJtwn55ikFdkgRAvOuPIWeLM0",
+          "rating": 4.4,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-15T16:35:53.561011+00:00",
+          "updated_at": "2026-06-15T16:35:53.561011+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": null,
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "1be642d1-dec1-4cfc-a983-f862849b629b",
+          "business_name": "Osteria romana",
+          "niche": "restaurant",
+          "location": "london",
+          "address": "3-4 Park Cl, London SW1X 7PQ, UK",
+          "phone": "020 7584 5819",
+          "website": "http://osteriaromana.co.uk/",
+          "google_place_id": "ChIJb8xZZzgFdkgRvrsQVk8WJcI",
+          "rating": 4.8,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-15T16:35:53.561011+00:00",
+          "updated_at": "2026-06-15T16:35:53.561011+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": null,
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "3acf24d1-635d-48b6-ac95-a7db34433f89",
+          "business_name": "Hawksmoor Air Street",
+          "niche": "restaurant",
+          "location": "london",
+          "address": "5A Air St, London W1J 0AD, UK",
+          "phone": "020 7406 3980",
+          "website": "https://thehawksmoor.com/locations/airstreet/?y_source=1_MjQyMjUwMzYtNzE1LWxvY2F0aW9uLndlYnNpdGU%3D",
+          "google_place_id": "ChIJl5tPHtQEdkgRW15WLM9-Ef0",
+          "rating": 4.5,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-15T16:35:53.561011+00:00",
+          "updated_at": "2026-06-15T16:35:53.561011+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": null,
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "a88567b7-5364-4292-980b-c94e417e732c",
+          "business_name": "Happy London",
+          "niche": "restaurant",
+          "location": "london",
+          "address": "25-29 Coventry St, Piccadilly Circus, London W1D 7AG, UK",
+          "phone": "020 3883 7874",
+          "website": "https://happyrestaurants.com/",
+          "google_place_id": "ChIJ-0sYC0UFdkgR22MCL9yb9sQ",
+          "rating": 4.4,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-15T16:35:53.561011+00:00",
+          "updated_at": "2026-06-15T16:35:53.561011+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": null,
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "235cf196-4c7b-465f-aeef-7e1b07a8153b",
+          "business_name": "Rules",
+          "niche": "restaurant",
+          "location": "london",
+          "address": "35 Maiden Ln, London WC2E 7LB, UK",
+          "phone": "020 7836 5314",
+          "website": "http://www.rules.co.uk/",
+          "google_place_id": "ChIJbUnC58oEdkgR4pwzPtYGrbY",
+          "rating": 4.6,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-15T16:35:53.561011+00:00",
+          "updated_at": "2026-06-15T16:35:53.561011+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": null,
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "38daa11f-d265-4c31-b409-92737e0a6509",
+          "business_name": "Clos Maggiore",
+          "niche": "restaurant",
+          "location": "london",
+          "address": "33 King St, London WC2E 8JD, UK",
+          "phone": "020 4580 1174",
+          "website": "http://www.closmaggiore.com/?utm_source=google&utm_medium=organic&utm_campaign=googlemybusiness",
+          "google_place_id": "ChIJFWhXXcwEdkgRkKBKheUNnC4",
+          "rating": 4.4,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-15T16:35:53.561011+00:00",
+          "updated_at": "2026-06-15T16:35:53.561011+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": null,
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "40b6d30a-b8a4-4998-a418-2c372b2bb1b3",
+          "business_name": "Bill's Covent Garden Restaurant",
+          "niche": "restaurant",
+          "location": "london",
+          "address": "St Martin's Courtyard, Slingsby Pl, London WC2H 9EF, UK",
+          "phone": "020 8054 5400",
+          "website": "https://bills-website.co.uk/restaurants/covent-garden/?utm_source=LocalGoogle&utm_medium=Organic",
+          "google_place_id": "ChIJxe02As0EdkgRZeOhNiEbtt8",
+          "rating": 4.6,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-15T16:35:53.561011+00:00",
+          "updated_at": "2026-06-15T16:35:53.561011+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": null,
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "b1926085-ff33-4a8f-b1e9-4c7821369992",
+          "business_name": "Darwin Brasserie",
+          "niche": "restaurant",
+          "location": "london",
+          "address": "1, Level 36, Sky Garden Walk, London EC3M 8AF, UK",
+          "phone": "0333 772 0020",
+          "website": "https://skygarden.london/restaurants/darwin-brasserie/",
+          "google_place_id": "ChIJO_02aFIDdkgRf2-gsHxdgEQ",
+          "rating": 4.4,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-15T16:35:53.561011+00:00",
+          "updated_at": "2026-06-15T16:35:53.561011+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": null,
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "ff545f62-9a07-45b6-91d8-174940a67d22",
+          "business_name": "Prezzo",
+          "niche": "restaurant",
+          "location": "london",
+          "address": "31-32 Northumberland Ave, London WC2N 5BW, UK",
+          "phone": "020 3910 9777",
+          "website": "https://www.prezzo.co.uk/restaurants/london-northumberland-avenue/",
+          "google_place_id": "ChIJZf2Jlc4EdkgRv83xDpKQfHA",
+          "rating": 4.5,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-15T16:35:53.561011+00:00",
+          "updated_at": "2026-06-15T16:35:53.561011+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": null,
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "e3d93666-d3ae-410b-97ed-03b99134cf0a",
+          "business_name": "Cicchetti Piccadilly - London Piccadilly",
+          "niche": "restaurant",
+          "location": "london",
+          "address": "Cicchetti, 172-173 Piccadilly, London W1J 9EJ, UK",
+          "phone": "020 7362 0999",
+          "website": "https://sancarlo.co.uk/restaurants/london/cicchetti-piccadilly/",
+          "google_place_id": "ChIJTztGq9YEdkgRXRLmtU4BTqs",
+          "rating": 4.4,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-15T16:35:53.561011+00:00",
+          "updated_at": "2026-06-15T16:35:53.561011+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": null,
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "a3b77ac7-f349-40a2-8533-5e32addd01d8",
+          "business_name": "Ekstedt at The Yard",
+          "niche": "restaurant",
+          "location": "london",
+          "address": "3-5 Great Scotland Yard, London SW1A 2HN, UK",
+          "phone": "020 7925 4749",
+          "website": "https://www.ekstedtattheyard.com/",
+          "google_place_id": "ChIJL-HmB88EdkgRfH-wI_8ELLQ",
+          "rating": 4.8,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-15T16:35:53.561011+00:00",
+          "updated_at": "2026-06-15T16:35:53.561011+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": null,
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "2105609d-ccc6-48ae-9b8f-3d51bf658242",
+          "business_name": "Blacklock City",
+          "niche": "restaurant",
+          "location": "london",
+          "address": "13 Philpot Ln, London EC3M 8AA, UK",
+          "phone": "020 7998 7676",
+          "website": "https://theblacklock.com/restaurants/city/?utm_source=CITY_GMB&utm_medium=GMB",
+          "google_place_id": "ChIJHx_iOFIDdkgRWZ0BWg8A3So",
+          "rating": 4.7,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-15T16:35:53.561011+00:00",
+          "updated_at": "2026-06-15T16:35:53.561011+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": null,
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "e4a122bc-a66f-40bc-a3d1-f62f7cd215d6",
+          "business_name": "Olea Social",
+          "niche": "restaurant",
+          "location": "london",
+          "address": "10 Upper St Martin's Ln, London WC2H 9FB, UK",
+          "phone": "020 3149 1016",
+          "website": "http://www.oleasocial.co.uk/",
+          "google_place_id": "ChIJ_aG9xo4FdkgRfibauonvBkY",
+          "rating": 4.6,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-15T16:35:53.561011+00:00",
+          "updated_at": "2026-06-15T16:35:53.561011+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": null,
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "6c22c0ef-0653-4cd1-9044-6067ce3ab5c1",
+          "business_name": "Duck & Waffle",
+          "niche": "restaurant",
+          "location": "london",
+          "address": "110 Bishopsgate, London EC2N 4AY, UK",
+          "phone": "020 3640 7310",
+          "website": "https://duckandwaffle.com/london/?utm_source=gbp&utm_medium=organic&utm_campaign=london_gbp",
+          "google_place_id": "ChIJX__2lbIcdkgRPCpSjiwV5LM",
+          "rating": 4.4,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-15T16:35:53.561011+00:00",
+          "updated_at": "2026-06-15T16:35:53.561011+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": null,
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "d1c64d07-798d-4042-8899-32d430433278",
+          "business_name": "Indiana",
+          "niche": "",
+          "location": "",
+          "address": "Indiana, USA",
+          "phone": null,
+          "website": "http://www.in.gov/",
+          "google_place_id": "ChIJHRv42bxQa4gRcuwyy84vEH4",
+          "rating": null,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-15T17:07:13.887512+00:00",
+          "updated_at": "2026-06-15T17:07:13.887512+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": null,
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "271a593b-826c-4a4f-b6b5-9dded994dbe7",
+          "business_name": "Fallow",
+          "niche": "restaurant",
+          "location": "london",
+          "address": "52 Haymarket, London SW1Y 4RP, UK",
+          "phone": "020 8017 1788",
+          "website": "http://www.fallowrestaurant.com/",
+          "google_place_id": "ChIJSWN4ldUEdkgRGqo3OSnf1CY",
+          "rating": 4.7,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-15T16:35:53.561011+00:00",
+          "updated_at": "2026-06-19T22:48:37.276194+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": "yes",
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "b1e0744b-ccd0-49bb-b9c9-4f8997b41873",
+          "business_name": "PSR Solutions (Sheffield)",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "2nd Floor, 32 Eyre St, Sheffield City Centre, Sheffield S1 4QZ, UK",
+          "phone": "0114 436 6366",
+          "website": "http://www.psrsolutions.co.uk/",
+          "google_place_id": "ChIJL76VwXqCeUgROYmEPTPx8QI",
+          "rating": 4.7,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:42:07.395693+00:00",
+          "updated_at": "2026-06-16T17:42:07.395693+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": null,
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "5d360c4b-5fc5-470d-9615-f085dec49cd1",
+          "business_name": "Reed Recruitment Agency",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "Ste 6D, 6th Floor, The Balance, 2 Pinfold St, Sheffield City Centre, Sheffield S1 2GU, UK",
+          "phone": "0114 228 8901",
+          "website": "https://www.reed.com/offices/reed-recruitment-sheffield?utm_source=google&utm_medium=organic&utm_campaign=gbpwebsite-reed-recruitment-sheffield",
+          "google_place_id": "ChIJ7YwuDIKCeUgR01BYc-aWA5Q",
+          "rating": 4.7,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:56:47.943128+00:00",
+          "updated_at": "2026-06-16T17:56:47.943128+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": null,
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "32d30868-f7fc-4638-88bb-62a94d5e6bad",
+          "business_name": "Alpha Recruitment #AlphaJobs",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "6-8 South St, Sheffield S2 5QY, UK",
+          "phone": "0114 303 8055",
+          "website": "http://www.alphajobs.net/",
+          "google_place_id": "ChIJT8JpWXh4eUgRP8iDN2aVrMk",
+          "rating": 4.9,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:56:47.943128+00:00",
+          "updated_at": "2026-06-16T17:56:47.943128+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": null,
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "20c742b6-f758-43c7-94e0-8bfe6067eb52",
+          "business_name": "Link2 Recruitment",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "Suite 2, 35 Paradise St, Sheffield City Centre, Sheffield S3 8PZ, UK",
+          "phone": "0114 553 7111",
+          "website": "http://www.link2recruitment.co.uk/",
+          "google_place_id": "ChIJS8TaTEV5eUgRQhOosuSf2KA",
+          "rating": 5,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:56:47.943128+00:00",
+          "updated_at": "2026-06-16T17:56:47.943128+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": null,
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "40ea9927-5dcf-4872-8ed3-e8d35edf209d",
+          "business_name": "Chase Recruitment Limited",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "Unit 4, Scotland St, Sheffield S3 7AT, UK",
+          "phone": "0114 223 6000",
+          "website": "http://www.chase-rec.com/",
+          "google_place_id": "ChIJO-otbYGCeUgRufKC8NwHtcw",
+          "rating": 4.9,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:56:47.943128+00:00",
+          "updated_at": "2026-06-16T17:56:47.943128+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": null,
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "89a15757-6795-44cf-8a7a-44fa25226e64",
+          "business_name": "Andy File Associates Ltd - Recruitment",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "Aizlewoods Mill, Nursery St, Sheffield S3 8GG, UK",
+          "phone": "0114 282 1281",
+          "website": "http://andyfileassociates.com/",
+          "google_place_id": "ChIJK48NSHp4eUgRUcyglZAkzx0",
+          "rating": 5,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:56:47.943128+00:00",
+          "updated_at": "2026-06-16T17:56:47.943128+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": null,
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "988eada6-8967-4889-a303-a9e4284988b8",
+          "business_name": "Benchmark Recruit",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "electric works, 3 Concourse Way, Sheffield City Centre, Sheffield S1 2BJ, UK",
+          "phone": "07714 771600",
+          "website": "https://www.benchmarkrecruit.co.uk/",
+          "google_place_id": "ChIJYSNRcIOCeUgReB4kYmVLEeY",
+          "rating": 4.9,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:56:47.943128+00:00",
+          "updated_at": "2026-06-16T17:56:47.943128+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": null,
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "99d9f558-9606-48d7-9d21-b3ddc6e4ec6f",
+          "business_name": "Sue Ross Recruitment Ltd",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "Blenheim Reach, 861 Ecclesall Rd, Sheffield S11 8TH, UK",
+          "phone": "0114 278 6600",
+          "website": "http://www.suerossrecruitment.co.uk/",
+          "google_place_id": "ChIJ95uP6Xh4eUgRfBonzRXSV2s",
+          "rating": 4.7,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:56:47.943128+00:00",
+          "updated_at": "2026-06-16T17:56:47.943128+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": null,
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "213beea0-3592-4708-8de3-e0b53fea3940",
+          "business_name": "Page 1 Recruitment",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "1 Concourse Way, Sheffield City Centre, Sheffield S1 2BJ, UK",
+          "phone": "0114 700 3533",
+          "website": "https://www.page1recruitment.co.uk/",
+          "google_place_id": "ChIJ_eh6XrF5eUgR-7GT0O1QPPg",
+          "rating": 5,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:56:47.943128+00:00",
+          "updated_at": "2026-06-16T17:56:47.943128+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": null,
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "66349df5-e676-4c97-a6a9-c7d9eb04e4f5",
+          "business_name": "Tradewind Recruitment",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "New Oxford, House 10, 30 Barker's Pool, Sheffield City Centre, Sheffield S1 2HB, UK",
+          "phone": "0114 287 0650",
+          "website": "https://www.twrecruitment.com/sheffield",
+          "google_place_id": "ChIJQXVZdn94eUgRuOtFsR3XCxU",
+          "rating": 4.9,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:56:47.943128+00:00",
+          "updated_at": "2026-06-16T17:56:47.943128+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": null,
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "90f8d4d4-3763-4925-9d4e-918204a0dcb8",
+          "business_name": "Forde Recruitment Ltd",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "39 Townhead St, Sheffield City Centre, Sheffield S1 2EB, UK",
+          "phone": "0114 276 0501",
+          "website": "http://www.forde-recruitment.co.uk/",
+          "google_place_id": "ChIJXdRbXH94eUgRIQ2q6lAk2rc",
+          "rating": 4.3,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:56:47.943128+00:00",
+          "updated_at": "2026-06-16T17:56:47.943128+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": null,
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "8da76282-2cae-499b-bc2d-ffe27dadae8e",
+          "business_name": "Blue Arrow Sheffield",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "Wharf House, victoria quays, Sheffield S1 2GY, UK",
+          "phone": "0114 272 2600",
+          "website": "https://www.bluearrow.co.uk/jobs/",
+          "google_place_id": "ChIJrYle83h4eUgRex-1ObbiuFw",
+          "rating": 4.3,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:56:47.943128+00:00",
+          "updated_at": "2026-06-16T17:56:47.943128+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": null,
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "1f2692cc-6c2b-4685-b6ea-f4df23e6bf7d",
+          "business_name": "Michael Page, Recruitment Agency Sheffield - now operated from Leeds",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "VENTANA HOUSE, 2 Sheaf St, Sheffield City Centre, Sheffield S1 2BJ, UK",
+          "phone": "0330 390 3050",
+          "website": "https://www.michaelpage.co.uk/contact-us/leeds-office",
+          "google_place_id": "ChIJ83fGNp2CeUgRzhaPq9m-lyA",
+          "rating": 4.2,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:56:47.943128+00:00",
+          "updated_at": "2026-06-16T17:56:47.943128+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": null,
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "75abe045-7d6c-4969-8afd-36465c26ce67",
+          "business_name": "TFS Healthcare",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "32 Eyre St, Sheffield City Centre, Sheffield S1 4QZ, UK",
+          "phone": "020 3826 6040",
+          "website": "http://www.tfshealthcare.co.uk/",
+          "google_place_id": "ChIJMRCJL1cDdkgRBl3OcoQCGOU",
+          "rating": 4.1,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:56:47.943128+00:00",
+          "updated_at": "2026-06-16T17:56:47.943128+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": null,
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "a0a7d870-134f-4e89-bee1-466fcf6272b7",
+          "business_name": "Divine 247 Recruitment Ltd",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "Spaces Acero, 1 Concourse Way, Sheffield City Centre, Sheffield S1 2BJ, UK",
+          "phone": "0333 577 0882",
+          "website": "https://divine247.co.uk/",
+          "google_place_id": "ChIJAQAQRp2CeUgRWw-mKejpahY",
+          "rating": 4.8,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:56:47.943128+00:00",
+          "updated_at": "2026-06-16T17:56:47.943128+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": null,
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "91f89934-63ae-40a3-9ae8-404fcd4d11b8",
+          "business_name": "Hays Recruitment Agency - Sheffield",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "Fl 2, Fountain Precinct, Balm Grn, Sheffield City Centre, Sheffield S1 2JA, UK",
+          "phone": "0114 276 0536",
+          "website": "https://www.hays.co.uk/job-search/in-sheffield-uk?utm_source=google-places&utm_medium=local-listing&utm_campaign=sheffield",
+          "google_place_id": "ChIJBYaYb4KCeUgRX_zMudoFDDw",
+          "rating": 3.7,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:56:47.943128+00:00",
+          "updated_at": "2026-06-16T17:56:47.943128+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": null,
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "2e7a3f9f-3e4b-47da-9270-6635718df67c",
+          "business_name": "TSR Recruitment - Sheffield",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "Unit 4d Parkway Rise, Sheffield S9 4WQ, UK",
+          "phone": "0114 551 5555",
+          "website": "http://www.tsrecruitment.co.uk/",
+          "google_place_id": "ChIJLVhnWu6deUgR-JcQmlOE4M4",
+          "rating": 4.9,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:56:47.943128+00:00",
+          "updated_at": "2026-06-16T17:56:47.943128+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": null,
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "69616b96-a591-41a4-b0ea-6cbe9121e961",
+          "business_name": "A for Appointments",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "S4 Globe Works, Penistone Rd, Sheffield S6 3AE, UK",
+          "phone": "0114 275 7744",
+          "website": "https://www.aforappointments.com/",
+          "google_place_id": "ChIJrafGlHiCeUgRnG_mmgN1wfo",
+          "rating": 4.5,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:56:47.943128+00:00",
+          "updated_at": "2026-06-16T17:56:47.943128+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": null,
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "061e6333-93f5-4dc7-8c3c-6801529c1479",
+          "business_name": "Anna Maher Recruitment",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "Omnia One, 125 Queen St, Sheffield City Centre, Sheffield S1 2DU, UK",
+          "phone": "07715 454545",
+          "website": "http://www.amrl.co.uk/",
+          "google_place_id": "ChIJnTXm8dSDeUgR-62giEETDEw",
+          "rating": 5,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:56:47.943128+00:00",
+          "updated_at": "2026-06-16T17:56:47.943128+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": null,
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "06487f77-a616-46f2-bc4f-431eeae65308",
+          "business_name": "Lodestone Recruitment Ltd",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "Suite 3 Meadowhall Riverside, Meadowhall Rd, Sheffield S9 1BW, UK",
+          "phone": "0114 491 0370",
+          "website": "http://lodestonerecruitment.co.uk/",
+          "google_place_id": "ChIJP_dahEx3eUgRmhbPvXvGzpw",
+          "rating": 5,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:56:47.943128+00:00",
+          "updated_at": "2026-06-16T17:56:47.943128+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": null,
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "37a0db05-a2f8-4554-b7ed-eb3b08622e88",
+          "business_name": "CRA Consulting",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "51 Clarkegrove Rd, Broomhall, Sheffield S10 2NH, UK",
+          "phone": "0114 241 8030",
+          "website": "https://www.craconsultants.com/",
+          "google_place_id": "ChIJhxZr1Xh4eUgRZddqZLcdBZ4",
+          "rating": 5,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:56:47.943128+00:00",
+          "updated_at": "2026-06-16T17:56:47.943128+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": null,
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ],
+    "get google token": [
+      {
+        "json": {
+          "token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJhaXMtZ2VtaW5pLWtleS02NWNkZmYwMDhiMWM0ZjBAODYyMTc2OTk0NzIyLmlhbS5nc2VydmljZWFjY291bnQuY29tIiwic2NvcGUiOiJodHRwczovL3d3dy5nb29nbGVhcGlzLmNvbS9hdXRoL2Nsb3VkLXBsYXRmb3JtIiwiYXVkIjoiaHR0cHM6Ly9vYXV0aDIuZ29vZ2xlYXBpcy5jb20vdG9rZW4iLCJleHAiOjE3ODE5NjMwMDQsImlhdCI6MTc4MTk1OTUwNH0.uIlmlr2XdPCwyxrfeBoP5BJ76IH-8nTfItyCDwAMD4qC5h2FBivK2IOhUnfwC7oWGrEPXBma6xerb9gQNUxvOE2KfvhGKSPRx7Kgb6cdz2Rm5G4cGcpHYHw-WPYSbtj1YH6bn9XUGKLQ7YUnOtLjX1DEO3OKHc2s6GZDmOrYVYe3ZtRxcKQ3SaXLmXB7j100buWEA_abiPk1ynxiGcbl6AZuDpaJJDRdeGuWkTU-CURBQgqYER0j3ffaJpnaODBEzlozOOggZBJBABuP9n1nTFy578IS_f1bN_vKaon8S9qgtqkXdx7GfM9kFlG6DFsWJUMKn1V3l6YXmvGggIno8A"
+        },
+        "pairedItem": 0
+      }
+    ],
+    "get auth 2 token": [
+      {
+        "json": {
+          "access_token": "ya29.c.c0AZ4bNpYSpfYVxNT8Z5gdMZCjMqj_HlT8CBiBg8VFGKCESJH9to_cY7JNbhdV-xgY1v4dx253fx_GE3UIJhBIoAvasm-BhKcAuaVD-F___AfFWDiCERxLUA9ADY3e1jVpLrZM-l4gqi77zxnqoUqj7akaEyz5JT0zWf7cKLtc_IrRG3-NRbHUWvSoL2W1ipHw7RoqY7w0ylurTZrt2tFUEx5uUjawFuB1Eaz0KoeE2ZV1yMhc2TffI_Hov_FHCmCdKXdmgMTzHZIN51aOXMs_MWOZvhrbDusZNBYKw9AgfcHiMqRHnmjxP9UOotYKcAzSndECo8plGaRceXMIh_c6vMbJFkhxsbGk5Ya77uftP6Wv5vHbciQZo-MG384Cj80B7yd2uYIQdmuV695ph2i-UiYX7piXozIiXtiUcoMUkv271Ydnjl972iX5YggFMk5OUv4n-9OSbJ0iYn5v5QVuJJtbzUQW3jhq7R42ml9v7Ff-j5xmfbMYfpiy2SfJubvhmvn8W5ser87okUelpXsuf_Ynxd6urgJtJiSjb112j0_17xjj7t6SReM47SbRwr7rjOFqMoWxZBu68aY3_1s2x_SQMgthpkzuxgk6WneV-sMvqev9FcqS-g7QQWfYnB-fgnjpuqsvfdhf3atin24j0gakfXueM1J-IV4Uwm2iz5ox3SctYF942XJsWUouXhiZdv3jg01tqsVkpvFhVMe1ir0lY3MOfMuQmiaok9fnu27qrX0wWdZY6_fMZQUvuSy4_mQ8mdocaxkVw3X_nMfrV2lXF25UJyBSx79SYtW0vXZqgOpdi7sYO5O-lYXacSkj_JSmyrvOv_iup2i_-ZpaigshznmjZyc3bxuWsa9yU4ghFWWkpv1YZa1By3SRruMg533ZpYdJWQ08MVUFBgJ9nxocmIOnYOvziV8q-t5lfB6ty6XIjxjJxIdfRt621gyX-cRmFyIyFW_SndyuUUtIuxBl6oW-xvX9ZBxtMge6XokZ8ovlcesossO",
+          "expires_in": 3599,
+          "token_type": "Bearer"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ],
+    "Split leads": [
+      {
+        "json": {
+          "id": "488441f5-7c95-4be9-92b5-39956612b84a",
+          "business_name": "Tattu London",
+          "niche": "restaurant",
+          "location": "london",
+          "address": "The Now Building Rooftop, Outernet, Denmark St, London WC2H 0LA, UK",
+          "phone": "020 3778 1985",
+          "website": "https://tattu.co.uk/locations/tattu-london/",
+          "google_place_id": "ChIJHdd94hwbdkgRihDCyn0FD1Y",
+          "rating": 4.7,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-15T16:35:53.561011+00:00",
+          "updated_at": "2026-06-15T16:35:53.561011+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": null,
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "11745415-a274-4027-aea5-9d1901fe1535",
+          "business_name": "HIDE",
+          "niche": "restaurant",
+          "location": "london",
+          "address": "85 Piccadilly, London W1J 7NB, UK",
+          "phone": "020 3146 8666",
+          "website": "https://hide.co.uk/?utm_source=gbp&utm_medium=organic",
+          "google_place_id": "ChIJn1DE_XsFdkgR6NyYk4IWd64",
+          "rating": 4.5,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-15T16:35:53.561011+00:00",
+          "updated_at": "2026-06-15T16:35:53.561011+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": null,
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 1
+        }
+      },
+      {
+        "json": {
+          "id": "e87df067-76b1-4384-89b3-fc8471cfd7ae",
+          "business_name": "Blacklock Covent Garden",
+          "niche": "restaurant",
+          "location": "london",
+          "address": "16a Bedford St, London WC2E 9HE, UK",
+          "phone": "020 3034 1394",
+          "website": "https://theblacklock.com/coventgarden-reservations/?utm_source=GMB&utm_medium=website+click&utm_campaign=SDM&utm_id=GMB",
+          "google_place_id": "ChIJyeTsrLoFdkgRdsewS8ne0fQ",
+          "rating": 4.7,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-15T16:35:53.561011+00:00",
+          "updated_at": "2026-06-15T16:35:53.561011+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": null,
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 2
+        }
+      },
+      {
+        "json": {
+          "id": "d75ed9a5-5b56-464f-a174-13cabe9fb7db",
+          "business_name": "OMA",
+          "niche": "restaurant",
+          "location": "london",
+          "address": "3 Bedale St, London SE1 9AL, UK",
+          "phone": "020 8129 6760",
+          "website": "http://oma.london/",
+          "google_place_id": "ChIJ4co2k5kDdkgROKjVBk6wD8k",
+          "rating": 4.7,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-15T16:35:53.561011+00:00",
+          "updated_at": "2026-06-15T16:35:53.561011+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": null,
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 3
+        }
+      },
+      {
+        "json": {
+          "id": "a05533a0-523d-4bc6-9dd6-885395d1ed45",
+          "business_name": "The Wolseley Piccadilly",
+          "niche": "restaurant",
+          "location": "london",
+          "address": "160 Piccadilly, London W1J 9EB, UK",
+          "phone": "020 7499 6996",
+          "website": "https://www.thewolseleypiccadilly.com/",
+          "google_place_id": "ChIJr_4cVy8FdkgRIrNbO93eUFM",
+          "rating": 4.4,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-15T16:35:53.561011+00:00",
+          "updated_at": "2026-06-15T16:35:53.561011+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": null,
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 4
+        }
+      },
+      {
+        "json": {
+          "id": "03bdc5b1-396c-4ca1-a3cb-5720d08b9e67",
+          "business_name": "Gymkhana",
+          "niche": "restaurant",
+          "location": "london",
+          "address": "42 Albemarle St, London W1S 4JH, UK",
+          "phone": "020 3011 5900",
+          "website": "http://www.gymkhanarestaurants.com/",
+          "google_place_id": "ChIJtwn55ikFdkgRAvOuPIWeLM0",
+          "rating": 4.4,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-15T16:35:53.561011+00:00",
+          "updated_at": "2026-06-15T16:35:53.561011+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": null,
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 5
+        }
+      },
+      {
+        "json": {
+          "id": "1be642d1-dec1-4cfc-a983-f862849b629b",
+          "business_name": "Osteria romana",
+          "niche": "restaurant",
+          "location": "london",
+          "address": "3-4 Park Cl, London SW1X 7PQ, UK",
+          "phone": "020 7584 5819",
+          "website": "http://osteriaromana.co.uk/",
+          "google_place_id": "ChIJb8xZZzgFdkgRvrsQVk8WJcI",
+          "rating": 4.8,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-15T16:35:53.561011+00:00",
+          "updated_at": "2026-06-15T16:35:53.561011+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": null,
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 6
+        }
+      },
+      {
+        "json": {
+          "id": "3acf24d1-635d-48b6-ac95-a7db34433f89",
+          "business_name": "Hawksmoor Air Street",
+          "niche": "restaurant",
+          "location": "london",
+          "address": "5A Air St, London W1J 0AD, UK",
+          "phone": "020 7406 3980",
+          "website": "https://thehawksmoor.com/locations/airstreet/?y_source=1_MjQyMjUwMzYtNzE1LWxvY2F0aW9uLndlYnNpdGU%3D",
+          "google_place_id": "ChIJl5tPHtQEdkgRW15WLM9-Ef0",
+          "rating": 4.5,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-15T16:35:53.561011+00:00",
+          "updated_at": "2026-06-15T16:35:53.561011+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": null,
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 7
+        }
+      },
+      {
+        "json": {
+          "id": "a88567b7-5364-4292-980b-c94e417e732c",
+          "business_name": "Happy London",
+          "niche": "restaurant",
+          "location": "london",
+          "address": "25-29 Coventry St, Piccadilly Circus, London W1D 7AG, UK",
+          "phone": "020 3883 7874",
+          "website": "https://happyrestaurants.com/",
+          "google_place_id": "ChIJ-0sYC0UFdkgR22MCL9yb9sQ",
+          "rating": 4.4,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-15T16:35:53.561011+00:00",
+          "updated_at": "2026-06-15T16:35:53.561011+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": null,
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 8
+        }
+      },
+      {
+        "json": {
+          "id": "235cf196-4c7b-465f-aeef-7e1b07a8153b",
+          "business_name": "Rules",
+          "niche": "restaurant",
+          "location": "london",
+          "address": "35 Maiden Ln, London WC2E 7LB, UK",
+          "phone": "020 7836 5314",
+          "website": "http://www.rules.co.uk/",
+          "google_place_id": "ChIJbUnC58oEdkgR4pwzPtYGrbY",
+          "rating": 4.6,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-15T16:35:53.561011+00:00",
+          "updated_at": "2026-06-15T16:35:53.561011+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": null,
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 9
+        }
+      },
+      {
+        "json": {
+          "id": "38daa11f-d265-4c31-b409-92737e0a6509",
+          "business_name": "Clos Maggiore",
+          "niche": "restaurant",
+          "location": "london",
+          "address": "33 King St, London WC2E 8JD, UK",
+          "phone": "020 4580 1174",
+          "website": "http://www.closmaggiore.com/?utm_source=google&utm_medium=organic&utm_campaign=googlemybusiness",
+          "google_place_id": "ChIJFWhXXcwEdkgRkKBKheUNnC4",
+          "rating": 4.4,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-15T16:35:53.561011+00:00",
+          "updated_at": "2026-06-15T16:35:53.561011+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": null,
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 10
+        }
+      },
+      {
+        "json": {
+          "id": "40b6d30a-b8a4-4998-a418-2c372b2bb1b3",
+          "business_name": "Bill's Covent Garden Restaurant",
+          "niche": "restaurant",
+          "location": "london",
+          "address": "St Martin's Courtyard, Slingsby Pl, London WC2H 9EF, UK",
+          "phone": "020 8054 5400",
+          "website": "https://bills-website.co.uk/restaurants/covent-garden/?utm_source=LocalGoogle&utm_medium=Organic",
+          "google_place_id": "ChIJxe02As0EdkgRZeOhNiEbtt8",
+          "rating": 4.6,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-15T16:35:53.561011+00:00",
+          "updated_at": "2026-06-15T16:35:53.561011+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": null,
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 11
+        }
+      },
+      {
+        "json": {
+          "id": "b1926085-ff33-4a8f-b1e9-4c7821369992",
+          "business_name": "Darwin Brasserie",
+          "niche": "restaurant",
+          "location": "london",
+          "address": "1, Level 36, Sky Garden Walk, London EC3M 8AF, UK",
+          "phone": "0333 772 0020",
+          "website": "https://skygarden.london/restaurants/darwin-brasserie/",
+          "google_place_id": "ChIJO_02aFIDdkgRf2-gsHxdgEQ",
+          "rating": 4.4,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-15T16:35:53.561011+00:00",
+          "updated_at": "2026-06-15T16:35:53.561011+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": null,
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 12
+        }
+      },
+      {
+        "json": {
+          "id": "ff545f62-9a07-45b6-91d8-174940a67d22",
+          "business_name": "Prezzo",
+          "niche": "restaurant",
+          "location": "london",
+          "address": "31-32 Northumberland Ave, London WC2N 5BW, UK",
+          "phone": "020 3910 9777",
+          "website": "https://www.prezzo.co.uk/restaurants/london-northumberland-avenue/",
+          "google_place_id": "ChIJZf2Jlc4EdkgRv83xDpKQfHA",
+          "rating": 4.5,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-15T16:35:53.561011+00:00",
+          "updated_at": "2026-06-15T16:35:53.561011+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": null,
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 13
+        }
+      },
+      {
+        "json": {
+          "id": "e3d93666-d3ae-410b-97ed-03b99134cf0a",
+          "business_name": "Cicchetti Piccadilly - London Piccadilly",
+          "niche": "restaurant",
+          "location": "london",
+          "address": "Cicchetti, 172-173 Piccadilly, London W1J 9EJ, UK",
+          "phone": "020 7362 0999",
+          "website": "https://sancarlo.co.uk/restaurants/london/cicchetti-piccadilly/",
+          "google_place_id": "ChIJTztGq9YEdkgRXRLmtU4BTqs",
+          "rating": 4.4,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-15T16:35:53.561011+00:00",
+          "updated_at": "2026-06-15T16:35:53.561011+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": null,
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 14
+        }
+      },
+      {
+        "json": {
+          "id": "a3b77ac7-f349-40a2-8533-5e32addd01d8",
+          "business_name": "Ekstedt at The Yard",
+          "niche": "restaurant",
+          "location": "london",
+          "address": "3-5 Great Scotland Yard, London SW1A 2HN, UK",
+          "phone": "020 7925 4749",
+          "website": "https://www.ekstedtattheyard.com/",
+          "google_place_id": "ChIJL-HmB88EdkgRfH-wI_8ELLQ",
+          "rating": 4.8,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-15T16:35:53.561011+00:00",
+          "updated_at": "2026-06-15T16:35:53.561011+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": null,
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 15
+        }
+      },
+      {
+        "json": {
+          "id": "2105609d-ccc6-48ae-9b8f-3d51bf658242",
+          "business_name": "Blacklock City",
+          "niche": "restaurant",
+          "location": "london",
+          "address": "13 Philpot Ln, London EC3M 8AA, UK",
+          "phone": "020 7998 7676",
+          "website": "https://theblacklock.com/restaurants/city/?utm_source=CITY_GMB&utm_medium=GMB",
+          "google_place_id": "ChIJHx_iOFIDdkgRWZ0BWg8A3So",
+          "rating": 4.7,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-15T16:35:53.561011+00:00",
+          "updated_at": "2026-06-15T16:35:53.561011+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": null,
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 16
+        }
+      },
+      {
+        "json": {
+          "id": "e4a122bc-a66f-40bc-a3d1-f62f7cd215d6",
+          "business_name": "Olea Social",
+          "niche": "restaurant",
+          "location": "london",
+          "address": "10 Upper St Martin's Ln, London WC2H 9FB, UK",
+          "phone": "020 3149 1016",
+          "website": "http://www.oleasocial.co.uk/",
+          "google_place_id": "ChIJ_aG9xo4FdkgRfibauonvBkY",
+          "rating": 4.6,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-15T16:35:53.561011+00:00",
+          "updated_at": "2026-06-15T16:35:53.561011+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": null,
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 17
+        }
+      },
+      {
+        "json": {
+          "id": "6c22c0ef-0653-4cd1-9044-6067ce3ab5c1",
+          "business_name": "Duck & Waffle",
+          "niche": "restaurant",
+          "location": "london",
+          "address": "110 Bishopsgate, London EC2N 4AY, UK",
+          "phone": "020 3640 7310",
+          "website": "https://duckandwaffle.com/london/?utm_source=gbp&utm_medium=organic&utm_campaign=london_gbp",
+          "google_place_id": "ChIJX__2lbIcdkgRPCpSjiwV5LM",
+          "rating": 4.4,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-15T16:35:53.561011+00:00",
+          "updated_at": "2026-06-15T16:35:53.561011+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": null,
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 18
+        }
+      },
+      {
+        "json": {
+          "id": "d1c64d07-798d-4042-8899-32d430433278",
+          "business_name": "Indiana",
+          "niche": "",
+          "location": "",
+          "address": "Indiana, USA",
+          "phone": null,
+          "website": "http://www.in.gov/",
+          "google_place_id": "ChIJHRv42bxQa4gRcuwyy84vEH4",
+          "rating": null,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-15T17:07:13.887512+00:00",
+          "updated_at": "2026-06-15T17:07:13.887512+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": null,
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 19
+        }
+      },
+      {
+        "json": {
+          "id": "271a593b-826c-4a4f-b6b5-9dded994dbe7",
+          "business_name": "Fallow",
+          "niche": "restaurant",
+          "location": "london",
+          "address": "52 Haymarket, London SW1Y 4RP, UK",
+          "phone": "020 8017 1788",
+          "website": "http://www.fallowrestaurant.com/",
+          "google_place_id": "ChIJSWN4ldUEdkgRGqo3OSnf1CY",
+          "rating": 4.7,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-15T16:35:53.561011+00:00",
+          "updated_at": "2026-06-19T22:48:37.276194+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": "yes",
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 20
+        }
+      },
+      {
+        "json": {
+          "id": "b1e0744b-ccd0-49bb-b9c9-4f8997b41873",
+          "business_name": "PSR Solutions (Sheffield)",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "2nd Floor, 32 Eyre St, Sheffield City Centre, Sheffield S1 4QZ, UK",
+          "phone": "0114 436 6366",
+          "website": "http://www.psrsolutions.co.uk/",
+          "google_place_id": "ChIJL76VwXqCeUgROYmEPTPx8QI",
+          "rating": 4.7,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:42:07.395693+00:00",
+          "updated_at": "2026-06-16T17:42:07.395693+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": null,
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 21
+        }
+      },
+      {
+        "json": {
+          "id": "5d360c4b-5fc5-470d-9615-f085dec49cd1",
+          "business_name": "Reed Recruitment Agency",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "Ste 6D, 6th Floor, The Balance, 2 Pinfold St, Sheffield City Centre, Sheffield S1 2GU, UK",
+          "phone": "0114 228 8901",
+          "website": "https://www.reed.com/offices/reed-recruitment-sheffield?utm_source=google&utm_medium=organic&utm_campaign=gbpwebsite-reed-recruitment-sheffield",
+          "google_place_id": "ChIJ7YwuDIKCeUgR01BYc-aWA5Q",
+          "rating": 4.7,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:56:47.943128+00:00",
+          "updated_at": "2026-06-16T17:56:47.943128+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": null,
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 22
+        }
+      },
+      {
+        "json": {
+          "id": "32d30868-f7fc-4638-88bb-62a94d5e6bad",
+          "business_name": "Alpha Recruitment #AlphaJobs",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "6-8 South St, Sheffield S2 5QY, UK",
+          "phone": "0114 303 8055",
+          "website": "http://www.alphajobs.net/",
+          "google_place_id": "ChIJT8JpWXh4eUgRP8iDN2aVrMk",
+          "rating": 4.9,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:56:47.943128+00:00",
+          "updated_at": "2026-06-16T17:56:47.943128+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": null,
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 23
+        }
+      },
+      {
+        "json": {
+          "id": "20c742b6-f758-43c7-94e0-8bfe6067eb52",
+          "business_name": "Link2 Recruitment",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "Suite 2, 35 Paradise St, Sheffield City Centre, Sheffield S3 8PZ, UK",
+          "phone": "0114 553 7111",
+          "website": "http://www.link2recruitment.co.uk/",
+          "google_place_id": "ChIJS8TaTEV5eUgRQhOosuSf2KA",
+          "rating": 5,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:56:47.943128+00:00",
+          "updated_at": "2026-06-16T17:56:47.943128+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": null,
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 24
+        }
+      },
+      {
+        "json": {
+          "id": "40ea9927-5dcf-4872-8ed3-e8d35edf209d",
+          "business_name": "Chase Recruitment Limited",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "Unit 4, Scotland St, Sheffield S3 7AT, UK",
+          "phone": "0114 223 6000",
+          "website": "http://www.chase-rec.com/",
+          "google_place_id": "ChIJO-otbYGCeUgRufKC8NwHtcw",
+          "rating": 4.9,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:56:47.943128+00:00",
+          "updated_at": "2026-06-16T17:56:47.943128+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": null,
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 25
+        }
+      },
+      {
+        "json": {
+          "id": "89a15757-6795-44cf-8a7a-44fa25226e64",
+          "business_name": "Andy File Associates Ltd - Recruitment",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "Aizlewoods Mill, Nursery St, Sheffield S3 8GG, UK",
+          "phone": "0114 282 1281",
+          "website": "http://andyfileassociates.com/",
+          "google_place_id": "ChIJK48NSHp4eUgRUcyglZAkzx0",
+          "rating": 5,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:56:47.943128+00:00",
+          "updated_at": "2026-06-16T17:56:47.943128+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": null,
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 26
+        }
+      },
+      {
+        "json": {
+          "id": "988eada6-8967-4889-a303-a9e4284988b8",
+          "business_name": "Benchmark Recruit",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "electric works, 3 Concourse Way, Sheffield City Centre, Sheffield S1 2BJ, UK",
+          "phone": "07714 771600",
+          "website": "https://www.benchmarkrecruit.co.uk/",
+          "google_place_id": "ChIJYSNRcIOCeUgReB4kYmVLEeY",
+          "rating": 4.9,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:56:47.943128+00:00",
+          "updated_at": "2026-06-16T17:56:47.943128+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": null,
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 27
+        }
+      },
+      {
+        "json": {
+          "id": "99d9f558-9606-48d7-9d21-b3ddc6e4ec6f",
+          "business_name": "Sue Ross Recruitment Ltd",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "Blenheim Reach, 861 Ecclesall Rd, Sheffield S11 8TH, UK",
+          "phone": "0114 278 6600",
+          "website": "http://www.suerossrecruitment.co.uk/",
+          "google_place_id": "ChIJ95uP6Xh4eUgRfBonzRXSV2s",
+          "rating": 4.7,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:56:47.943128+00:00",
+          "updated_at": "2026-06-16T17:56:47.943128+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": null,
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 28
+        }
+      },
+      {
+        "json": {
+          "id": "213beea0-3592-4708-8de3-e0b53fea3940",
+          "business_name": "Page 1 Recruitment",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "1 Concourse Way, Sheffield City Centre, Sheffield S1 2BJ, UK",
+          "phone": "0114 700 3533",
+          "website": "https://www.page1recruitment.co.uk/",
+          "google_place_id": "ChIJ_eh6XrF5eUgR-7GT0O1QPPg",
+          "rating": 5,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:56:47.943128+00:00",
+          "updated_at": "2026-06-16T17:56:47.943128+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": null,
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 29
+        }
+      },
+      {
+        "json": {
+          "id": "66349df5-e676-4c97-a6a9-c7d9eb04e4f5",
+          "business_name": "Tradewind Recruitment",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "New Oxford, House 10, 30 Barker's Pool, Sheffield City Centre, Sheffield S1 2HB, UK",
+          "phone": "0114 287 0650",
+          "website": "https://www.twrecruitment.com/sheffield",
+          "google_place_id": "ChIJQXVZdn94eUgRuOtFsR3XCxU",
+          "rating": 4.9,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:56:47.943128+00:00",
+          "updated_at": "2026-06-16T17:56:47.943128+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": null,
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 30
+        }
+      },
+      {
+        "json": {
+          "id": "90f8d4d4-3763-4925-9d4e-918204a0dcb8",
+          "business_name": "Forde Recruitment Ltd",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "39 Townhead St, Sheffield City Centre, Sheffield S1 2EB, UK",
+          "phone": "0114 276 0501",
+          "website": "http://www.forde-recruitment.co.uk/",
+          "google_place_id": "ChIJXdRbXH94eUgRIQ2q6lAk2rc",
+          "rating": 4.3,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:56:47.943128+00:00",
+          "updated_at": "2026-06-16T17:56:47.943128+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": null,
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 31
+        }
+      },
+      {
+        "json": {
+          "id": "8da76282-2cae-499b-bc2d-ffe27dadae8e",
+          "business_name": "Blue Arrow Sheffield",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "Wharf House, victoria quays, Sheffield S1 2GY, UK",
+          "phone": "0114 272 2600",
+          "website": "https://www.bluearrow.co.uk/jobs/",
+          "google_place_id": "ChIJrYle83h4eUgRex-1ObbiuFw",
+          "rating": 4.3,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:56:47.943128+00:00",
+          "updated_at": "2026-06-16T17:56:47.943128+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": null,
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 32
+        }
+      },
+      {
+        "json": {
+          "id": "1f2692cc-6c2b-4685-b6ea-f4df23e6bf7d",
+          "business_name": "Michael Page, Recruitment Agency Sheffield - now operated from Leeds",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "VENTANA HOUSE, 2 Sheaf St, Sheffield City Centre, Sheffield S1 2BJ, UK",
+          "phone": "0330 390 3050",
+          "website": "https://www.michaelpage.co.uk/contact-us/leeds-office",
+          "google_place_id": "ChIJ83fGNp2CeUgRzhaPq9m-lyA",
+          "rating": 4.2,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:56:47.943128+00:00",
+          "updated_at": "2026-06-16T17:56:47.943128+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": null,
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 33
+        }
+      },
+      {
+        "json": {
+          "id": "75abe045-7d6c-4969-8afd-36465c26ce67",
+          "business_name": "TFS Healthcare",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "32 Eyre St, Sheffield City Centre, Sheffield S1 4QZ, UK",
+          "phone": "020 3826 6040",
+          "website": "http://www.tfshealthcare.co.uk/",
+          "google_place_id": "ChIJMRCJL1cDdkgRBl3OcoQCGOU",
+          "rating": 4.1,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:56:47.943128+00:00",
+          "updated_at": "2026-06-16T17:56:47.943128+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": null,
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 34
+        }
+      },
+      {
+        "json": {
+          "id": "a0a7d870-134f-4e89-bee1-466fcf6272b7",
+          "business_name": "Divine 247 Recruitment Ltd",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "Spaces Acero, 1 Concourse Way, Sheffield City Centre, Sheffield S1 2BJ, UK",
+          "phone": "0333 577 0882",
+          "website": "https://divine247.co.uk/",
+          "google_place_id": "ChIJAQAQRp2CeUgRWw-mKejpahY",
+          "rating": 4.8,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:56:47.943128+00:00",
+          "updated_at": "2026-06-16T17:56:47.943128+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": null,
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 35
+        }
+      },
+      {
+        "json": {
+          "id": "91f89934-63ae-40a3-9ae8-404fcd4d11b8",
+          "business_name": "Hays Recruitment Agency - Sheffield",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "Fl 2, Fountain Precinct, Balm Grn, Sheffield City Centre, Sheffield S1 2JA, UK",
+          "phone": "0114 276 0536",
+          "website": "https://www.hays.co.uk/job-search/in-sheffield-uk?utm_source=google-places&utm_medium=local-listing&utm_campaign=sheffield",
+          "google_place_id": "ChIJBYaYb4KCeUgRX_zMudoFDDw",
+          "rating": 3.7,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:56:47.943128+00:00",
+          "updated_at": "2026-06-16T17:56:47.943128+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": null,
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 36
+        }
+      },
+      {
+        "json": {
+          "id": "2e7a3f9f-3e4b-47da-9270-6635718df67c",
+          "business_name": "TSR Recruitment - Sheffield",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "Unit 4d Parkway Rise, Sheffield S9 4WQ, UK",
+          "phone": "0114 551 5555",
+          "website": "http://www.tsrecruitment.co.uk/",
+          "google_place_id": "ChIJLVhnWu6deUgR-JcQmlOE4M4",
+          "rating": 4.9,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:56:47.943128+00:00",
+          "updated_at": "2026-06-16T17:56:47.943128+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": null,
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 37
+        }
+      },
+      {
+        "json": {
+          "id": "69616b96-a591-41a4-b0ea-6cbe9121e961",
+          "business_name": "A for Appointments",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "S4 Globe Works, Penistone Rd, Sheffield S6 3AE, UK",
+          "phone": "0114 275 7744",
+          "website": "https://www.aforappointments.com/",
+          "google_place_id": "ChIJrafGlHiCeUgRnG_mmgN1wfo",
+          "rating": 4.5,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:56:47.943128+00:00",
+          "updated_at": "2026-06-16T17:56:47.943128+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": null,
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 38
+        }
+      },
+      {
+        "json": {
+          "id": "061e6333-93f5-4dc7-8c3c-6801529c1479",
+          "business_name": "Anna Maher Recruitment",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "Omnia One, 125 Queen St, Sheffield City Centre, Sheffield S1 2DU, UK",
+          "phone": "07715 454545",
+          "website": "http://www.amrl.co.uk/",
+          "google_place_id": "ChIJnTXm8dSDeUgR-62giEETDEw",
+          "rating": 5,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:56:47.943128+00:00",
+          "updated_at": "2026-06-16T17:56:47.943128+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": null,
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 39
+        }
+      },
+      {
+        "json": {
+          "id": "06487f77-a616-46f2-bc4f-431eeae65308",
+          "business_name": "Lodestone Recruitment Ltd",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "Suite 3 Meadowhall Riverside, Meadowhall Rd, Sheffield S9 1BW, UK",
+          "phone": "0114 491 0370",
+          "website": "http://lodestonerecruitment.co.uk/",
+          "google_place_id": "ChIJP_dahEx3eUgRmhbPvXvGzpw",
+          "rating": 5,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:56:47.943128+00:00",
+          "updated_at": "2026-06-16T17:56:47.943128+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": null,
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 40
+        }
+      },
+      {
+        "json": {
+          "id": "37a0db05-a2f8-4554-b7ed-eb3b08622e88",
+          "business_name": "CRA Consulting",
+          "niche": "recruitment agency",
+          "location": "Sheffield",
+          "address": "51 Clarkegrove Rd, Broomhall, Sheffield S10 2NH, UK",
+          "phone": "0114 241 8030",
+          "website": "https://www.craconsultants.com/",
+          "google_place_id": "ChIJhxZr1Xh4eUgRZddqZLcdBZ4",
+          "rating": 5,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-16T17:56:47.943128+00:00",
+          "updated_at": "2026-06-16T17:56:47.943128+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": null,
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 41
+        }
+      }
+    ]
+  },
+  "versionId": "defff6f3-de73-4db5-836d-44c96dd00499",
+  "activeVersionId": null,
+  "triggerCount": 0,
+  "shared": [
+    {
+      "updatedAt": "2026-06-20T09:57:50.573Z",
+      "createdAt": "2026-06-20T09:57:50.573Z",
+      "role": "workflow:owner",
+      "workflowId": "vlj5HQV1LNgGYQF1",
+      "projectId": "5GBCFFrIrIkPnjdc"
+    }
+  ],
+  "activeVersion": null,
+  "tags": []
+}
