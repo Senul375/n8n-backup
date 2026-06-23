@@ -1,0 +1,2015 @@
+{
+  "updatedAt": "2026-06-23T16:41:32.132Z",
+  "createdAt": "2026-06-18T15:22:59.531Z",
+  "id": "suotbAwLf95OlE1f",
+  "name": "My workflow 10",
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -3120,
+        -496
+      ],
+      "id": "547640c7-170a-49ec-b6c2-3739d96568ef",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "path": "77e4adf5-cd8f-4ef5-9862-18770879dbe6",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -3152,
+        -272
+      ],
+      "id": "d5d9da3c-fb9f-4d74-972a-a9fd6c2b2d95",
+      "name": "Webhook",
+      "webhookId": "77e4adf5-cd8f-4ef5-9862-18770879dbe6"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "00396bc4-b02c-47bf-a3cf-7406999f93fd",
+              "name": "SpreadSheet_Id_Hunter_outputs",
+              "value": "1WMpSYadz8bnoR70Sr2B8GnygmsGCMwzY2vlC9-I08Yo",
+              "type": "string"
+            },
+            {
+              "id": "97baa437-f018-40c0-9f65-467538ada272",
+              "name": "Sheet_name2",
+              "value": "Sheet3",
+              "type": "string"
+            },
+            {
+              "id": "c4bae51e-394f-421b-9c02-410cb05671fc",
+              "name": "SpreadSheet_id1_inputs",
+              "value": "1hRF3Ffnj1z4vWv1-FRG3IkMunm4uhs_jrDeZ8CCQOU0",
+              "type": "string"
+            },
+            {
+              "id": "3e8458b9-a0f0-4640-b9e0-141da3624eca",
+              "name": "Sheet_name1",
+              "value": "Final1",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -2816,
+        -496
+      ],
+      "id": "11a41f17-c9ee-4784-8f25-64b37f4feee3",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "maxItems": 200
+      },
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        -1856,
+        -496
+      ],
+      "id": "31bf3226-581a-44f9-b0a8-8c81c48f54e0",
+      "name": "Limit"
+    },
+    {
+      "parameters": {
+        "domain": "={{ $('Get many rows').first().json.website }}",
+        "onlyEmails": false,
+        "limit": 5,
+        "filters": {
+          "department": [
+            "executive",
+            "management",
+            "marketing"
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.hunter",
+      "typeVersion": 1,
+      "position": [
+        -1376,
+        -480
+      ],
+      "id": "e8982589-a444-4b73-a060-399cce86efaf",
+      "name": "Hunter",
+      "alwaysOutputData": true,
+      "retryOnFail": false,
+      "credentials": {
+        "hunterApi": {
+          "id": "yZGF0DkzLwp2b49M",
+          "name": "Hunter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "emails",
+        "include": "allOtherFields",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -736,
+        -496
+      ],
+      "id": "589b5672-c2d2-477b-8240-881dc1a075de",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -1600,
+        -496
+      ],
+      "id": "1ed50e0b-bed9-4c90-bc00-a2799bb58921",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "name": "Replace Me",
+      "typeVersion": 1,
+      "position": [
+        -480,
+        -272
+      ],
+      "id": "f6d72a64-7528-4ecd-bbc9-3781bf773e1d"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "548ee1e9-db03-4fd4-a1c9-5627e0dd5ee0",
+              "name": "row_number",
+              "value": "={{ $('Get many rows').item.json.id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        464,
+        -496
+      ],
+      "id": "4dc308c9-0b70-4182-ba92-214ba6a06e69",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        208,
+        -496
+      ],
+      "id": "ce253126-8bc6-4ef9-bc9a-a5a329d65c9c",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "value"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        -1520,
+        -688
+      ],
+      "id": "d27bdd7d-a15e-41e8-92ca-d31184f1eef3",
+      "name": "Aggregate2"
+    },
+    {
+      "parameters": {
+        "sendTo": "senuladeeth9@gmail.com",
+        "subject": "Hunter leads are completed",
+        "message": "Hunter leads are completed",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -1296,
+        -688
+      ],
+      "id": "e98bec08-4969-4c1f-afbc-7565d6a0e852",
+      "name": "Send a message",
+      "webhookId": "ab0d7eae-cce2-42b3-a332-76e0b34b94a5",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "E8cd6USpMe20YyZW",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "2d77fbb8-6e1b-4ea2-8852-8887ef2e8380",
+              "leftValue": "={{$json.emails.length }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -1200,
+        -480
+      ],
+      "id": "63bace76-11de-41dd-bc03-fd17c77058e5",
+      "name": "If"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        688,
+        -496
+      ],
+      "id": "a9ed7660-6614-4516-8634-f6ab2cf02f1d",
+      "name": "Wait",
+      "webhookId": "348e933e-4e12-4e5c-be17-cea3bde36283"
+    },
+    {
+      "parameters": {
+        "amount": 4
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -1072,
+        -272
+      ],
+      "id": "1acecc4c-b12e-4097-8976-f1dc59ab3167",
+      "name": "Wait1",
+      "webhookId": "e3d1ead0-cdc0-4791-9a51-19521fe3e9ec"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "548ee1e9-db03-4fd4-a1c9-5627e0dd5ee0",
+              "name": "id",
+              "value": "={{ $('Get many rows').item.json.id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1280,
+        -272
+      ],
+      "id": "3ebfbe29-b1ea-4ba8-95e2-4ef39fbedb08",
+      "name": "Edit Fields2"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "548ee1e9-db03-4fd4-a1c9-5627e0dd5ee0",
+              "name": "id",
+              "value": "={{ $json.id }}",
+              "type": "string"
+            },
+            {
+              "id": "ecf24989-ed45-4873-8db9-3fee90b28c7b",
+              "name": "name",
+              "value": "={{ $json.business_name }}",
+              "type": "string"
+            },
+            {
+              "id": "6323428c-3306-4144-bcae-551fd34458da",
+              "name": "websiteUri",
+              "value": "={{ $json.website }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -2016,
+        -496
+      ],
+      "id": "f1b896af-c5a7-423a-a4fc-98f53ab7b369",
+      "name": "Edit Fields3"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "585b05ed-c2eb-48f3-abb2-6bd2898b790f",
+              "name": "Website_URL",
+              "value": "={{ $('Split Out').item.json.domain }}",
+              "type": "string"
+            },
+            {
+              "id": "16543e92-7848-4f86-bdba-2830b3b41626",
+              "name": "email",
+              "value": "={{ $('Split Out').item.json.emails.value }}",
+              "type": "string"
+            },
+            {
+              "id": "53f78f00-ced8-40e0-b7a2-66ce10466f0a",
+              "name": "first_name",
+              "value": "={{ $('Split Out').item.json.emails.first_name }}",
+              "type": "string"
+            },
+            {
+              "id": "f23326ea-e9b5-4463-8236-766aee75b708",
+              "name": "last_name",
+              "value": "={{ $('Split Out').item.json.emails.last_name }}",
+              "type": "string"
+            },
+            {
+              "id": "a2d49c4a-ec8b-4a6a-a4ca-8efcdfe855a4",
+              "name": "position_raw",
+              "value": "={{ $('Split Out').item.json.emails.position_raw }}",
+              "type": "string"
+            },
+            {
+              "id": "518ebb43-6632-4bae-b12c-4c0cd6041472",
+              "name": "position",
+              "value": "={{ $('Split Out').item.json.emails.position }}",
+              "type": "string"
+            },
+            {
+              "id": "44794344-7b1e-413b-bd32-22136b4d23d9",
+              "name": "linkedin",
+              "value": "={{ $('Split Out').item.json.emails.linkedin }}",
+              "type": "string"
+            },
+            {
+              "id": "519b03e1-8fe4-4f41-a0bb-b955c1bde719",
+              "name": "seniority",
+              "value": "={{ $('Split Out').item.json.emails.seniority }}",
+              "type": "string"
+            },
+            {
+              "id": "2b544f5f-b231-46b7-9a93-c1db1a4bedcc",
+              "name": "twitter",
+              "value": "={{ $('Split Out').item.json.emails.twitter }}",
+              "type": "string"
+            },
+            {
+              "id": "9f2c9ee8-17a5-4865-99e4-f003ef350d68",
+              "name": "verification",
+              "value": "={{ $('Split Out').item.json.emails.verification }}",
+              "type": "object"
+            },
+            {
+              "id": "48a7f622-6f69-4507-bd69-9fad6e139eb6",
+              "name": "emails.department",
+              "value": "={{ $('Split Out').item.json.emails.department }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -480,
+        -496
+      ],
+      "id": "59b59333-aa79-4d5e-bf52-d4200ccee3e3",
+      "name": "Edit Fields4"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -272,
+        -496
+      ],
+      "id": "6251e26c-49ef-4a6c-a4ab-13f48a7c9e46",
+      "name": "Wait2",
+      "webhookId": "e9d0df04-4d0c-4dd1-986c-016d3908de51"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "leads",
+        "limit": 100,
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "found_email",
+              "condition": "is",
+              "keyValue": "NULL"
+            },
+            {
+              "keyName": "found_email",
+              "condition": "eq"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -2496,
+        -496
+      ],
+      "id": "e6d724db-658d-41af-a4a2-1fe593eec461",
+      "name": "Get many rows",
+      "credentials": {
+        "supabaseApi": {
+          "id": "4UcvDgBqf10SrNQ1",
+          "name": "Supabase account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "2ad5dee7-63da-4873-8e93-aef1830dcba5",
+              "leftValue": "={{ $json.website.length }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {
+          "ignoreCase": false
+        }
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.3,
+      "position": [
+        -2208,
+        -496
+      ],
+      "id": "ac3fbc50-5355-49e1-8306-2772cb1816b4",
+      "name": "Filter"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "leads",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $('Edit Fields3').item.json.id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "found_email",
+              "fieldValue": "Not Found"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -864,
+        -272
+      ],
+      "id": "24d00f5d-4d7b-4211-b771-14ef48fd47d5",
+      "name": "Update a row",
+      "credentials": {
+        "supabaseApi": {
+          "id": "4UcvDgBqf10SrNQ1",
+          "name": "Supabase account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "leads",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $('Edit Fields3').item.json.id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "found_email",
+              "fieldValue": "yes"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        976,
+        -496
+      ],
+      "id": "80e05f6a-6bfe-4c9b-90da-f9306284f584",
+      "name": "Update a row1",
+      "credentials": {
+        "supabaseApi": {
+          "id": "4UcvDgBqf10SrNQ1",
+          "name": "Supabase account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://n8n.35.225.222.54.sslip.io/webhook-test/4a5ea893-7f17-4a67-b7be-2912bff72daa",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -1088,
+        -688
+      ],
+      "id": "c41e0960-a762-4b99-9d7b-bed681176018",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "tableId": "leads_emails",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "business_name",
+              "fieldValue": "={{ $('Get many rows').item.json.business_name }}"
+            },
+            {
+              "fieldId": "niche",
+              "fieldValue": "={{ $('Get many rows').item.json.niche }}"
+            },
+            {
+              "fieldId": "location",
+              "fieldValue": "={{ $('Get many rows').item.json.location }}"
+            },
+            {
+              "fieldId": "address",
+              "fieldValue": "={{ $('Get many rows').item.json.address }}"
+            },
+            {
+              "fieldId": "phone",
+              "fieldValue": "={{ $('Get many rows').item.json.phone }}"
+            },
+            {
+              "fieldId": "website",
+              "fieldValue": "={{ $('Get many rows').item.json.website }}"
+            },
+            {
+              "fieldId": "google_place_id",
+              "fieldValue": "={{ $('Get many rows').item.json.google_place_id }}"
+            },
+            {
+              "fieldId": "rating",
+              "fieldValue": "={{ $('Get many rows').item.json.rating }}"
+            },
+            {
+              "fieldId": "created_at",
+              "fieldValue": "={{ $('Get many rows').item.json.created_at }}"
+            },
+            {
+              "fieldId": "updated_at",
+              "fieldValue": "={{ $('Get many rows').item.json.updated_at }}"
+            },
+            {
+              "fieldId": "run_id",
+              "fieldValue": "={{ $('Get many rows').item.json.run_id }}"
+            },
+            {
+              "fieldId": "email",
+              "fieldValue": "={{ $('Split Out').item.json.emails.value }}"
+            },
+            {
+              "fieldId": "first_name",
+              "fieldValue": "={{ $('Split Out').item.json.emails.first_name }}"
+            },
+            {
+              "fieldId": "last_name",
+              "fieldValue": "={{ $('Split Out').item.json.emails.last_name }}"
+            },
+            {
+              "fieldId": "position",
+              "fieldValue": "={{ $('Split Out').item.json.emails.position }}"
+            },
+            {
+              "fieldId": "position_raw",
+              "fieldValue": "={{ $('Split Out').item.json.emails.position_raw }}"
+            },
+            {
+              "fieldId": "linkedin",
+              "fieldValue": "={{ $('Split Out').item.json.emails.linkedin }}"
+            },
+            {
+              "fieldId": "twitter",
+              "fieldValue": "={{ $('Split Out').item.json.emails.twitter }}"
+            },
+            {
+              "fieldId": "seniority",
+              "fieldValue": "={{ $('Split Out').item.json.emails.seniority }}"
+            },
+            {
+              "fieldId": "department",
+              "fieldValue": "={{ $('Split Out').item.json.emails.department }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -64,
+        -496
+      ],
+      "id": "1c304f14-9179-4d2c-b374-fc70bc78bc12",
+      "name": "Create a row",
+      "credentials": {
+        "supabaseApi": {
+          "id": "4UcvDgBqf10SrNQ1",
+          "name": "Supabase account 2"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Get many rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Hunter": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "Aggregate2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Hunter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Replace Me": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate2": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Update a row1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "Update a row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields2": {
+      "main": [
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields3": {
+      "main": [
+        [
+          {
+            "node": "Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields4": {
+      "main": [
+        [
+          {
+            "node": "Wait2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait2": {
+      "main": [
+        [
+          {
+            "node": "Create a row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many rows": {
+      "main": [
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a row": {
+      "main": [
+        [
+          {
+            "node": "Replace Me",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a row1": {
+      "main": [
+        [
+          {
+            "node": "Replace Me",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a row": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "versionId": "a8ec98f3-df0d-4a3f-aecb-01efb1356616",
+  "activeVersionId": "a8ec98f3-df0d-4a3f-aecb-01efb1356616",
+  "triggerCount": 1,
+  "shared": [
+    {
+      "updatedAt": "2026-06-18T15:22:59.533Z",
+      "createdAt": "2026-06-18T15:22:59.533Z",
+      "role": "workflow:owner",
+      "workflowId": "suotbAwLf95OlE1f",
+      "projectId": "5GBCFFrIrIkPnjdc"
+    }
+  ],
+  "activeVersion": {
+    "updatedAt": "2026-06-23T16:41:26.000Z",
+    "createdAt": "2026-06-23T16:41:19.355Z",
+    "versionId": "a8ec98f3-df0d-4a3f-aecb-01efb1356616",
+    "workflowId": "suotbAwLf95OlE1f",
+    "nodes": [
+      {
+        "parameters": {},
+        "type": "n8n-nodes-base.manualTrigger",
+        "typeVersion": 1,
+        "position": [
+          -3120,
+          -496
+        ],
+        "id": "547640c7-170a-49ec-b6c2-3739d96568ef",
+        "name": "When clicking ‘Execute workflow’"
+      },
+      {
+        "parameters": {
+          "path": "77e4adf5-cd8f-4ef5-9862-18770879dbe6",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2.1,
+        "position": [
+          -3152,
+          -272
+        ],
+        "id": "d5d9da3c-fb9f-4d74-972a-a9fd6c2b2d95",
+        "name": "Webhook",
+        "webhookId": "77e4adf5-cd8f-4ef5-9862-18770879dbe6"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "00396bc4-b02c-47bf-a3cf-7406999f93fd",
+                "name": "SpreadSheet_Id_Hunter_outputs",
+                "value": "1WMpSYadz8bnoR70Sr2B8GnygmsGCMwzY2vlC9-I08Yo",
+                "type": "string"
+              },
+              {
+                "id": "97baa437-f018-40c0-9f65-467538ada272",
+                "name": "Sheet_name2",
+                "value": "Sheet3",
+                "type": "string"
+              },
+              {
+                "id": "c4bae51e-394f-421b-9c02-410cb05671fc",
+                "name": "SpreadSheet_id1_inputs",
+                "value": "1hRF3Ffnj1z4vWv1-FRG3IkMunm4uhs_jrDeZ8CCQOU0",
+                "type": "string"
+              },
+              {
+                "id": "3e8458b9-a0f0-4640-b9e0-141da3624eca",
+                "name": "Sheet_name1",
+                "value": "Final1",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          -2816,
+          -496
+        ],
+        "id": "11a41f17-c9ee-4784-8f25-64b37f4feee3",
+        "name": "Edit Fields"
+      },
+      {
+        "parameters": {
+          "maxItems": 200
+        },
+        "type": "n8n-nodes-base.limit",
+        "typeVersion": 1,
+        "position": [
+          -1856,
+          -496
+        ],
+        "id": "31bf3226-581a-44f9-b0a8-8c81c48f54e0",
+        "name": "Limit"
+      },
+      {
+        "parameters": {
+          "domain": "={{ $('Get many rows').first().json.website }}",
+          "onlyEmails": false,
+          "limit": 5,
+          "filters": {
+            "department": [
+              "executive",
+              "management",
+              "marketing"
+            ]
+          }
+        },
+        "type": "n8n-nodes-base.hunter",
+        "typeVersion": 1,
+        "position": [
+          -1376,
+          -480
+        ],
+        "id": "e8982589-a444-4b73-a060-399cce86efaf",
+        "name": "Hunter",
+        "alwaysOutputData": true,
+        "retryOnFail": false,
+        "credentials": {
+          "hunterApi": {
+            "id": "yZGF0DkzLwp2b49M",
+            "name": "Hunter account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "fieldToSplitOut": "emails",
+          "include": "allOtherFields",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.splitOut",
+        "typeVersion": 1,
+        "position": [
+          -736,
+          -496
+        ],
+        "id": "589b5672-c2d2-477b-8240-881dc1a075de",
+        "name": "Split Out"
+      },
+      {
+        "parameters": {
+          "options": {}
+        },
+        "type": "n8n-nodes-base.splitInBatches",
+        "typeVersion": 3,
+        "position": [
+          -1600,
+          -496
+        ],
+        "id": "1ed50e0b-bed9-4c90-bc00-a2799bb58921",
+        "name": "Loop Over Items"
+      },
+      {
+        "parameters": {},
+        "type": "n8n-nodes-base.noOp",
+        "name": "Replace Me",
+        "typeVersion": 1,
+        "position": [
+          -480,
+          -272
+        ],
+        "id": "f6d72a64-7528-4ecd-bbc9-3781bf773e1d"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "548ee1e9-db03-4fd4-a1c9-5627e0dd5ee0",
+                "name": "row_number",
+                "value": "={{ $('Get many rows').item.json.id }}",
+                "type": "string"
+              }
+            ]
+          },
+          "includeOtherFields": true,
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          464,
+          -496
+        ],
+        "id": "4dc308c9-0b70-4182-ba92-214ba6a06e69",
+        "name": "Edit Fields1"
+      },
+      {
+        "parameters": {
+          "aggregate": "aggregateAllItemData",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.aggregate",
+        "typeVersion": 1,
+        "position": [
+          208,
+          -496
+        ],
+        "id": "ce253126-8bc6-4ef9-bc9a-a5a329d65c9c",
+        "name": "Aggregate"
+      },
+      {
+        "parameters": {
+          "fieldsToAggregate": {
+            "fieldToAggregate": [
+              {
+                "fieldToAggregate": "value"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.aggregate",
+        "typeVersion": 1,
+        "position": [
+          -1520,
+          -688
+        ],
+        "id": "d27bdd7d-a15e-41e8-92ca-d31184f1eef3",
+        "name": "Aggregate2"
+      },
+      {
+        "parameters": {
+          "sendTo": "senuladeeth9@gmail.com",
+          "subject": "Hunter leads are completed",
+          "message": "Hunter leads are completed",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.gmail",
+        "typeVersion": 2.2,
+        "position": [
+          -1296,
+          -688
+        ],
+        "id": "e98bec08-4969-4c1f-afbc-7565d6a0e852",
+        "name": "Send a message",
+        "webhookId": "ab0d7eae-cce2-42b3-a332-76e0b34b94a5",
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "E8cd6USpMe20YyZW",
+            "name": "Gmail account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "loose",
+              "version": 3
+            },
+            "conditions": [
+              {
+                "id": "2d77fbb8-6e1b-4ea2-8852-8887ef2e8380",
+                "leftValue": "={{$json.emails.length }}",
+                "rightValue": 0,
+                "operator": {
+                  "type": "number",
+                  "operation": "gt"
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "looseTypeValidation": true,
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.3,
+        "position": [
+          -1200,
+          -480
+        ],
+        "id": "63bace76-11de-41dd-bc03-fd17c77058e5",
+        "name": "If"
+      },
+      {
+        "parameters": {},
+        "type": "n8n-nodes-base.wait",
+        "typeVersion": 1.1,
+        "position": [
+          688,
+          -496
+        ],
+        "id": "a9ed7660-6614-4516-8634-f6ab2cf02f1d",
+        "name": "Wait",
+        "webhookId": "348e933e-4e12-4e5c-be17-cea3bde36283"
+      },
+      {
+        "parameters": {
+          "amount": 4
+        },
+        "type": "n8n-nodes-base.wait",
+        "typeVersion": 1.1,
+        "position": [
+          -1072,
+          -272
+        ],
+        "id": "1acecc4c-b12e-4097-8976-f1dc59ab3167",
+        "name": "Wait1",
+        "webhookId": "e3d1ead0-cdc0-4791-9a51-19521fe3e9ec"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "548ee1e9-db03-4fd4-a1c9-5627e0dd5ee0",
+                "name": "id",
+                "value": "={{ $('Get many rows').item.json.id }}",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          -1280,
+          -272
+        ],
+        "id": "3ebfbe29-b1ea-4ba8-95e2-4ef39fbedb08",
+        "name": "Edit Fields2"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "548ee1e9-db03-4fd4-a1c9-5627e0dd5ee0",
+                "name": "id",
+                "value": "={{ $json.id }}",
+                "type": "string"
+              },
+              {
+                "id": "ecf24989-ed45-4873-8db9-3fee90b28c7b",
+                "name": "name",
+                "value": "={{ $json.business_name }}",
+                "type": "string"
+              },
+              {
+                "id": "6323428c-3306-4144-bcae-551fd34458da",
+                "name": "websiteUri",
+                "value": "={{ $json.website }}",
+                "type": "string"
+              }
+            ]
+          },
+          "includeOtherFields": true,
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          -2016,
+          -496
+        ],
+        "id": "f1b896af-c5a7-423a-a4fc-98f53ab7b369",
+        "name": "Edit Fields3"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "585b05ed-c2eb-48f3-abb2-6bd2898b790f",
+                "name": "Website_URL",
+                "value": "={{ $('Split Out').item.json.domain }}",
+                "type": "string"
+              },
+              {
+                "id": "16543e92-7848-4f86-bdba-2830b3b41626",
+                "name": "email",
+                "value": "={{ $('Split Out').item.json.emails.value }}",
+                "type": "string"
+              },
+              {
+                "id": "53f78f00-ced8-40e0-b7a2-66ce10466f0a",
+                "name": "first_name",
+                "value": "={{ $('Split Out').item.json.emails.first_name }}",
+                "type": "string"
+              },
+              {
+                "id": "f23326ea-e9b5-4463-8236-766aee75b708",
+                "name": "last_name",
+                "value": "={{ $('Split Out').item.json.emails.last_name }}",
+                "type": "string"
+              },
+              {
+                "id": "a2d49c4a-ec8b-4a6a-a4ca-8efcdfe855a4",
+                "name": "position_raw",
+                "value": "={{ $('Split Out').item.json.emails.position_raw }}",
+                "type": "string"
+              },
+              {
+                "id": "518ebb43-6632-4bae-b12c-4c0cd6041472",
+                "name": "position",
+                "value": "={{ $('Split Out').item.json.emails.position }}",
+                "type": "string"
+              },
+              {
+                "id": "44794344-7b1e-413b-bd32-22136b4d23d9",
+                "name": "linkedin",
+                "value": "={{ $('Split Out').item.json.emails.linkedin }}",
+                "type": "string"
+              },
+              {
+                "id": "519b03e1-8fe4-4f41-a0bb-b955c1bde719",
+                "name": "seniority",
+                "value": "={{ $('Split Out').item.json.emails.seniority }}",
+                "type": "string"
+              },
+              {
+                "id": "2b544f5f-b231-46b7-9a93-c1db1a4bedcc",
+                "name": "twitter",
+                "value": "={{ $('Split Out').item.json.emails.twitter }}",
+                "type": "string"
+              },
+              {
+                "id": "9f2c9ee8-17a5-4865-99e4-f003ef350d68",
+                "name": "verification",
+                "value": "={{ $('Split Out').item.json.emails.verification }}",
+                "type": "object"
+              },
+              {
+                "id": "48a7f622-6f69-4507-bd69-9fad6e139eb6",
+                "name": "emails.department",
+                "value": "={{ $('Split Out').item.json.emails.department }}",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          -480,
+          -496
+        ],
+        "id": "59b59333-aa79-4d5e-bf52-d4200ccee3e3",
+        "name": "Edit Fields4"
+      },
+      {
+        "parameters": {},
+        "type": "n8n-nodes-base.wait",
+        "typeVersion": 1.1,
+        "position": [
+          -272,
+          -496
+        ],
+        "id": "6251e26c-49ef-4a6c-a4ab-13f48a7c9e46",
+        "name": "Wait2",
+        "webhookId": "e9d0df04-4d0c-4dd1-986c-016d3908de51"
+      },
+      {
+        "parameters": {
+          "operation": "getAll",
+          "tableId": "leads",
+          "limit": 100,
+          "filters": {
+            "conditions": [
+              {
+                "keyName": "found_email",
+                "condition": "is",
+                "keyValue": "NULL"
+              },
+              {
+                "keyName": "found_email",
+                "condition": "eq"
+              }
+            ]
+          }
+        },
+        "type": "n8n-nodes-base.supabase",
+        "typeVersion": 1,
+        "position": [
+          -2496,
+          -496
+        ],
+        "id": "e6d724db-658d-41af-a4a2-1fe593eec461",
+        "name": "Get many rows",
+        "credentials": {
+          "supabaseApi": {
+            "id": "4UcvDgBqf10SrNQ1",
+            "name": "Supabase account 2"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 3
+            },
+            "conditions": [
+              {
+                "id": "2ad5dee7-63da-4873-8e93-aef1830dcba5",
+                "leftValue": "={{ $json.website.length }}",
+                "rightValue": 0,
+                "operator": {
+                  "type": "number",
+                  "operation": "gt"
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {
+            "ignoreCase": false
+          }
+        },
+        "type": "n8n-nodes-base.filter",
+        "typeVersion": 2.3,
+        "position": [
+          -2208,
+          -496
+        ],
+        "id": "ac3fbc50-5355-49e1-8306-2772cb1816b4",
+        "name": "Filter"
+      },
+      {
+        "parameters": {
+          "operation": "update",
+          "tableId": "leads",
+          "filters": {
+            "conditions": [
+              {
+                "keyName": "id",
+                "condition": "eq",
+                "keyValue": "={{ $('Edit Fields3').item.json.id }}"
+              }
+            ]
+          },
+          "fieldsUi": {
+            "fieldValues": [
+              {
+                "fieldId": "found_email",
+                "fieldValue": "Not Found"
+              }
+            ]
+          }
+        },
+        "type": "n8n-nodes-base.supabase",
+        "typeVersion": 1,
+        "position": [
+          -864,
+          -272
+        ],
+        "id": "24d00f5d-4d7b-4211-b771-14ef48fd47d5",
+        "name": "Update a row",
+        "credentials": {
+          "supabaseApi": {
+            "id": "4UcvDgBqf10SrNQ1",
+            "name": "Supabase account 2"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "update",
+          "tableId": "leads",
+          "filters": {
+            "conditions": [
+              {
+                "keyName": "id",
+                "condition": "eq",
+                "keyValue": "={{ $('Edit Fields3').item.json.id }}"
+              }
+            ]
+          },
+          "fieldsUi": {
+            "fieldValues": [
+              {
+                "fieldId": "found_email",
+                "fieldValue": "yes"
+              }
+            ]
+          }
+        },
+        "type": "n8n-nodes-base.supabase",
+        "typeVersion": 1,
+        "position": [
+          976,
+          -496
+        ],
+        "id": "80e05f6a-6bfe-4c9b-90da-f9306284f584",
+        "name": "Update a row1",
+        "credentials": {
+          "supabaseApi": {
+            "id": "4UcvDgBqf10SrNQ1",
+            "name": "Supabase account 2"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "url": "https://n8n.35.225.222.54.sslip.io/webhook-test/4a5ea893-7f17-4a67-b7be-2912bff72daa",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.4,
+        "position": [
+          -1088,
+          -688
+        ],
+        "id": "c41e0960-a762-4b99-9d7b-bed681176018",
+        "name": "HTTP Request"
+      },
+      {
+        "parameters": {
+          "tableId": "leads_emails",
+          "fieldsUi": {
+            "fieldValues": [
+              {
+                "fieldId": "business_name",
+                "fieldValue": "={{ $('Get many rows').item.json.business_name }}"
+              },
+              {
+                "fieldId": "niche",
+                "fieldValue": "={{ $('Get many rows').item.json.niche }}"
+              },
+              {
+                "fieldId": "location",
+                "fieldValue": "={{ $('Get many rows').item.json.location }}"
+              },
+              {
+                "fieldId": "address",
+                "fieldValue": "={{ $('Get many rows').item.json.address }}"
+              },
+              {
+                "fieldId": "phone",
+                "fieldValue": "={{ $('Get many rows').item.json.phone }}"
+              },
+              {
+                "fieldId": "website",
+                "fieldValue": "={{ $('Get many rows').item.json.website }}"
+              },
+              {
+                "fieldId": "google_place_id",
+                "fieldValue": "={{ $('Get many rows').item.json.google_place_id }}"
+              },
+              {
+                "fieldId": "rating",
+                "fieldValue": "={{ $('Get many rows').item.json.rating }}"
+              },
+              {
+                "fieldId": "created_at",
+                "fieldValue": "={{ $('Get many rows').item.json.created_at }}"
+              },
+              {
+                "fieldId": "updated_at",
+                "fieldValue": "={{ $('Get many rows').item.json.updated_at }}"
+              },
+              {
+                "fieldId": "run_id",
+                "fieldValue": "={{ $('Get many rows').item.json.run_id }}"
+              },
+              {
+                "fieldId": "email",
+                "fieldValue": "={{ $('Split Out').item.json.emails.value }}"
+              },
+              {
+                "fieldId": "first_name",
+                "fieldValue": "={{ $('Split Out').item.json.emails.first_name }}"
+              },
+              {
+                "fieldId": "last_name",
+                "fieldValue": "={{ $('Split Out').item.json.emails.last_name }}"
+              },
+              {
+                "fieldId": "position",
+                "fieldValue": "={{ $('Split Out').item.json.emails.position }}"
+              },
+              {
+                "fieldId": "position_raw",
+                "fieldValue": "={{ $('Split Out').item.json.emails.position_raw }}"
+              },
+              {
+                "fieldId": "linkedin",
+                "fieldValue": "={{ $('Split Out').item.json.emails.linkedin }}"
+              },
+              {
+                "fieldId": "twitter",
+                "fieldValue": "={{ $('Split Out').item.json.emails.twitter }}"
+              },
+              {
+                "fieldId": "seniority",
+                "fieldValue": "={{ $('Split Out').item.json.emails.seniority }}"
+              },
+              {
+                "fieldId": "department",
+                "fieldValue": "={{ $('Split Out').item.json.emails.department }}"
+              }
+            ]
+          }
+        },
+        "type": "n8n-nodes-base.supabase",
+        "typeVersion": 1,
+        "position": [
+          -64,
+          -496
+        ],
+        "id": "1c304f14-9179-4d2c-b374-fc70bc78bc12",
+        "name": "Create a row",
+        "credentials": {
+          "supabaseApi": {
+            "id": "4UcvDgBqf10SrNQ1",
+            "name": "Supabase account 2"
+          }
+        }
+      }
+    ],
+    "connections": {
+      "Edit Fields": {
+        "main": [
+          [
+            {
+              "node": "Get many rows",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Limit": {
+        "main": [
+          [
+            {
+              "node": "Loop Over Items",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Hunter": {
+        "main": [
+          [
+            {
+              "node": "If",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Split Out": {
+        "main": [
+          [
+            {
+              "node": "Edit Fields4",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Loop Over Items": {
+        "main": [
+          [
+            {
+              "node": "Aggregate2",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Hunter",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Replace Me": {
+        "main": [
+          [
+            {
+              "node": "Loop Over Items",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Edit Fields1": {
+        "main": [
+          [
+            {
+              "node": "Wait",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Aggregate": {
+        "main": [
+          [
+            {
+              "node": "Edit Fields1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Aggregate2": {
+        "main": [
+          [
+            {
+              "node": "Send a message",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "If": {
+        "main": [
+          [
+            {
+              "node": "Split Out",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Edit Fields2",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Wait": {
+        "main": [
+          [
+            {
+              "node": "Update a row1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Wait1": {
+        "main": [
+          [
+            {
+              "node": "Update a row",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Edit Fields2": {
+        "main": [
+          [
+            {
+              "node": "Wait1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Edit Fields3": {
+        "main": [
+          [
+            {
+              "node": "Limit",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Edit Fields4": {
+        "main": [
+          [
+            {
+              "node": "Wait2",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Wait2": {
+        "main": [
+          [
+            {
+              "node": "Create a row",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "When clicking ‘Execute workflow’": {
+        "main": [
+          [
+            {
+              "node": "Edit Fields",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Webhook": {
+        "main": [
+          [
+            {
+              "node": "Edit Fields",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get many rows": {
+        "main": [
+          [
+            {
+              "node": "Filter",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Filter": {
+        "main": [
+          [
+            {
+              "node": "Edit Fields3",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Update a row": {
+        "main": [
+          [
+            {
+              "node": "Replace Me",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Update a row1": {
+        "main": [
+          [
+            {
+              "node": "Replace Me",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Send a message": {
+        "main": [
+          [
+            {
+              "node": "HTTP Request",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Create a row": {
+        "main": [
+          [
+            {
+              "node": "Aggregate",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "senul adeeth",
+    "name": "Version a8ec98f3",
+    "description": "",
+    "autosaved": true
+  },
+  "tags": []
+}
