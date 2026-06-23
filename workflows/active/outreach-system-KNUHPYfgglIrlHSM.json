@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-02T23:53:40.953Z",
+  "updatedAt": "2026-06-23T16:59:52.400Z",
   "createdAt": "2026-05-10T22:36:08.981Z",
   "id": "KNUHPYfgglIrlHSM",
   "name": "Outreach System",
@@ -9057,13 +9057,7 @@
     },
     "Webhook": {
       "main": [
-        [
-          {
-            "node": "Get the leads form the Google sheet",
-            "type": "main",
-            "index": 0
-          }
-        ]
+        []
       ]
     },
     "Respond to Webhook": {
@@ -9112,8 +9106,8 @@
     "templateCredsSetupCompleted": true
   },
   "pinData": {},
-  "versionId": "e932b50e-b93a-4067-99ed-08bf641aeeb8",
-  "activeVersionId": "e932b50e-b93a-4067-99ed-08bf641aeeb8",
+  "versionId": "e2f75515-28ff-4641-8542-6cdcdb6a4310",
+  "activeVersionId": "e2f75515-28ff-4641-8542-6cdcdb6a4310",
   "triggerCount": 1,
   "shared": [
     {
@@ -9125,9 +9119,9 @@
     }
   ],
   "activeVersion": {
-    "updatedAt": "2026-06-02T23:53:45.000Z",
-    "createdAt": "2026-06-02T23:53:40.958Z",
-    "versionId": "e932b50e-b93a-4067-99ed-08bf641aeeb8",
+    "updatedAt": "2026-06-23T16:59:54.000Z",
+    "createdAt": "2026-06-23T16:59:52.405Z",
+    "versionId": "e2f75515-28ff-4641-8542-6cdcdb6a4310",
     "workflowId": "KNUHPYfgglIrlHSM",
     "nodes": [
       {
@@ -18181,13 +18175,7 @@
       },
       "Webhook": {
         "main": [
-          [
-            {
-              "node": "Get the leads form the Google sheet",
-              "type": "main",
-              "index": 0
-            }
-          ]
+          []
         ]
       },
       "Respond to Webhook": {
@@ -18225,9 +18213,9 @@
       }
     },
     "authors": "senul adeeth",
-    "name": "Version e932b50e",
+    "name": "Version e2f75515",
     "description": "",
-    "autosaved": true
+    "autosaved": false
   },
   "tags": []
 }
