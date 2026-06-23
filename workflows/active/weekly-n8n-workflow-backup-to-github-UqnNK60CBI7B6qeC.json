@@ -420,6 +420,9 @@
   "staticData": {
     "node:Weekly Schedule": {
       "recurrenceRules": []
+    },
+    "node:Daily  Schedule": {
+      "recurrenceRules": []
     }
   },
   "meta": {
@@ -427,7 +430,7 @@
   },
   "pinData": {},
   "versionId": "39625fc6-d2b7-4542-acb8-0a1ebf159fef",
-  "activeVersionId": "5c7a1e27-6488-4744-a1cf-65b7c8735dc7",
+  "activeVersionId": "39625fc6-d2b7-4542-acb8-0a1ebf159fef",
   "triggerCount": 1,
   "shared": [
     {
@@ -439,30 +442,11 @@
     }
   ],
   "activeVersion": {
-    "updatedAt": "2026-06-18T22:15:47.000Z",
-    "createdAt": "2026-06-18T22:15:35.814Z",
-    "versionId": "5c7a1e27-6488-4744-a1cf-65b7c8735dc7",
+    "updatedAt": "2026-06-23T17:02:46.000Z",
+    "createdAt": "2026-06-18T22:16:36.174Z",
+    "versionId": "39625fc6-d2b7-4542-acb8-0a1ebf159fef",
     "workflowId": "UqnNK60CBI7B6qeC",
     "nodes": [
-      {
-        "parameters": {
-          "rule": {
-            "interval": [
-              {
-                "triggerAtHour": 3
-              }
-            ]
-          }
-        },
-        "id": "7c183b90-981b-41a2-868c-0f4d9d8a6962",
-        "name": "Weekly Schedule",
-        "type": "n8n-nodes-base.scheduleTrigger",
-        "typeVersion": 1.2,
-        "position": [
-          -1056,
-          80
-        ]
-      },
       {
         "parameters": {
           "assignments": {
@@ -716,20 +700,28 @@
             "name": "Business email"
           }
         }
+      },
+      {
+        "parameters": {
+          "rule": {
+            "interval": [
+              {
+                "triggerAtHour": 3
+              }
+            ]
+          }
+        },
+        "id": "7c183b90-981b-41a2-868c-0f4d9d8a6962",
+        "name": "Daily  Schedule",
+        "type": "n8n-nodes-base.scheduleTrigger",
+        "typeVersion": 1.2,
+        "position": [
+          -1056,
+          80
+        ]
       }
     ],
     "connections": {
-      "Weekly Schedule": {
-        "main": [
-          [
-            {
-              "node": "Set Config",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
       "Set Config": {
         "main": [
           [
@@ -846,10 +838,21 @@
             }
           ]
         ]
+      },
+      "Daily  Schedule": {
+        "main": [
+          [
+            {
+              "node": "Set Config",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
       }
     },
     "authors": "senul adeeth",
-    "name": "Version 5c7a1e27",
+    "name": "Version 39625fc6",
     "description": "",
     "autosaved": true
   },
