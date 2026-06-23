@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-18T15:20:03.721Z",
+  "updatedAt": "2026-06-23T17:01:35.558Z",
   "createdAt": "2026-05-27T23:44:13.677Z",
   "id": "PNXW78U3nevgJxmM",
   "name": "Trigger Email Outreach System",
@@ -415,8 +415,8 @@
     "templateCredsSetupCompleted": true
   },
   "pinData": {},
-  "versionId": "954b53a5-7df5-4833-b14b-5462b6aa71cf",
-  "activeVersionId": "8328d2a7-8126-4b98-9e43-540290bb555c",
+  "versionId": "d0d72b9d-56f6-43d7-99b8-1fcc2f837852",
+  "activeVersionId": "954b53a5-7df5-4833-b14b-5462b6aa71cf",
   "triggerCount": 1,
   "shared": [
     {
@@ -428,9 +428,9 @@
     }
   ],
   "activeVersion": {
-    "updatedAt": "2026-06-17T22:21:03.000Z",
-    "createdAt": "2026-06-17T22:20:42.323Z",
-    "versionId": "8328d2a7-8126-4b98-9e43-540290bb555c",
+    "updatedAt": "2026-06-23T17:01:17.000Z",
+    "createdAt": "2026-06-18T15:20:03.723Z",
+    "versionId": "954b53a5-7df5-4833-b14b-5462b6aa71cf",
     "workflowId": "PNXW78U3nevgJxmM",
     "nodes": [
       {
@@ -711,8 +711,8 @@
         "type": "n8n-nodes-base.scheduleTrigger",
         "typeVersion": 1.3,
         "position": [
-          -48,
-          -128
+          -32,
+          -384
         ],
         "id": "df473f56-84c8-47de-9228-afda0c72da96",
         "name": "Schedule Trigger"
@@ -827,7 +827,7 @@
       }
     },
     "authors": "senul adeeth",
-    "name": "Version 8328d2a7",
+    "name": "Version 954b53a5",
     "description": "",
     "autosaved": true
   },
