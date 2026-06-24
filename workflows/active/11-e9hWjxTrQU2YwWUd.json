@@ -1,0 +1,3309 @@
+{
+  "updatedAt": "2026-06-24T17:25:00.303Z",
+  "createdAt": "2026-06-22T15:32:22.002Z",
+  "id": "e9hWjxTrQU2YwWUd",
+  "name": "11",
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -3936,
+        240
+      ],
+      "id": "8a545eb3-980e-48b9-808e-0483a2f252ea",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "40a70526-659d-4756-8a9e-f6ce1b459051",
+              "leftValue": "={{ $json.website }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -2544,
+        240
+      ],
+      "id": "98b159a3-a9fb-4745-83cd-f6d1fc37cee6",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "jsCode": "return items.map(item => {\n  let raw = String(item.json['website'] ?? '');\n  \n  if (!raw || raw === 'undefined' || raw === 'null') {\n    return {\n      json: {\n        row_number: item.json.row_number,\n        website_clean: '',\n        website_domain: ''\n      }\n    };\n  }\n  raw = raw\n    .replace(/\\u00A0/g, ' ')\n    .replace(/\\u200B/g, '')\n    .replace(/\\u200C/g, '')\n    .replace(/\\u200D/g, '')\n    .replace(/\\uFEFF/g, '')\n    .trim();\n  const tokenMatch = raw.match(/https?:\\/\\/[^\\s]+|[a-z0-9.-]+\\.[a-z]{2,}(\\/[^\\s]*)?/i);\n  const token = (tokenMatch ? tokenMatch[0] : raw).trim();\n  let host = '';\n  const m1 = token.match(/^https?:\\/\\/([^\\/?#\\s]+)/i);\n  if (m1 && m1[1]) {\n    host = m1[1];\n  } else {\n    const m2 = token.match(/^([a-z0-9.-]+\\.[a-z]{2,})(?:[\\/?#]|$)/i);\n    if (m2 && m2[1]) host = m2[1];\n  }\n  const website_domain = host.replace(/^www\\./i, '').toLowerCase();\n  const website_clean = website_domain ? `https://${website_domain}/` : '';\n  return {\n    json: {\n      row_number: item.json.row_number,\n      website_clean,\n      website_domain\n    }\n  };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1968,
+        144
+      ],
+      "id": "6ff6bc13-0aed-43a1-8765-754439b06af4",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "url": "={{ ($json.website_clean || '').trim().replace(/\\/$/, '').replace(/^https?:\\/\\/(www\\.)?/, 'https://www.') + '/sitemap_index.xml' }}",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true,
+              "responseFormat": "text"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -1760,
+        144
+      ],
+      "id": "fac2f43a-1d20-4f84-93a9-9267cc34f74a",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "jsCode": "// n8n Code node\n\nconst body = $json.data || '';\nconst sizeBytes = Buffer.byteLength(body, 'utf8');\n\n// hard size cutoff: 1.5 MB\nconst MAX_SIZE = 1.5 * 1024 * 1024;\n\n// normalize\nconst text = body.slice(0, 5000).toLowerCase();\n\n// garbage checks\nconst looksLikeHtml =\n  text.includes('<!doctype html') ||\n  text.includes('<html') ||\n  text.includes('<head') ||\n  text.includes('<body');\n\nif (sizeBytes > MAX_SIZE || looksLikeHtml) {\n  return [{ status: 2 }];\n}\n\n// sitemap checks\nconst looksLikeSitemap =\n  text.includes('<?xml') &&\n  (text.includes('<sitemapindex') ||\n   text.includes('<urlset') ||\n   text.includes('<url><loc>'));\n\nif (looksLikeSitemap) {\n  return [{ status: 1 }];\n}\n\n// default: treat as garbage\nreturn [{ status: 2 }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1552,
+        144
+      ],
+      "id": "40873389-0403-45f1-bc02-aca40299c763",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "a5fcd2ca-4ca3-405b-8a9f-a5dd3342b9c2",
+              "leftValue": "={{ $json.status }}",
+              "rightValue": 1,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -1344,
+        176
+      ],
+      "id": "4170dd26-9600-481b-a725-4413a4b76aa5",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7f591297-ebbd-4b37-be7f-15daf154bcd5",
+              "name": "project_id",
+              "value": "n8n-trw-492316",
+              "type": "string"
+            },
+            {
+              "id": "cd1d9181-a1d8-4b92-8552-60d119019008",
+              "name": "client_email",
+              "value": "ais-gemini-key-65cdff008b1c4f0@862176994722.iam.gserviceaccount.com",
+              "type": "string"
+            },
+            {
+              "id": "c70f7502-f57c-4eef-ab21-4267ae341d4b",
+              "name": "location_id",
+              "value": "global",
+              "type": "string"
+            },
+            {
+              "id": "81f917be-f9e8-4d2b-9a88-2c9f6b61402d",
+              "name": "api_endpoint",
+              "value": "global-alplatform.googleapis.com",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1024,
+        48
+      ],
+      "id": "be1009b7-d891-49e1-95e2-adcd6ac31642",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.mode }}",
+                    "rightValue": 1,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    },
+                    "id": "651fba10-11f5-4734-8d8d-2e9f28b3ff9b"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "a7fa9212-8ad0-47ae-8c8a-f725c4e089ce",
+                    "leftValue": "={{ $json.mode }}",
+                    "rightValue": 2,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "70ad942b-4e4f-4f05-8d86-303dd2cefcf8",
+                    "leftValue": "={{ $json.mode }}",
+                    "rightValue": 0,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -160,
+        48
+      ],
+      "id": "a5cd7425-88b5-48e9-8dec-9030c088bb56",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "url": "={{ $('Parse json').item.json.sitemap_index }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        16,
+        208
+      ],
+      "id": "d8351ccf-6b9c-4c9f-b2c1-d6523e51da5b",
+      "name": "HTTP Request3"
+    },
+    {
+      "parameters": {
+        "jsCode": "const xml = $json.data || '';\n\nconst locs = [...xml.matchAll(/<loc>(.*?)<\\/loc>/gi)].map(m => m[1].trim());\n\nconst isSitemapIndex = /<sitemapindex/i.test(xml);\nconst isUrlSet = /<urlset/i.test(xml);\n\nreturn [{\n  json: {\n    sitemap_index: $('Parse json').item.json.sitemap_index ?? null,\n    mode: isSitemapIndex ? 1 : isUrlSet ? 2 : null,\n    url_1: isUrlSet ? (locs[0] || null) : null,\n    url_2: isUrlSet ? (locs[1] || null) : null,\n    url_3: isUrlSet ? (locs[2] || null) : null,\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        176,
+        192
+      ],
+      "id": "e12cbf96-4835-4410-aa47-ab97ffa63fe6",
+      "name": "Code in JavaScript4"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://aiplatform.googleapis.com/v1/projects/{{ $('Edit Fields').first().json.project_id }}/locations/global/publishers/google/models/gemini-3.1-pro-preview:streamGenerateContent",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('get auth 2 token').item.json.access_token }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"contents\": [\n    {\n      \"role\": \"user\",\n      \"parts\": [\n        {\n          \"text\": {{\n            JSON.stringify(\n              \"You are a technical research analyst processing XML sitemap data for a business website.\\n\" +\n              \"Use ONLY the provided sitemap data.\\n\" +\n              \"Do NOT use prior knowledge, assumptions, or external information.\\n\" +\n              \"If required information cannot be determined from the sitemap data, return null.\\n\\n\" +\n              \"Business Website data:\\n\" +\n              $('HTTP Request3').item.json.data + \"\\n\\n\" +\n              \"Instructions:\\n\" +\n              \"Analyze the provided response and determine whether it is:\\n\" +\n              \"- a sitemap index (contains links to other sitemap XML files),\\n\" +\n              \"- a page-level sitemap (contains actual page URLs),\\n\" +\n              \"- or an invalid / non-sitemap response.\\n\\n\" +\n              \"Decision Rules:\\n\" +\n              \"1) If the response is a sitemap index:\\n\" +\n              \"   - Select ONE best page-level sitemap URL from the XML.\\n\" +\n              \"   - Prefer page-sitemap.xml.\\n\" +\n              \"   - If page-sitemap.xml does not exist, choose the best equivalent page-level sitemap.\\n\" +\n              \"   - Output this exact JSON shape:\\n\" +\n              \"     {\\\"sitemap_index\\\":\\\"<chosen page sitemap url>\\\",\\\"mode\\\":1,\\\"url_1\\\":null,\\\"url_2\\\":null,\\\"url_3\\\":null}\\n\\n\" +\n              \"2) If the response is already a page-level sitemap:\\n\" +\n              \"   - Select EXACTLY three URLs from the provided URLs only.\\n\" +\n              \"   - url_1 = homepage if present, otherwise best main page.\\n\" +\n              \"   - url_2 = primary service/offer page.\\n\" +\n              \"   - url_3 = trust/differentiation page such as about, contact, faq, testimonials, team, why-us.\\n\" +\n              \"   - Output this exact JSON shape:\\n\" +\n              \"     {\\\"sitemap_index\\\":null,\\\"mode\\\":2,\\\"url_1\\\":\\\"<url>\\\",\\\"url_2\\\":\\\"<url>\\\",\\\"url_3\\\":\\\"<url>\\\"}\\n\\n\" +\n              \"3) If the response is invalid, blocked, HTML, or not a sitemap:\\n\" +\n              \"   - Output this exact JSON shape:\\n\" +\n              \"     {\\\"sitemap_index\\\":null,\\\"mode\\\":0,\\\"url_1\\\":null,\\\"url_2\\\":null,\\\"url_3\\\":null}\\n\\n\" +\n              \"Output Requirements (STRICT):\\n\" +\n              \"- Output MUST be valid JSON.\\n\" +\n              \"- Output MUST be ONE JSON object ONLY.\\n\" +\n              \"- Do NOT include markdown, code fences, or extra text.\\n\" +\n              \"- Do NOT include arrays.\\n\" +\n              \"- Use null exactly as shown.\\n\" +\n              \"- All keys MUST be present exactly: sitemap_index, mode, url_1, url_2, url_3\"\n            )\n          }}\n        }\n      ]\n    }\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        336,
+        192
+      ],
+      "id": "4208d0e6-fcaf-494b-af20-688f7a737e1f",
+      "name": "HTTP Request4"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Combine ALL Gemini text chunks into one string, then parse JSON\n\nconst items = $input.all();\n\nlet text = '';\n\n// Read every item -> every candidate -> every part\nfor (const it of items) {\n  const candidates = it.json?.candidates ?? [];\n\n  for (const candidate of candidates) {\n    const parts = candidate?.content?.parts ?? [];\n\n    for (const p of parts) {\n      if (typeof p?.text === 'string') {\n        text += p.text;\n      }\n    }\n  }\n}\n\ntext = text.trim();\n\n// Remove code fences if present\ntext = text.replace(/```json/gi, '').replace(/```/g, '').trim();\n\n// Extract first JSON object\nconst match = text.match(/\\{[\\s\\S]*\\}/);\n\nif (!match) {\n  return [{\n    json: {\n      sitemap_index: null,\n      mode: null,\n      url_1: null,\n      url_2: null,\n      url_3: null,\n      _raw: text\n    }\n  }];\n}\n\nlet jsonStr = match[0].trim();\n\nlet obj;\ntry {\n  obj = JSON.parse(jsonStr);\n} catch (e) {\n  // small repair for trailing commas\n  jsonStr = jsonStr.replace(/,\\s*([}\\]])/g, '$1');\n  obj = JSON.parse(jsonStr);\n}\n\nreturn [{\n  json: {\n    sitemap_index: typeof obj.sitemap_index === 'string' ? obj.sitemap_index : null,\n    mode: obj.mode ?? null,\n    url_1: typeof obj.url_1 === 'string' ? obj.url_1 : null,\n    url_2: typeof obj.url_2 === 'string' ? obj.url_2 : null,\n    url_3: typeof obj.url_3 === 'string' ? obj.url_3 : null,\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        496,
+        192
+      ],
+      "id": "74c0856f-b9dd-4a1d-ac5b-53c608a5777a",
+      "name": "Code in JavaScript5"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://aiplatform.googleapis.com/v1/projects/{{ $('Edit Fields').first().json.project_id }}/locations/global/publishers/google/models/gemini-2.5-flash:generateContent",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('get auth 2 token').first().json.access_token }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"contents\": [\n    {\n      \"role\": \"user\",\n      \"parts\": [\n        {\n          \"text\": \"You are reviewing THREE website pages. For EACH page, compare the DESKTOP and MOBILE screenshots of the same URL.\\nReturn JSON ONLY.\\nOutput MUST be ONE JSON object with this shape:\\n{\\n  \\\"pages\\\": [\\n    {\\n      \\\"url\\\": \\\"...\\\",\\n      \\\"verdict\\\": \\\"...\\\",\\n      \\\"issues\\\": [],\\n      \\\"quick_wins\\\": [],\\n      \\\"copy_notes\\\": [],\\n      \\\"ux_notes\\\": []\\n    }\\n  ]\\n}\\n\\nRules:\\n- Be blunt, specific, actionable.\\n- Each array should contain short bullet strings.\\n- pages array MUST contain exactly 3 objects in the same order as the URLs below.\\n\\nURL 1: {{ $json.results[0].url }}\\nURL 2: {{ $json.results[1].url }}\\nURL 3: {{ $json.results[2].url }}\"\n        },\n        {\n          \"file_data\": {\n            \"mime_type\": \"image/png\",\n            \"file_uri\": \"{{ $json.results[0].desktop.replace('https://storage.googleapis.com/', 'gs://') }}\"\n          }\n        },\n        {\n          \"file_data\": {\n            \"mime_type\": \"image/png\",\n            \"file_uri\": \"{{ $json.results[0].mobile.replace('https://storage.googleapis.com/', 'gs://') }}\"\n          }\n        },\n        {\n          \"file_data\": {\n            \"mime_type\": \"image/png\",\n            \"file_uri\": \"{{ $json.results[1].desktop.replace('https://storage.googleapis.com/', 'gs://') }}\"\n          }\n        },\n        {\n          \"file_data\": {\n            \"mime_type\": \"image/png\",\n            \"file_uri\": \"{{ $json.results[1].mobile.replace('https://storage.googleapis.com/', 'gs://') }}\"\n          }\n        },\n        {\n          \"file_data\": {\n            \"mime_type\": \"image/png\",\n            \"file_uri\": \"{{ $json.results[2].desktop.replace('https://storage.googleapis.com/', 'gs://') }}\"\n          }\n        },\n        {\n          \"file_data\": {\n            \"mime_type\": \"image/png\",\n            \"file_uri\": \"{{ $json.results[2].mobile.replace('https://storage.googleapis.com/', 'gs://') }}\"\n          }\n        }\n      ]\n    }\n  ],\n  \"generationConfig\": {\n    \"temperature\": 0.2\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        800,
+        192
+      ],
+      "id": "dd1f0e4b-5f47-4df1-b8d2-1287b27facd3",
+      "name": "HTTP Request6"
+    },
+    {
+      "parameters": {
+        "jsCode": "// n8n Code node: Parse Gemini pages output\n\nconst raw = $input.first().json?.candidates?.[0]?.content?.parts?.[0]?.text ?? '';\n\nlet text = String(raw).trim();\n\n// Remove code fences\ntext = text.replace(/```json/gi, '').replace(/```/g, '').trim();\n\n// Extract JSON object\nconst match = text.match(/\\{[\\s\\S]*\\}/);\nif (!match) {\n  return [\n    {\n      json: {\n        error: 'No JSON object found',\n        raw_text: text\n      }\n    }\n  ];\n}\n\nlet obj;\n\ntry {\n  obj = JSON.parse(match[0]);\n} catch (e) {\n  const fixedStr = match[0].replace(/,\\s*([}\\]])/g, '$1');\n  obj = JSON.parse(fixedStr);\n}\n\nconst pages = Array.isArray(obj.pages) ? obj.pages : [];\n\nreturn pages.map((page) => ({\n  json: {\n    url: page.url || null,\n    verdict: page.verdict || null,\n    issues: Array.isArray(page.issues) ? page.issues : [],\n    quick_wins: Array.isArray(page.quick_wins) ? page.quick_wins : [],\n    copy_notes: Array.isArray(page.copy_notes) ? page.copy_notes : [],\n    ux_notes: Array.isArray(page.ux_notes) ? page.ux_notes : []\n  }\n}));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        960,
+        192
+      ],
+      "id": "e089f811-1ee4-4bdc-a332-5dd11475de75",
+      "name": "Code in JavaScript6"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://aiplatform.googleapis.com/v1/projects/{{ $('Edit Fields').first().json.project_id }}/locations/global/publishers/google/models/gemini-2.5-flash:generateContent",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('get auth 2 token').first().json.access_token }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"contents\": [\n    {\n      \"role\": \"user\",\n      \"parts\": [\n        {\n          \"text\": \"You are reviewing THREE website pages. For EACH page, compare the DESKTOP and MOBILE screenshots of the same URL.\\nReturn JSON ONLY.\\nOutput MUST be ONE JSON object with this shape:\\n{\\n  \\\"pages\\\": [\\n    {\\n      \\\"url\\\": \\\"...\\\",\\n      \\\"verdict\\\": \\\"...\\\",\\n      \\\"issues\\\": [],\\n      \\\"quick_wins\\\": [],\\n      \\\"copy_notes\\\": [],\\n      \\\"ux_notes\\\": []\\n    }\\n  ]\\n}\\n\\nRules:\\n- Be blunt, specific, actionable.\\n- Each array should contain short bullet strings.\\n- pages array MUST contain exactly 3 objects in the same order as the URLs below.\\n\\nURL 1: {{ $('get screenshots1').first().json.results[0].url }}\\nURL 2: {{ $('get screenshots1').first().json.results[1].url }}\\nURL 3: {{ $('get screenshots1').first().json.results[2].url }}\"\n        },\n        {\n          \"file_data\": {\n            \"mime_type\": \"image/png\",\n            \"file_uri\": \"{{ $('get screenshots1').first().json.results[0].desktop.replace('https://storage.googleapis.com/', 'gs://') }}\"\n          }\n        },\n        {\n          \"file_data\": {\n            \"mime_type\": \"image/png\",\n            \"file_uri\": \"{{ $('get screenshots1').first().json.results[0].mobile.replace('https://storage.googleapis.com/', 'gs://') }}\"\n          }\n        },\n        {\n          \"file_data\": {\n            \"mime_type\": \"image/png\",\n            \"file_uri\": \"{{ $('get screenshots1').first().json.results[1].desktop.replace('https://storage.googleapis.com/', 'gs://') }}\"\n          }\n        },\n        {\n          \"file_data\": {\n            \"mime_type\": \"image/png\",\n            \"file_uri\": \"{{ $('get screenshots1').first().json.results[1].mobile.replace('https://storage.googleapis.com/', 'gs://') }}\"\n          }\n        },\n        {\n          \"file_data\": {\n            \"mime_type\": \"image/png\",\n            \"file_uri\": \"{{ $('get screenshots1').first().json.results[2].desktop.replace('https://storage.googleapis.com/', 'gs://') }}\"\n          }\n        },\n        {\n          \"file_data\": {\n            \"mime_type\": \"image/png\",\n            \"file_uri\": \"{{ $('get screenshots1').first().json.results[2].mobile.replace('https://storage.googleapis.com/', 'gs://') }}\"\n          }\n        }\n      ]\n    }\n  ],\n  \"generationConfig\": {\n    \"temperature\": 0.2\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1376,
+        192
+      ],
+      "id": "7b474614-4c83-488f-8c6b-be0f7ae6ea86",
+      "name": "HTTP Request7"
+    },
+    {
+      "parameters": {
+        "jsCode": "const out = [];\n\nfor (let index = 0; index < items.length; index++) {\n  const item = items[index];\n\n  const raw =\n    item.json?.candidates?.[0]?.content?.parts?.find(p => p.text)?.text ??\n    item.json?.candidates?.[0]?.content?.parts?.[0]?.text ??\n    item.json?.text ??\n    '';\n\n  let text = String(raw).trim();\n\n  // Strip code fences\n  text = text.replace(/```json/gi, '').replace(/```/g, '').trim();\n\n  // Extract JSON object\n  const match = text.match(/\\{[\\s\\S]*\\}/);\n  if (!match) {\n    out.push({\n      json: {\n        error: 'No JSON object found',\n        raw_text: text\n      },\n      pairedItem: index\n    });\n    continue;\n  }\n\n  let obj;\n  try {\n    obj = JSON.parse(match[0].trim());\n  } catch (e) {\n    try {\n      const fixedStr = match[0].trim().replace(/,\\s*([}\\]])/g, '$1');\n      obj = JSON.parse(fixedStr);\n    } catch (e2) {\n      out.push({\n        json: {\n          error: 'JSON parse failed',\n          raw_text: text,\n          parse_error: String(e2.message || e2)\n        },\n        pairedItem: index\n      });\n      continue;\n    }\n  }\n\n  const pages = Array.isArray(obj.pages) ? obj.pages : [];\n\n  for (const p of pages) {\n    out.push({\n      json: {\n        page: p.url ?? null,\n        website_problem: p.verdict ?? null,\n        recognizable_reason: Array.isArray(p.issues) ? p.issues.join(' | ') : null,\n        consequence_mechanics: Array.isArray(p.ux_notes) ? p.ux_notes.join(' | ') : null,\n        preview_asset_exists: null,\n        review_time: null,\n        micro_yes: Array.isArray(p.quick_wins) ? p.quick_wins.join(' | ') : null,\n        subject_label: null,\n        sources: item.json?.groundingMetadata?.webSearchQueries ?? []\n      },\n      pairedItem: index\n    });\n  }\n}\n\nreturn out;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1584,
+        192
+      ],
+      "id": "0efbcee6-3861-46dc-83af-5951a9650083",
+      "name": "Code in JavaScript7"
+    },
+    {
+      "parameters": {
+        "amount": 3
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -1904,
+        384
+      ],
+      "id": "40a3b347-2c64-432b-a333-82abdbb0a41e",
+      "name": "Wait",
+      "webhookId": "37ae8251-c59d-4f58-b3cf-cd1f97a681ba"
+    },
+    {
+      "parameters": {
+        "amount": 3
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -1248,
+        416
+      ],
+      "id": "6216e7d8-8d23-4096-9f99-913cecfe7620",
+      "name": "Wait1",
+      "webhookId": "37ae8251-c59d-4f58-b3cf-cd1f97a681ba"
+    },
+    {
+      "parameters": {
+        "amount": 3
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -96,
+        448
+      ],
+      "id": "1c67240f-5c47-4ce2-b323-99805c41a26f",
+      "name": "Wait2",
+      "webhookId": "37ae8251-c59d-4f58-b3cf-cd1f97a681ba"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://oauth2.googleapis.com/token",
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "grant_type",
+              "value": "urn:ietf:params:oauth:grant-type:jwt-bearer"
+            },
+            {
+              "name": "assertion",
+              "value": "={{ $json.token }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -784,
+        48
+      ],
+      "id": "1b15be8e-c813-4426-a375-5422a0b04766",
+      "name": "get auth 2 token"
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = $('HTTP Request').first().json.data ?? '';\nconst xml = String(raw);\n\n// Pull all <loc> links\nconst locs = [...xml.matchAll(/<loc>([^<]+)<\\/loc>/g)].map(m => m[1].trim());\n\n// Build the sitemap blob (links + separator + flattened XML)\nconst sitemap_blob = [\n  locs.join(', '),\n  '---',\n  xml.replace(/\\s+/g, ' ').trim()\n].join('\\n');\n\n// Prompt template (NORMAL newlines for now)\nconst prompt =\n  \"You are a technical research analyst processing XML sitemap data for a business website.\\n\" +\n  \"You are given the raw response body retrieved from requesting /sitemap.xml.\\n\" +\n  \"Use ONLY the provided sitemap data.\\n\" +\n  \"Do NOT use prior knowledge, assumptions, or external information.\\n\" +\n  \"If required information cannot be determined from the sitemap data, return null.\\n\\n\" +\n  \"Business Website data: \" + sitemap_blob + \"\\n\\n\" +\n  \"Instructions:\\n\" +\n  \"Analyze the provided sitemap response.\\n\" +\n  \"First, determine whether the response represents:\\n\" +\n  \"- a sitemap index (containing links to other sitemaps),\\n\" +\n  \"- a page-level sitemap (containing page URLs),\\n\" +\n  \"- or a non-sitemap response (HTML page, blocked response, or invalid content).\\n\\n\" +\n  \"Decision Rules:\\n\" +\n  \"1) If the response is a sitemap index:\\n\" +\n  \"   - Select ONE best page-level sitemap URL (prefer page-sitemap.xml or similar; avoid post/category/tag if possible).\\n\" +\n  \"   - Output MUST be this exact JSON shape (all keys required):\\n\" +\n  \"     {\\\"sitemap_index\\\":\\\"<page sitemap url>\\\",\\\"mode\\\":2,\\\"url_1\\\":null,\\\"url_2\\\":null,\\\"url_3\\\":null}\\n\\n\" +\n  \"2) If the response is already a page-level sitemap:\\n\" +\n  \"   - Select EXACTLY three URLs from the provided URLs only:\\n\" +\n  \"     url_1 = homepage (root URL / canonical homepage)\\n\" +\n  \"     url_2 = primary offer/service page\\n\" +\n  \"     url_3 = trust/differentiation page (about/contact/faq/how-it-works/suppliers)\\n\" +\n  \"   - Output MUST be this exact JSON shape (all keys required):\\n\" +\n  \"     {\\\"sitemap_index\\\":null,\\\"mode\\\":1,\\\"url_1\\\":\\\"<url>\\\",\\\"url_2\\\":\\\"<url>\\\",\\\"url_3\\\":\\\"<url>\\\"}\\n\\n\" +\n  \"3) If invalid/non-sitemap:\\n\" +\n  \"   - Output MUST be this exact JSON shape (all keys required):\\n\" +\n  \"     {\\\"sitemap_index\\\":null,\\\"mode\\\":0,\\\"url_1\\\":null,\\\"url_2\\\":null,\\\"url_3\\\":null}\\n\\n\" +\n  \"Output Requirements (STRICT):\\n\" +\n  \"- Output MUST be valid JSON.\\n\" +\n  \"- Output MUST be ONE JSON object ONLY.\\n\" +\n  \"- Do NOT include markdown, code fences, or extra text.\\n\" +\n  \"- Do NOT include arrays.\\n\" +\n  \"- Use null exactly as shown.\\n\" +\n  \"- All keys MUST be present exactly: sitemap_index, mode, url_1, url_2, url_3\\n\";\n\n// Convert to escaped style for JSON-safe embedding:\n// - escape backslashes\n// - escape double quotes\n// - turn real newlines into literal \\\\n\nconst escapedPrompt = prompt\n  .replace(/\\\\/g, '\\\\\\\\')\n  .replace(/\"/g, '\\\\\"')\n  .replace(/\\r?\\n/g, '\\\\\\\\n');\n\nreturn [\n  {\n    json: {\n      prompt: escapedPrompt\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1136,
+        64
+      ],
+      "id": "5b419e07-20e8-4838-bb47-ed5f814b3ced",
+      "name": "parse json"
+    },
+    {
+      "parameters": {
+        "useJson": true,
+        "claimsJson": "={\n  \"iss\": \"{{ $json.client_email }}\",\n  \"scope\": \"https://www.googleapis.com/auth/cloud-platform\",\n  \"aud\": \"https://oauth2.googleapis.com/token\",\n  \"exp\": {{ Math.floor(Date.now() / 1000) + 3500 }},\n  \"iat\": {{ Math.floor(Date.now() / 1000) }}\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.jwt",
+      "typeVersion": 1,
+      "position": [
+        -912,
+        48
+      ],
+      "id": "4518ff04-a705-4463-86d1-29b0e7774dd8",
+      "name": "get google token",
+      "credentials": {
+        "jwtAuth": {
+          "id": "U6vG3WFEPqvwY5p2",
+          "name": "JWT Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://aiplatform.googleapis.com/v1/projects/{{ $('Edit Fields').item.json.project_id }}/locations/global/publishers/google/models/gemini-3.1-pro-preview:streamGenerateContent",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $json.access_token }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"contents\": [\n    {\n      \"role\": \"user\",\n      \"parts\": [\n        { \"text\": \"{{ $('parse json').item.json.prompt }}\" }\n      ]\n    }\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -576,
+        48
+      ],
+      "id": "24c5588e-e3b4-42e2-bb0f-a4668cdb0ba5",
+      "name": "Gemini"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Combine chunked Gemini outputs into a single JSON string, then parse.\n// Outputs: sitemap_index, mode, url_1, url_2, url_3\n\nconst items = $input.all();\n\n// 1) Stitch together all candidate text parts from all items\nlet text = '';\nfor (const it of items) {\n  const parts = it.json?.candidates?.[0]?.content?.parts ?? [];\n  for (const p of parts) {\n    if (typeof p.text === 'string') text += p.text;\n  }\n}\n\ntext = text.trim();\n\n// 2) Remove code fences if Gemini ever adds them\ntext = text.replace(/```(?:json)?/gi, '').replace(/```/g, '').trim();\n\n// 3) Extract JSON object safely (first {...} block)\nconst m = text.match(/\\{[\\s\\S]*\\}/);\nif (!m) {\n  return [{\n    json: {\n      sitemap_index: null,\n      mode: null,\n      url_1: null,\n      url_2: null,\n      url_3: null,\n      _raw: text\n    }\n  }];\n}\n\nlet jsonStr = m[0].trim();\n\n// 4) Parse\nlet obj;\ntry {\n  obj = JSON.parse(jsonStr);\n} catch (e) {\n  // try minor repair: remove trailing commas\n  jsonStr = jsonStr.replace(/,\\s*([}\\]])/g, '$1');\n  obj = JSON.parse(jsonStr);\n}\n\n// 5) Clean variables (exact names you want)\nconst sitemap_index = typeof obj.sitemap_index === 'string' ? obj.sitemap_index : null;\nconst mode = typeof obj.mode === 'number' ? obj.mode : null;\nconst url_1 = typeof obj.url_1 === 'string' ? obj.url_1 : null;\nconst url_2 = typeof obj.url_2 === 'string' ? obj.url_2 : null;\nconst url_3 = typeof obj.url_3 === 'string' ? obj.url_3 : null;\n\nreturn [{\n  json: { sitemap_index, mode, url_1, url_2, url_3 }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -368,
+        48
+      ],
+      "id": "dc47a108-613a-4be9-8451-0683d6e85690",
+      "name": "Parse json"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://34.60.224.98:3333/screenshot",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"urls\": [\n    \"{{ $('Parse json').item.json.url_1 }}\",\n    \"{{ $('Parse json').item.json.url_2 }}\",\n    \"{{ $('Parse json').item.json.url_3 }}\"\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        192,
+        -32
+      ],
+      "id": "4f8c1caa-d6b3-46a9-a1ed-cda0bccb1fcb",
+      "name": "get screenshots"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://aiplatform.googleapis.com/v1/projects/{{ $('Edit Fields').first().json.project_id }}/locations/global/publishers/google/models/gemini-2.5-flash:generateContent",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('get auth 2 token').first().json.access_token }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"contents\": [\n    {\n      \"role\": \"user\",\n      \"parts\": [\n        {\n          \"text\": \"You are reviewing THREE website pages. For EACH page, compare the DESKTOP and MOBILE screenshots of the same URL.\\nReturn JSON ONLY.\\nOutput MUST be ONE JSON object with this shape:\\n{\\n  \\\"pages\\\": [\\n    {\\n      \\\"url\\\": \\\"...\\\",\\n      \\\"verdict\\\": \\\"...\\\",\\n      \\\"issues\\\": [],\\n      \\\"quick_wins\\\": [],\\n      \\\"copy_notes\\\": [],\\n      \\\"ux_notes\\\": []\\n    }\\n  ]\\n}\\n\\nRules:\\n- Be blunt, specific, actionable.\\n- Each array should contain short bullet strings.\\n- pages array MUST contain exactly 3 objects in the same order as the URLs below.\\n\\nURL 1: {{ $('get screenshots').first().json.results[0].url }}\\nURL 2: {{ $('get screenshots').first().json.results[1].url }}\\nURL 3: {{ $('get screenshots').first().json.results[2].url }}\"\n        },\n        {\n          \"fileData\": {\n            \"mimeType\": \"image/png\",\n            \"fileUri\": \"{{ 'gs://' + $('get screenshots').first().json.results[0].desktop.replace('https://storage.googleapis.com/', '') }}\"\n          }\n        },\n        {\n          \"fileData\": {\n            \"mimeType\": \"image/png\",\n            \"fileUri\": \"{{ 'gs://' + $('get screenshots').first().json.results[0].mobile.replace('https://storage.googleapis.com/', '') }}\"\n          }\n        },\n        {\n          \"fileData\": {\n            \"mimeType\": \"image/png\",\n            \"fileUri\": \"{{ 'gs://' + $('get screenshots').first().json.results[1].desktop.replace('https://storage.googleapis.com/', '') }}\"\n          }\n        },\n        {\n          \"fileData\": {\n            \"mimeType\": \"image/png\",\n            \"fileUri\": \"{{ 'gs://' + $('get screenshots').first().json.results[1].mobile.replace('https://storage.googleapis.com/', '') }}\"\n          }\n        },\n        {\n          \"fileData\": {\n            \"mimeType\": \"image/png\",\n            \"fileUri\": \"{{ 'gs://' + $('get screenshots').first().json.results[2].desktop.replace('https://storage.googleapis.com/', '') }}\"\n          }\n        },\n        {\n          \"fileData\": {\n            \"mimeType\": \"image/png\",\n            \"fileUri\": \"{{ 'gs://' + $('get screenshots').first().json.results[2].mobile.replace('https://storage.googleapis.com/', '') }}\"\n          }\n        }\n      ]\n    }\n  ],\n  \"generationConfig\": {\n    \"temperature\": 0.2,\n    \"responseMimeType\": \"application/json\"\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        336,
+        -32
+      ],
+      "id": "8888a1fb-3d11-4b29-ace1-1226d4dfadb1",
+      "name": "review screenshots"
+    },
+    {
+      "parameters": {
+        "jsCode": "// n8n Code node: Parse Vertex JSON for pages[]\n\nconst raw =\n  $input.first().json?.candidates?.[0]?.content?.parts?.[0]?.text ??\n  $input.first().json?.text ??\n  '';\n\nlet text = String(raw).trim();\n\n// Strip code fences\ntext = text.replace(/```json/gi, '').replace(/```/g, '').trim();\n\n// Extract JSON object\nconst match = text.match(/\\{[\\s\\S]*\\}/);\nif (!match) {\n  return [{ json: { error: 'No JSON object found', raw_text: text } }];\n}\n\nlet obj;\ntry {\n  obj = JSON.parse(match[0].trim());\n} catch (e) {\n  const fixedStr = match[0].trim().replace(/,\\s*([}\\]])/g, '$1');\n  obj = JSON.parse(fixedStr);\n}\n\n// Make sure pages exists\nconst pages = Array.isArray(obj.pages) ? obj.pages : [];\n\n// Return one item per page\nreturn pages.map(page => ({\n  json: {\n    url: page.url ?? null,\n    verdict: page.verdict ?? null,\n    issues: Array.isArray(page.issues) ? page.issues : [],\n    quick_wins: Array.isArray(page.quick_wins) ? page.quick_wins : [],\n    copy_notes: Array.isArray(page.copy_notes) ? page.copy_notes : [],\n    ux_notes: Array.isArray(page.ux_notes) ? page.ux_notes : []\n  }\n}));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        496,
+        -32
+      ],
+      "id": "1f851db7-0ae2-42a4-879a-ec3495340471",
+      "name": "parse json1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://aiplatform.googleapis.com/v1/projects/{{ $('Edit Fields').first().json.project_id }}/locations/global/publishers/google/models/gemini-2.5-flash:generateContent",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('get auth 2 token').first().json.access_token }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"contents\": [\n    {\n      \"role\": \"user\",\n      \"parts\": [\n        {\n          \"text\": \"Review this website page by comparing the DESKTOP and MOBILE screenshots of the same URL.\\nReturn JSON ONLY.\\nOutput MUST be ONE JSON object with this shape:\\n{\\n  \\\"url\\\": \\\"...\\\",\\n  \\\"verdict\\\": \\\"...\\\",\\n  \\\"issues\\\": [],\\n  \\\"quick_wins\\\": [],\\n  \\\"copy_notes\\\": [],\\n  \\\"ux_notes\\\": []\\n}\\n\\nRules:\\n- Be blunt, specific, actionable.\\n- Each array should contain short bullet strings.\\n\\nURL: {{ $json.url }}\"\n        },\n        {\n          \"file_data\": {\n            \"mime_type\": \"image/png\",\n            \"file_uri\": \"{{ $('get screenshots').first().json.results[$itemIndex].desktop.replace('https://storage.googleapis.com/', 'gs://') }}\"\n          }\n        },\n        {\n          \"file_data\": {\n            \"mime_type\": \"image/png\",\n            \"file_uri\": \"{{ $('get screenshots').first().json.results[$itemIndex].mobile.replace('https://storage.googleapis.com/', 'gs://') }}\"\n          }\n        }\n      ]\n    }\n  ],\n  \"generationConfig\": {\n    \"temperature\": 0.2\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        704,
+        -32
+      ],
+      "id": "e96ceb7e-c895-47af-8fa9-c48fa7d78080",
+      "name": "compare the screenshots"
+    },
+    {
+      "parameters": {
+        "jsCode": "// n8n Code node: Final Variable Extractor\n\nconst raw =\n  $input.first().json?.candidates?.[0]?.content?.parts?.[0]?.text ??\n  $input.first().json?.text ??\n  '';\n\nlet text = String(raw).trim();\n\n// 1. Strip code fences\ntext = text.replace(/```json/gi, '').replace(/```/g, '').trim();\n\n// 2. Extract and Parse JSON\nconst match = text.match(/\\{[\\s\\S]*\\}/);\nif (!match) {\n  return [{ json: { error: 'No JSON object found', raw_text: text } }];\n}\n\nlet obj;\ntry {\n  obj = JSON.parse(match[0].trim());\n} catch (e) {\n  // Minor repair for trailing commas\n  const fixedStr = match[0].trim().replace(/,\\s*([}\\]])/g, '$1');\n  obj = JSON.parse(fixedStr);\n}\n\n// 3. Map variables directly (No more .answer wrapper)\nreturn [{\n  json: {\n    page: obj.page ?? null,\n    website_problem: obj.website_problem ?? null,\n    recognizable_reason: obj.recognizable_reason ?? null,\n    consequence_mechanics: obj.consequence_mechanics ?? null,\n    preview_asset_exists: typeof obj.preview_asset_exists === 'boolean' ? obj.preview_asset_exists : null,\n    review_time: Number.isFinite(obj.review_time) ? obj.review_time : null,\n    micro_yes: obj.micro_yes ?? null,\n    subject_label: obj.subject_label ?? null,\n    // Add sources if Gemini included groundingMetadata\n    sources: $input.first().json?.groundingMetadata?.webSearchQueries ?? []\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        912,
+        -32
+      ],
+      "id": "5e7c1a0d-6e2c-449f-ad6c-e8e382f9db0a",
+      "name": " parse json"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://35.225.222.54:3333/screenshot",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"urls\": [\n    \"{{ $json.url_1 }}\",\n    \"{{ $json.url_2 }}\",\n    \"{{ $json.url_3 }}\"\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        656,
+        192
+      ],
+      "id": "1ffbfbee-23e0-4228-bd30-920464e28fc5",
+      "name": "get screenshots1",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        -2784,
+        240
+      ],
+      "id": "45271cf0-0c1b-4002-ba54-3e3a35f4b154",
+      "name": "Limit"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "40eb5f7b-52ab-452e-b3d3-2df0eeca7284",
+              "name": "id",
+              "value": "={{ $('Get many rows').item.json.id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1168,
+        192
+      ],
+      "id": "4db7a2ee-1cde-41d3-86cd-adc9372c63e7",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "jsCode": "return [items[0]];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1744,
+        192
+      ],
+      "id": "ead99fd3-5c1c-451a-8c7c-3d9d59a1ad8f",
+      "name": "Code in JavaScript2"
+    },
+    {
+      "parameters": {
+        "amount": 1,
+        "unit": "minutes"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2128,
+        192
+      ],
+      "id": "8fd6c88f-b7bb-4232-ae97-ee1d11e695c5",
+      "name": "Wait3",
+      "webhookId": "d8dee27f-92c7-475b-a19a-6fa387f6f384"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "leads",
+        "limit": 150
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -3360,
+        240
+      ],
+      "id": "155a5dee-cb29-45e3-b4bf-2761d5b6aec7",
+      "name": "Get many rows",
+      "credentials": {
+        "supabaseApi": {
+          "id": "4UcvDgBqf10SrNQ1",
+          "name": "Supabase account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "leads_emails",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $('Edit Fields1').item.json.id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "page",
+              "fieldValue": "={{ $json.page }}"
+            },
+            {
+              "fieldId": "website_problem",
+              "fieldValue": "={{ $json.website_problem }}"
+            },
+            {
+              "fieldId": "recognizable_reason",
+              "fieldValue": "={{ $json.recognizable_reason }}"
+            },
+            {
+              "fieldId": "consequence_mechanics",
+              "fieldValue": "={{ $json.consequence_mechanics }}"
+            },
+            {
+              "fieldId": "review",
+              "fieldValue": "={{ $json.review_time }}"
+            },
+            {
+              "fieldId": "micro_yes",
+              "fieldValue": "={{ $json.micro_yes }}"
+            },
+            {
+              "fieldId": "subject_label",
+              "fieldValue": "={{ $json.subject_label }}"
+            },
+            {
+              "fieldId": "research_done",
+              "fieldValue": "yes"
+            },
+            {
+              "fieldId": "issue_found",
+              "fieldValue": "yes"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1952,
+        192
+      ],
+      "id": "b342c404-8565-4978-bd84-993014b91097",
+      "name": "Update a row",
+      "credentials": {
+        "supabaseApi": {
+          "id": "4UcvDgBqf10SrNQ1",
+          "name": "Supabase account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "leads_emails",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $('Edit Fields1').item.json.id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "page",
+              "fieldValue": "={{ $json.page }}"
+            },
+            {
+              "fieldId": "website_problem",
+              "fieldValue": "={{ $json.website_problem }}"
+            },
+            {
+              "fieldId": "recognizable_reason",
+              "fieldValue": "={{ $json.recognizable_reason }}"
+            },
+            {
+              "fieldId": "consequence_mechanics",
+              "fieldValue": "={{ $json.consequence_mechanics }}"
+            },
+            {
+              "fieldId": "review",
+              "fieldValue": "={{ $json.review_time }}"
+            },
+            {
+              "fieldId": "micro_yes",
+              "fieldValue": "={{ $json.micro_yes }}"
+            },
+            {
+              "fieldId": "subject_label",
+              "fieldValue": "={{ $json.subject_label }}"
+            },
+            {
+              "fieldId": "research_done",
+              "fieldValue": "yes"
+            },
+            {
+              "fieldId": "issue_found",
+              "fieldValue": "yes"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1104,
+        -32
+      ],
+      "id": "9d7e23f2-2846-4983-b88d-5e5e1ee7cd8a",
+      "name": "Update a row1",
+      "credentials": {
+        "supabaseApi": {
+          "id": "4UcvDgBqf10SrNQ1",
+          "name": "Supabase account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "leads_emails",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $('Edit Fields1').item.json.id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "research_done",
+              "fieldValue": "yes"
+            },
+            {
+              "fieldId": "issue_found",
+              "fieldValue": "no"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -1760,
+        384
+      ],
+      "id": "29c89f70-1ba5-4cc5-b7fe-b56939ab36ed",
+      "name": "Update a row2",
+      "credentials": {
+        "supabaseApi": {
+          "id": "4UcvDgBqf10SrNQ1",
+          "name": "Supabase account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "leads_emails",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $('Edit Fields1').item.json.id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "research_done",
+              "fieldValue": "yes"
+            },
+            {
+              "fieldId": "issue_found",
+              "fieldValue": "no"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -1056,
+        416
+      ],
+      "id": "126896f2-6b2c-451f-ad33-eb12fb6eef9c",
+      "name": "Update a row4",
+      "credentials": {
+        "supabaseApi": {
+          "id": "4UcvDgBqf10SrNQ1",
+          "name": "Supabase account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "leads_emails",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $('Edit Fields1').item.json.id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "research_done",
+              "fieldValue": "yes"
+            },
+            {
+              "fieldId": "issue_found",
+              "fieldValue": "no"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        96,
+        448
+      ],
+      "id": "0ed9c953-a7d4-469f-b85a-515ab76c0170",
+      "name": "Update a row3",
+      "credentials": {
+        "supabaseApi": {
+          "id": "4UcvDgBqf10SrNQ1",
+          "name": "Supabase account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "path": "0e421f21-389d-4daa-b409-df2b62583ddb",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -3968,
+        528
+      ],
+      "id": "b29f9326-264e-4eb4-8b55-129edaf85d2f",
+      "name": "Webhook",
+      "webhookId": "0e421f21-389d-4daa-b409-df2b62583ddb"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "51ed6e93-2481-4a9a-9baa-5e50344fcfeb",
+              "leftValue": "={{ $json.business_name.length }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -3040,
+        240
+      ],
+      "id": "69cbb993-de50-41a3-9184-6921930b8623",
+      "name": "If2"
+    },
+    {
+      "parameters": {
+        "url": "https://n8n.35.225.222.54.sslip.io/webhook/4a5ea893-7f17-4a67-b7be-2912bff72daa",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"run_id\": \"{{ $json.body.run_id }}\" }",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -2960,
+        992
+      ],
+      "id": "93d2fbf1-8051-40f8-9515-e14440859aa2",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "url": "https://apdxwrqulwljzyhrixrv.supabase.co/rest/v1/run_status",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFwZHh3cnF1bHdsanp5aHJpeHJ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEzMjY0MjcsImV4cCI6MjA5NjkwMjQyN30.IrJtYGOPRUcXCmlMkbbk4nZG68guOFuvQ7XqLE9S-lg"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFwZHh3cnF1bHdsanp5aHJpeHJ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEzMjY0MjcsImV4cCI6MjA5NjkwMjQyN30.IrJtYGOPRUcXCmlMkbbk4nZG68guOFuvQ7XqLE9S-lg"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "resolution=merge-duplicates"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"run_id\": \"{{ $json.run_id }}\",\n  \"stage\": \"Auditing Websites\",\n  \"updated_at\": \"{{ new Date().toISOString() }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -3568,
+        240
+      ],
+      "id": "4e0f6773-076d-4b8b-9c42-0efd90eef2ca",
+      "name": "HTTP Request2"
+    }
+  ],
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "parse json",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "get google token",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "get screenshots",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request3",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request3": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript4": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request4": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript5": {
+      "main": [
+        [
+          {
+            "node": "get screenshots1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request6": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript6": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request7": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript7": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Update a row2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "Update a row4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait2": {
+      "main": [
+        [
+          {
+            "node": "Update a row3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get auth 2 token": {
+      "main": [
+        [
+          {
+            "node": "Gemini",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "parse json": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get google token": {
+      "main": [
+        [
+          {
+            "node": "get auth 2 token",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini": {
+      "main": [
+        [
+          {
+            "node": "Parse json",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse json": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get screenshots": {
+      "main": [
+        [
+          {
+            "node": "review screenshots",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "review screenshots": {
+      "main": [
+        [
+          {
+            "node": "parse json1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "parse json1": {
+      "main": [
+        [
+          {
+            "node": "compare the screenshots",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "compare the screenshots": {
+      "main": [
+        [
+          {
+            "node": " parse json",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    " parse json": {
+      "main": [
+        [
+          {
+            "node": "Update a row1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get screenshots1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript2": {
+      "main": [
+        [
+          {
+            "node": "Update a row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait3": {
+      "main": [
+        [
+          {
+            "node": "Get many rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many rows": {
+      "main": [
+        [
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a row": {
+      "main": [
+        [
+          {
+            "node": "Wait3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a row1": {
+      "main": [
+        [
+          {
+            "node": "Get many rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a row2": {
+      "main": [
+        [
+          {
+            "node": "Get many rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a row4": {
+      "main": [
+        [
+          {
+            "node": "Get many rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a row3": {
+      "main": [
+        [
+          {
+            "node": "Get many rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If2": {
+      "main": [
+        [
+          {
+            "node": "Limit",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request2": {
+      "main": [
+        [
+          {
+            "node": "Get many rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "versionId": "9846442c-dcba-46cf-807b-b3b7aff0353f",
+  "activeVersionId": "c3c0632b-24ed-492a-bfe2-14057b17c311",
+  "triggerCount": 1,
+  "shared": [
+    {
+      "updatedAt": "2026-06-22T15:32:22.005Z",
+      "createdAt": "2026-06-22T15:32:22.005Z",
+      "role": "workflow:owner",
+      "workflowId": "e9hWjxTrQU2YwWUd",
+      "projectId": "5GBCFFrIrIkPnjdc"
+    }
+  ],
+  "activeVersion": {
+    "updatedAt": "2026-06-24T16:50:22.000Z",
+    "createdAt": "2026-06-24T16:50:09.377Z",
+    "versionId": "c3c0632b-24ed-492a-bfe2-14057b17c311",
+    "workflowId": "e9hWjxTrQU2YwWUd",
+    "nodes": [
+      {
+        "parameters": {},
+        "type": "n8n-nodes-base.manualTrigger",
+        "typeVersion": 1,
+        "position": [
+          -3648,
+          240
+        ],
+        "id": "8a545eb3-980e-48b9-808e-0483a2f252ea",
+        "name": "When clicking ‘Execute workflow’"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 3
+            },
+            "conditions": [
+              {
+                "id": "40a70526-659d-4756-8a9e-f6ce1b459051",
+                "leftValue": "={{ $json.website }}",
+                "rightValue": "",
+                "operator": {
+                  "type": "string",
+                  "operation": "exists",
+                  "singleValue": true
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.3,
+        "position": [
+          -2544,
+          240
+        ],
+        "id": "98b159a3-a9fb-4745-83cd-f6d1fc37cee6",
+        "name": "If"
+      },
+      {
+        "parameters": {
+          "jsCode": "return items.map(item => {\n  let raw = String(item.json['website'] ?? '');\n  \n  if (!raw || raw === 'undefined' || raw === 'null') {\n    return {\n      json: {\n        row_number: item.json.row_number,\n        website_clean: '',\n        website_domain: ''\n      }\n    };\n  }\n  raw = raw\n    .replace(/\\u00A0/g, ' ')\n    .replace(/\\u200B/g, '')\n    .replace(/\\u200C/g, '')\n    .replace(/\\u200D/g, '')\n    .replace(/\\uFEFF/g, '')\n    .trim();\n  const tokenMatch = raw.match(/https?:\\/\\/[^\\s]+|[a-z0-9.-]+\\.[a-z]{2,}(\\/[^\\s]*)?/i);\n  const token = (tokenMatch ? tokenMatch[0] : raw).trim();\n  let host = '';\n  const m1 = token.match(/^https?:\\/\\/([^\\/?#\\s]+)/i);\n  if (m1 && m1[1]) {\n    host = m1[1];\n  } else {\n    const m2 = token.match(/^([a-z0-9.-]+\\.[a-z]{2,})(?:[\\/?#]|$)/i);\n    if (m2 && m2[1]) host = m2[1];\n  }\n  const website_domain = host.replace(/^www\\./i, '').toLowerCase();\n  const website_clean = website_domain ? `https://${website_domain}/` : '';\n  return {\n    json: {\n      row_number: item.json.row_number,\n      website_clean,\n      website_domain\n    }\n  };\n});"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          -1968,
+          144
+        ],
+        "id": "6ff6bc13-0aed-43a1-8765-754439b06af4",
+        "name": "Code in JavaScript"
+      },
+      {
+        "parameters": {
+          "url": "={{ ($json.website_clean || '').trim().replace(/\\/$/, '').replace(/^https?:\\/\\/(www\\.)?/, 'https://www.') + '/sitemap_index.xml' }}",
+          "options": {
+            "response": {
+              "response": {
+                "neverError": true,
+                "responseFormat": "text"
+              }
+            }
+          }
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.4,
+        "position": [
+          -1760,
+          144
+        ],
+        "id": "fac2f43a-1d20-4f84-93a9-9267cc34f74a",
+        "name": "HTTP Request"
+      },
+      {
+        "parameters": {
+          "jsCode": "// n8n Code node\n\nconst body = $json.data || '';\nconst sizeBytes = Buffer.byteLength(body, 'utf8');\n\n// hard size cutoff: 1.5 MB\nconst MAX_SIZE = 1.5 * 1024 * 1024;\n\n// normalize\nconst text = body.slice(0, 5000).toLowerCase();\n\n// garbage checks\nconst looksLikeHtml =\n  text.includes('<!doctype html') ||\n  text.includes('<html') ||\n  text.includes('<head') ||\n  text.includes('<body');\n\nif (sizeBytes > MAX_SIZE || looksLikeHtml) {\n  return [{ status: 2 }];\n}\n\n// sitemap checks\nconst looksLikeSitemap =\n  text.includes('<?xml') &&\n  (text.includes('<sitemapindex') ||\n   text.includes('<urlset') ||\n   text.includes('<url><loc>'));\n\nif (looksLikeSitemap) {\n  return [{ status: 1 }];\n}\n\n// default: treat as garbage\nreturn [{ status: 2 }];\n"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          -1552,
+          144
+        ],
+        "id": "40873389-0403-45f1-bc02-aca40299c763",
+        "name": "Code in JavaScript1"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 3
+            },
+            "conditions": [
+              {
+                "id": "a5fcd2ca-4ca3-405b-8a9f-a5dd3342b9c2",
+                "leftValue": "={{ $json.status }}",
+                "rightValue": 1,
+                "operator": {
+                  "type": "number",
+                  "operation": "equals"
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.3,
+        "position": [
+          -1344,
+          176
+        ],
+        "id": "4170dd26-9600-481b-a725-4413a4b76aa5",
+        "name": "If1"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "7f591297-ebbd-4b37-be7f-15daf154bcd5",
+                "name": "project_id",
+                "value": "n8n-trw-492316",
+                "type": "string"
+              },
+              {
+                "id": "cd1d9181-a1d8-4b92-8552-60d119019008",
+                "name": "client_email",
+                "value": "ais-gemini-key-65cdff008b1c4f0@862176994722.iam.gserviceaccount.com",
+                "type": "string"
+              },
+              {
+                "id": "c70f7502-f57c-4eef-ab21-4267ae341d4b",
+                "name": "location_id",
+                "value": "global",
+                "type": "string"
+              },
+              {
+                "id": "81f917be-f9e8-4d2b-9a88-2c9f6b61402d",
+                "name": "api_endpoint",
+                "value": "global-alplatform.googleapis.com",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          -1024,
+          48
+        ],
+        "id": "be1009b7-d891-49e1-95e2-adcd6ac31642",
+        "name": "Edit Fields"
+      },
+      {
+        "parameters": {
+          "rules": {
+            "values": [
+              {
+                "conditions": {
+                  "options": {
+                    "caseSensitive": true,
+                    "leftValue": "",
+                    "typeValidation": "strict",
+                    "version": 3
+                  },
+                  "conditions": [
+                    {
+                      "leftValue": "={{ $json.mode }}",
+                      "rightValue": 1,
+                      "operator": {
+                        "type": "number",
+                        "operation": "equals"
+                      },
+                      "id": "651fba10-11f5-4734-8d8d-2e9f28b3ff9b"
+                    }
+                  ],
+                  "combinator": "and"
+                }
+              },
+              {
+                "conditions": {
+                  "options": {
+                    "caseSensitive": true,
+                    "leftValue": "",
+                    "typeValidation": "strict",
+                    "version": 3
+                  },
+                  "conditions": [
+                    {
+                      "id": "a7fa9212-8ad0-47ae-8c8a-f725c4e089ce",
+                      "leftValue": "={{ $json.mode }}",
+                      "rightValue": 2,
+                      "operator": {
+                        "type": "number",
+                        "operation": "equals"
+                      }
+                    }
+                  ],
+                  "combinator": "and"
+                }
+              },
+              {
+                "conditions": {
+                  "options": {
+                    "caseSensitive": true,
+                    "leftValue": "",
+                    "typeValidation": "strict",
+                    "version": 3
+                  },
+                  "conditions": [
+                    {
+                      "id": "70ad942b-4e4f-4f05-8d86-303dd2cefcf8",
+                      "leftValue": "={{ $json.mode }}",
+                      "rightValue": 0,
+                      "operator": {
+                        "type": "number",
+                        "operation": "equals"
+                      }
+                    }
+                  ],
+                  "combinator": "and"
+                }
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.switch",
+        "typeVersion": 3.4,
+        "position": [
+          -160,
+          48
+        ],
+        "id": "a5cd7425-88b5-48e9-8dec-9030c088bb56",
+        "name": "Switch"
+      },
+      {
+        "parameters": {
+          "url": "={{ $('Parse json').item.json.sitemap_index }}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.4,
+        "position": [
+          16,
+          208
+        ],
+        "id": "d8351ccf-6b9c-4c9f-b2c1-d6523e51da5b",
+        "name": "HTTP Request3"
+      },
+      {
+        "parameters": {
+          "jsCode": "const xml = $json.data || '';\n\nconst locs = [...xml.matchAll(/<loc>(.*?)<\\/loc>/gi)].map(m => m[1].trim());\n\nconst isSitemapIndex = /<sitemapindex/i.test(xml);\nconst isUrlSet = /<urlset/i.test(xml);\n\nreturn [{\n  json: {\n    sitemap_index: $('Parse json').item.json.sitemap_index ?? null,\n    mode: isSitemapIndex ? 1 : isUrlSet ? 2 : null,\n    url_1: isUrlSet ? (locs[0] || null) : null,\n    url_2: isUrlSet ? (locs[1] || null) : null,\n    url_3: isUrlSet ? (locs[2] || null) : null,\n  }\n}];"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          176,
+          192
+        ],
+        "id": "e12cbf96-4835-4410-aa47-ab97ffa63fe6",
+        "name": "Code in JavaScript4"
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "=https://aiplatform.googleapis.com/v1/projects/{{ $('Edit Fields').first().json.project_id }}/locations/global/publishers/google/models/gemini-3.1-pro-preview:streamGenerateContent",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "Authorization",
+                "value": "=Bearer {{ $('get auth 2 token').item.json.access_token }}"
+              },
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          },
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={\n  \"contents\": [\n    {\n      \"role\": \"user\",\n      \"parts\": [\n        {\n          \"text\": {{\n            JSON.stringify(\n              \"You are a technical research analyst processing XML sitemap data for a business website.\\n\" +\n              \"Use ONLY the provided sitemap data.\\n\" +\n              \"Do NOT use prior knowledge, assumptions, or external information.\\n\" +\n              \"If required information cannot be determined from the sitemap data, return null.\\n\\n\" +\n              \"Business Website data:\\n\" +\n              $('HTTP Request3').item.json.data + \"\\n\\n\" +\n              \"Instructions:\\n\" +\n              \"Analyze the provided response and determine whether it is:\\n\" +\n              \"- a sitemap index (contains links to other sitemap XML files),\\n\" +\n              \"- a page-level sitemap (contains actual page URLs),\\n\" +\n              \"- or an invalid / non-sitemap response.\\n\\n\" +\n              \"Decision Rules:\\n\" +\n              \"1) If the response is a sitemap index:\\n\" +\n              \"   - Select ONE best page-level sitemap URL from the XML.\\n\" +\n              \"   - Prefer page-sitemap.xml.\\n\" +\n              \"   - If page-sitemap.xml does not exist, choose the best equivalent page-level sitemap.\\n\" +\n              \"   - Output this exact JSON shape:\\n\" +\n              \"     {\\\"sitemap_index\\\":\\\"<chosen page sitemap url>\\\",\\\"mode\\\":1,\\\"url_1\\\":null,\\\"url_2\\\":null,\\\"url_3\\\":null}\\n\\n\" +\n              \"2) If the response is already a page-level sitemap:\\n\" +\n              \"   - Select EXACTLY three URLs from the provided URLs only.\\n\" +\n              \"   - url_1 = homepage if present, otherwise best main page.\\n\" +\n              \"   - url_2 = primary service/offer page.\\n\" +\n              \"   - url_3 = trust/differentiation page such as about, contact, faq, testimonials, team, why-us.\\n\" +\n              \"   - Output this exact JSON shape:\\n\" +\n              \"     {\\\"sitemap_index\\\":null,\\\"mode\\\":2,\\\"url_1\\\":\\\"<url>\\\",\\\"url_2\\\":\\\"<url>\\\",\\\"url_3\\\":\\\"<url>\\\"}\\n\\n\" +\n              \"3) If the response is invalid, blocked, HTML, or not a sitemap:\\n\" +\n              \"   - Output this exact JSON shape:\\n\" +\n              \"     {\\\"sitemap_index\\\":null,\\\"mode\\\":0,\\\"url_1\\\":null,\\\"url_2\\\":null,\\\"url_3\\\":null}\\n\\n\" +\n              \"Output Requirements (STRICT):\\n\" +\n              \"- Output MUST be valid JSON.\\n\" +\n              \"- Output MUST be ONE JSON object ONLY.\\n\" +\n              \"- Do NOT include markdown, code fences, or extra text.\\n\" +\n              \"- Do NOT include arrays.\\n\" +\n              \"- Use null exactly as shown.\\n\" +\n              \"- All keys MUST be present exactly: sitemap_index, mode, url_1, url_2, url_3\"\n            )\n          }}\n        }\n      ]\n    }\n  ]\n}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.4,
+        "position": [
+          336,
+          192
+        ],
+        "id": "4208d0e6-fcaf-494b-af20-688f7a737e1f",
+        "name": "HTTP Request4"
+      },
+      {
+        "parameters": {
+          "jsCode": "// Combine ALL Gemini text chunks into one string, then parse JSON\n\nconst items = $input.all();\n\nlet text = '';\n\n// Read every item -> every candidate -> every part\nfor (const it of items) {\n  const candidates = it.json?.candidates ?? [];\n\n  for (const candidate of candidates) {\n    const parts = candidate?.content?.parts ?? [];\n\n    for (const p of parts) {\n      if (typeof p?.text === 'string') {\n        text += p.text;\n      }\n    }\n  }\n}\n\ntext = text.trim();\n\n// Remove code fences if present\ntext = text.replace(/```json/gi, '').replace(/```/g, '').trim();\n\n// Extract first JSON object\nconst match = text.match(/\\{[\\s\\S]*\\}/);\n\nif (!match) {\n  return [{\n    json: {\n      sitemap_index: null,\n      mode: null,\n      url_1: null,\n      url_2: null,\n      url_3: null,\n      _raw: text\n    }\n  }];\n}\n\nlet jsonStr = match[0].trim();\n\nlet obj;\ntry {\n  obj = JSON.parse(jsonStr);\n} catch (e) {\n  // small repair for trailing commas\n  jsonStr = jsonStr.replace(/,\\s*([}\\]])/g, '$1');\n  obj = JSON.parse(jsonStr);\n}\n\nreturn [{\n  json: {\n    sitemap_index: typeof obj.sitemap_index === 'string' ? obj.sitemap_index : null,\n    mode: obj.mode ?? null,\n    url_1: typeof obj.url_1 === 'string' ? obj.url_1 : null,\n    url_2: typeof obj.url_2 === 'string' ? obj.url_2 : null,\n    url_3: typeof obj.url_3 === 'string' ? obj.url_3 : null,\n  }\n}];"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          496,
+          192
+        ],
+        "id": "74c0856f-b9dd-4a1d-ac5b-53c608a5777a",
+        "name": "Code in JavaScript5"
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "=https://aiplatform.googleapis.com/v1/projects/{{ $('Edit Fields').first().json.project_id }}/locations/global/publishers/google/models/gemini-2.5-flash:generateContent",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "Authorization",
+                "value": "=Bearer {{ $('get auth 2 token').first().json.access_token }}"
+              },
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          },
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={\n  \"contents\": [\n    {\n      \"role\": \"user\",\n      \"parts\": [\n        {\n          \"text\": \"You are reviewing THREE website pages. For EACH page, compare the DESKTOP and MOBILE screenshots of the same URL.\\nReturn JSON ONLY.\\nOutput MUST be ONE JSON object with this shape:\\n{\\n  \\\"pages\\\": [\\n    {\\n      \\\"url\\\": \\\"...\\\",\\n      \\\"verdict\\\": \\\"...\\\",\\n      \\\"issues\\\": [],\\n      \\\"quick_wins\\\": [],\\n      \\\"copy_notes\\\": [],\\n      \\\"ux_notes\\\": []\\n    }\\n  ]\\n}\\n\\nRules:\\n- Be blunt, specific, actionable.\\n- Each array should contain short bullet strings.\\n- pages array MUST contain exactly 3 objects in the same order as the URLs below.\\n\\nURL 1: {{ $json.results[0].url }}\\nURL 2: {{ $json.results[1].url }}\\nURL 3: {{ $json.results[2].url }}\"\n        },\n        {\n          \"file_data\": {\n            \"mime_type\": \"image/png\",\n            \"file_uri\": \"{{ $json.results[0].desktop.replace('https://storage.googleapis.com/', 'gs://') }}\"\n          }\n        },\n        {\n          \"file_data\": {\n            \"mime_type\": \"image/png\",\n            \"file_uri\": \"{{ $json.results[0].mobile.replace('https://storage.googleapis.com/', 'gs://') }}\"\n          }\n        },\n        {\n          \"file_data\": {\n            \"mime_type\": \"image/png\",\n            \"file_uri\": \"{{ $json.results[1].desktop.replace('https://storage.googleapis.com/', 'gs://') }}\"\n          }\n        },\n        {\n          \"file_data\": {\n            \"mime_type\": \"image/png\",\n            \"file_uri\": \"{{ $json.results[1].mobile.replace('https://storage.googleapis.com/', 'gs://') }}\"\n          }\n        },\n        {\n          \"file_data\": {\n            \"mime_type\": \"image/png\",\n            \"file_uri\": \"{{ $json.results[2].desktop.replace('https://storage.googleapis.com/', 'gs://') }}\"\n          }\n        },\n        {\n          \"file_data\": {\n            \"mime_type\": \"image/png\",\n            \"file_uri\": \"{{ $json.results[2].mobile.replace('https://storage.googleapis.com/', 'gs://') }}\"\n          }\n        }\n      ]\n    }\n  ],\n  \"generationConfig\": {\n    \"temperature\": 0.2\n  }\n}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.4,
+        "position": [
+          800,
+          192
+        ],
+        "id": "dd1f0e4b-5f47-4df1-b8d2-1287b27facd3",
+        "name": "HTTP Request6"
+      },
+      {
+        "parameters": {
+          "jsCode": "// n8n Code node: Parse Gemini pages output\n\nconst raw = $input.first().json?.candidates?.[0]?.content?.parts?.[0]?.text ?? '';\n\nlet text = String(raw).trim();\n\n// Remove code fences\ntext = text.replace(/```json/gi, '').replace(/```/g, '').trim();\n\n// Extract JSON object\nconst match = text.match(/\\{[\\s\\S]*\\}/);\nif (!match) {\n  return [\n    {\n      json: {\n        error: 'No JSON object found',\n        raw_text: text\n      }\n    }\n  ];\n}\n\nlet obj;\n\ntry {\n  obj = JSON.parse(match[0]);\n} catch (e) {\n  const fixedStr = match[0].replace(/,\\s*([}\\]])/g, '$1');\n  obj = JSON.parse(fixedStr);\n}\n\nconst pages = Array.isArray(obj.pages) ? obj.pages : [];\n\nreturn pages.map((page) => ({\n  json: {\n    url: page.url || null,\n    verdict: page.verdict || null,\n    issues: Array.isArray(page.issues) ? page.issues : [],\n    quick_wins: Array.isArray(page.quick_wins) ? page.quick_wins : [],\n    copy_notes: Array.isArray(page.copy_notes) ? page.copy_notes : [],\n    ux_notes: Array.isArray(page.ux_notes) ? page.ux_notes : []\n  }\n}));"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          960,
+          192
+        ],
+        "id": "e089f811-1ee4-4bdc-a332-5dd11475de75",
+        "name": "Code in JavaScript6"
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "=https://aiplatform.googleapis.com/v1/projects/{{ $('Edit Fields').first().json.project_id }}/locations/global/publishers/google/models/gemini-2.5-flash:generateContent",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "Authorization",
+                "value": "=Bearer {{ $('get auth 2 token').first().json.access_token }}"
+              },
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          },
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={\n  \"contents\": [\n    {\n      \"role\": \"user\",\n      \"parts\": [\n        {\n          \"text\": \"You are reviewing THREE website pages. For EACH page, compare the DESKTOP and MOBILE screenshots of the same URL.\\nReturn JSON ONLY.\\nOutput MUST be ONE JSON object with this shape:\\n{\\n  \\\"pages\\\": [\\n    {\\n      \\\"url\\\": \\\"...\\\",\\n      \\\"verdict\\\": \\\"...\\\",\\n      \\\"issues\\\": [],\\n      \\\"quick_wins\\\": [],\\n      \\\"copy_notes\\\": [],\\n      \\\"ux_notes\\\": []\\n    }\\n  ]\\n}\\n\\nRules:\\n- Be blunt, specific, actionable.\\n- Each array should contain short bullet strings.\\n- pages array MUST contain exactly 3 objects in the same order as the URLs below.\\n\\nURL 1: {{ $('get screenshots1').first().json.results[0].url }}\\nURL 2: {{ $('get screenshots1').first().json.results[1].url }}\\nURL 3: {{ $('get screenshots1').first().json.results[2].url }}\"\n        },\n        {\n          \"file_data\": {\n            \"mime_type\": \"image/png\",\n            \"file_uri\": \"{{ $('get screenshots1').first().json.results[0].desktop.replace('https://storage.googleapis.com/', 'gs://') }}\"\n          }\n        },\n        {\n          \"file_data\": {\n            \"mime_type\": \"image/png\",\n            \"file_uri\": \"{{ $('get screenshots1').first().json.results[0].mobile.replace('https://storage.googleapis.com/', 'gs://') }}\"\n          }\n        },\n        {\n          \"file_data\": {\n            \"mime_type\": \"image/png\",\n            \"file_uri\": \"{{ $('get screenshots1').first().json.results[1].desktop.replace('https://storage.googleapis.com/', 'gs://') }}\"\n          }\n        },\n        {\n          \"file_data\": {\n            \"mime_type\": \"image/png\",\n            \"file_uri\": \"{{ $('get screenshots1').first().json.results[1].mobile.replace('https://storage.googleapis.com/', 'gs://') }}\"\n          }\n        },\n        {\n          \"file_data\": {\n            \"mime_type\": \"image/png\",\n            \"file_uri\": \"{{ $('get screenshots1').first().json.results[2].desktop.replace('https://storage.googleapis.com/', 'gs://') }}\"\n          }\n        },\n        {\n          \"file_data\": {\n            \"mime_type\": \"image/png\",\n            \"file_uri\": \"{{ $('get screenshots1').first().json.results[2].mobile.replace('https://storage.googleapis.com/', 'gs://') }}\"\n          }\n        }\n      ]\n    }\n  ],\n  \"generationConfig\": {\n    \"temperature\": 0.2\n  }\n}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.4,
+        "position": [
+          1376,
+          192
+        ],
+        "id": "7b474614-4c83-488f-8c6b-be0f7ae6ea86",
+        "name": "HTTP Request7"
+      },
+      {
+        "parameters": {
+          "jsCode": "const out = [];\n\nfor (let index = 0; index < items.length; index++) {\n  const item = items[index];\n\n  const raw =\n    item.json?.candidates?.[0]?.content?.parts?.find(p => p.text)?.text ??\n    item.json?.candidates?.[0]?.content?.parts?.[0]?.text ??\n    item.json?.text ??\n    '';\n\n  let text = String(raw).trim();\n\n  // Strip code fences\n  text = text.replace(/```json/gi, '').replace(/```/g, '').trim();\n\n  // Extract JSON object\n  const match = text.match(/\\{[\\s\\S]*\\}/);\n  if (!match) {\n    out.push({\n      json: {\n        error: 'No JSON object found',\n        raw_text: text\n      },\n      pairedItem: index\n    });\n    continue;\n  }\n\n  let obj;\n  try {\n    obj = JSON.parse(match[0].trim());\n  } catch (e) {\n    try {\n      const fixedStr = match[0].trim().replace(/,\\s*([}\\]])/g, '$1');\n      obj = JSON.parse(fixedStr);\n    } catch (e2) {\n      out.push({\n        json: {\n          error: 'JSON parse failed',\n          raw_text: text,\n          parse_error: String(e2.message || e2)\n        },\n        pairedItem: index\n      });\n      continue;\n    }\n  }\n\n  const pages = Array.isArray(obj.pages) ? obj.pages : [];\n\n  for (const p of pages) {\n    out.push({\n      json: {\n        page: p.url ?? null,\n        website_problem: p.verdict ?? null,\n        recognizable_reason: Array.isArray(p.issues) ? p.issues.join(' | ') : null,\n        consequence_mechanics: Array.isArray(p.ux_notes) ? p.ux_notes.join(' | ') : null,\n        preview_asset_exists: null,\n        review_time: null,\n        micro_yes: Array.isArray(p.quick_wins) ? p.quick_wins.join(' | ') : null,\n        subject_label: null,\n        sources: item.json?.groundingMetadata?.webSearchQueries ?? []\n      },\n      pairedItem: index\n    });\n  }\n}\n\nreturn out;"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1584,
+          192
+        ],
+        "id": "0efbcee6-3861-46dc-83af-5951a9650083",
+        "name": "Code in JavaScript7"
+      },
+      {
+        "parameters": {
+          "amount": 3
+        },
+        "type": "n8n-nodes-base.wait",
+        "typeVersion": 1.1,
+        "position": [
+          -1904,
+          384
+        ],
+        "id": "40a3b347-2c64-432b-a333-82abdbb0a41e",
+        "name": "Wait",
+        "webhookId": "37ae8251-c59d-4f58-b3cf-cd1f97a681ba"
+      },
+      {
+        "parameters": {
+          "amount": 3
+        },
+        "type": "n8n-nodes-base.wait",
+        "typeVersion": 1.1,
+        "position": [
+          -1248,
+          416
+        ],
+        "id": "6216e7d8-8d23-4096-9f99-913cecfe7620",
+        "name": "Wait1",
+        "webhookId": "37ae8251-c59d-4f58-b3cf-cd1f97a681ba"
+      },
+      {
+        "parameters": {
+          "amount": 3
+        },
+        "type": "n8n-nodes-base.wait",
+        "typeVersion": 1.1,
+        "position": [
+          -96,
+          448
+        ],
+        "id": "1c67240f-5c47-4ce2-b323-99805c41a26f",
+        "name": "Wait2",
+        "webhookId": "37ae8251-c59d-4f58-b3cf-cd1f97a681ba"
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://oauth2.googleapis.com/token",
+          "sendBody": true,
+          "contentType": "form-urlencoded",
+          "bodyParameters": {
+            "parameters": [
+              {
+                "name": "grant_type",
+                "value": "urn:ietf:params:oauth:grant-type:jwt-bearer"
+              },
+              {
+                "name": "assertion",
+                "value": "={{ $json.token }}"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.4,
+        "position": [
+          -784,
+          48
+        ],
+        "id": "1b15be8e-c813-4426-a375-5422a0b04766",
+        "name": "get auth 2 token"
+      },
+      {
+        "parameters": {
+          "jsCode": "const raw = $('HTTP Request').first().json.data ?? '';\nconst xml = String(raw);\n\n// Pull all <loc> links\nconst locs = [...xml.matchAll(/<loc>([^<]+)<\\/loc>/g)].map(m => m[1].trim());\n\n// Build the sitemap blob (links + separator + flattened XML)\nconst sitemap_blob = [\n  locs.join(', '),\n  '---',\n  xml.replace(/\\s+/g, ' ').trim()\n].join('\\n');\n\n// Prompt template (NORMAL newlines for now)\nconst prompt =\n  \"You are a technical research analyst processing XML sitemap data for a business website.\\n\" +\n  \"You are given the raw response body retrieved from requesting /sitemap.xml.\\n\" +\n  \"Use ONLY the provided sitemap data.\\n\" +\n  \"Do NOT use prior knowledge, assumptions, or external information.\\n\" +\n  \"If required information cannot be determined from the sitemap data, return null.\\n\\n\" +\n  \"Business Website data: \" + sitemap_blob + \"\\n\\n\" +\n  \"Instructions:\\n\" +\n  \"Analyze the provided sitemap response.\\n\" +\n  \"First, determine whether the response represents:\\n\" +\n  \"- a sitemap index (containing links to other sitemaps),\\n\" +\n  \"- a page-level sitemap (containing page URLs),\\n\" +\n  \"- or a non-sitemap response (HTML page, blocked response, or invalid content).\\n\\n\" +\n  \"Decision Rules:\\n\" +\n  \"1) If the response is a sitemap index:\\n\" +\n  \"   - Select ONE best page-level sitemap URL (prefer page-sitemap.xml or similar; avoid post/category/tag if possible).\\n\" +\n  \"   - Output MUST be this exact JSON shape (all keys required):\\n\" +\n  \"     {\\\"sitemap_index\\\":\\\"<page sitemap url>\\\",\\\"mode\\\":2,\\\"url_1\\\":null,\\\"url_2\\\":null,\\\"url_3\\\":null}\\n\\n\" +\n  \"2) If the response is already a page-level sitemap:\\n\" +\n  \"   - Select EXACTLY three URLs from the provided URLs only:\\n\" +\n  \"     url_1 = homepage (root URL / canonical homepage)\\n\" +\n  \"     url_2 = primary offer/service page\\n\" +\n  \"     url_3 = trust/differentiation page (about/contact/faq/how-it-works/suppliers)\\n\" +\n  \"   - Output MUST be this exact JSON shape (all keys required):\\n\" +\n  \"     {\\\"sitemap_index\\\":null,\\\"mode\\\":1,\\\"url_1\\\":\\\"<url>\\\",\\\"url_2\\\":\\\"<url>\\\",\\\"url_3\\\":\\\"<url>\\\"}\\n\\n\" +\n  \"3) If invalid/non-sitemap:\\n\" +\n  \"   - Output MUST be this exact JSON shape (all keys required):\\n\" +\n  \"     {\\\"sitemap_index\\\":null,\\\"mode\\\":0,\\\"url_1\\\":null,\\\"url_2\\\":null,\\\"url_3\\\":null}\\n\\n\" +\n  \"Output Requirements (STRICT):\\n\" +\n  \"- Output MUST be valid JSON.\\n\" +\n  \"- Output MUST be ONE JSON object ONLY.\\n\" +\n  \"- Do NOT include markdown, code fences, or extra text.\\n\" +\n  \"- Do NOT include arrays.\\n\" +\n  \"- Use null exactly as shown.\\n\" +\n  \"- All keys MUST be present exactly: sitemap_index, mode, url_1, url_2, url_3\\n\";\n\n// Convert to escaped style for JSON-safe embedding:\n// - escape backslashes\n// - escape double quotes\n// - turn real newlines into literal \\\\n\nconst escapedPrompt = prompt\n  .replace(/\\\\/g, '\\\\\\\\')\n  .replace(/\"/g, '\\\\\"')\n  .replace(/\\r?\\n/g, '\\\\\\\\n');\n\nreturn [\n  {\n    json: {\n      prompt: escapedPrompt\n    }\n  }\n];\n"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          -1136,
+          64
+        ],
+        "id": "5b419e07-20e8-4838-bb47-ed5f814b3ced",
+        "name": "parse json"
+      },
+      {
+        "parameters": {
+          "useJson": true,
+          "claimsJson": "={\n  \"iss\": \"{{ $json.client_email }}\",\n  \"scope\": \"https://www.googleapis.com/auth/cloud-platform\",\n  \"aud\": \"https://oauth2.googleapis.com/token\",\n  \"exp\": {{ Math.floor(Date.now() / 1000) + 3500 }},\n  \"iat\": {{ Math.floor(Date.now() / 1000) }}\n}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.jwt",
+        "typeVersion": 1,
+        "position": [
+          -912,
+          48
+        ],
+        "id": "4518ff04-a705-4463-86d1-29b0e7774dd8",
+        "name": "get google token",
+        "credentials": {
+          "jwtAuth": {
+            "id": "U6vG3WFEPqvwY5p2",
+            "name": "JWT Auth account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "=https://aiplatform.googleapis.com/v1/projects/{{ $('Edit Fields').item.json.project_id }}/locations/global/publishers/google/models/gemini-3.1-pro-preview:streamGenerateContent",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "Authorization",
+                "value": "=Bearer {{ $json.access_token }}"
+              },
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          },
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={\n  \"contents\": [\n    {\n      \"role\": \"user\",\n      \"parts\": [\n        { \"text\": \"{{ $('parse json').item.json.prompt }}\" }\n      ]\n    }\n  ]\n}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.4,
+        "position": [
+          -576,
+          48
+        ],
+        "id": "24c5588e-e3b4-42e2-bb0f-a4668cdb0ba5",
+        "name": "Gemini"
+      },
+      {
+        "parameters": {
+          "jsCode": "// Combine chunked Gemini outputs into a single JSON string, then parse.\n// Outputs: sitemap_index, mode, url_1, url_2, url_3\n\nconst items = $input.all();\n\n// 1) Stitch together all candidate text parts from all items\nlet text = '';\nfor (const it of items) {\n  const parts = it.json?.candidates?.[0]?.content?.parts ?? [];\n  for (const p of parts) {\n    if (typeof p.text === 'string') text += p.text;\n  }\n}\n\ntext = text.trim();\n\n// 2) Remove code fences if Gemini ever adds them\ntext = text.replace(/```(?:json)?/gi, '').replace(/```/g, '').trim();\n\n// 3) Extract JSON object safely (first {...} block)\nconst m = text.match(/\\{[\\s\\S]*\\}/);\nif (!m) {\n  return [{\n    json: {\n      sitemap_index: null,\n      mode: null,\n      url_1: null,\n      url_2: null,\n      url_3: null,\n      _raw: text\n    }\n  }];\n}\n\nlet jsonStr = m[0].trim();\n\n// 4) Parse\nlet obj;\ntry {\n  obj = JSON.parse(jsonStr);\n} catch (e) {\n  // try minor repair: remove trailing commas\n  jsonStr = jsonStr.replace(/,\\s*([}\\]])/g, '$1');\n  obj = JSON.parse(jsonStr);\n}\n\n// 5) Clean variables (exact names you want)\nconst sitemap_index = typeof obj.sitemap_index === 'string' ? obj.sitemap_index : null;\nconst mode = typeof obj.mode === 'number' ? obj.mode : null;\nconst url_1 = typeof obj.url_1 === 'string' ? obj.url_1 : null;\nconst url_2 = typeof obj.url_2 === 'string' ? obj.url_2 : null;\nconst url_3 = typeof obj.url_3 === 'string' ? obj.url_3 : null;\n\nreturn [{\n  json: { sitemap_index, mode, url_1, url_2, url_3 }\n}];\n"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          -368,
+          48
+        ],
+        "id": "dc47a108-613a-4be9-8451-0683d6e85690",
+        "name": "Parse json"
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "http://34.60.224.98:3333/screenshot",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          },
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={\n  \"urls\": [\n    \"{{ $('Parse json').item.json.url_1 }}\",\n    \"{{ $('Parse json').item.json.url_2 }}\",\n    \"{{ $('Parse json').item.json.url_3 }}\"\n  ]\n}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.4,
+        "position": [
+          192,
+          -32
+        ],
+        "id": "4f8c1caa-d6b3-46a9-a1ed-cda0bccb1fcb",
+        "name": "get screenshots"
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "=https://aiplatform.googleapis.com/v1/projects/{{ $('Edit Fields').first().json.project_id }}/locations/global/publishers/google/models/gemini-2.5-flash:generateContent",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "Authorization",
+                "value": "=Bearer {{ $('get auth 2 token').first().json.access_token }}"
+              },
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          },
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={\n  \"contents\": [\n    {\n      \"role\": \"user\",\n      \"parts\": [\n        {\n          \"text\": \"You are reviewing THREE website pages. For EACH page, compare the DESKTOP and MOBILE screenshots of the same URL.\\nReturn JSON ONLY.\\nOutput MUST be ONE JSON object with this shape:\\n{\\n  \\\"pages\\\": [\\n    {\\n      \\\"url\\\": \\\"...\\\",\\n      \\\"verdict\\\": \\\"...\\\",\\n      \\\"issues\\\": [],\\n      \\\"quick_wins\\\": [],\\n      \\\"copy_notes\\\": [],\\n      \\\"ux_notes\\\": []\\n    }\\n  ]\\n}\\n\\nRules:\\n- Be blunt, specific, actionable.\\n- Each array should contain short bullet strings.\\n- pages array MUST contain exactly 3 objects in the same order as the URLs below.\\n\\nURL 1: {{ $('get screenshots').first().json.results[0].url }}\\nURL 2: {{ $('get screenshots').first().json.results[1].url }}\\nURL 3: {{ $('get screenshots').first().json.results[2].url }}\"\n        },\n        {\n          \"fileData\": {\n            \"mimeType\": \"image/png\",\n            \"fileUri\": \"{{ 'gs://' + $('get screenshots').first().json.results[0].desktop.replace('https://storage.googleapis.com/', '') }}\"\n          }\n        },\n        {\n          \"fileData\": {\n            \"mimeType\": \"image/png\",\n            \"fileUri\": \"{{ 'gs://' + $('get screenshots').first().json.results[0].mobile.replace('https://storage.googleapis.com/', '') }}\"\n          }\n        },\n        {\n          \"fileData\": {\n            \"mimeType\": \"image/png\",\n            \"fileUri\": \"{{ 'gs://' + $('get screenshots').first().json.results[1].desktop.replace('https://storage.googleapis.com/', '') }}\"\n          }\n        },\n        {\n          \"fileData\": {\n            \"mimeType\": \"image/png\",\n            \"fileUri\": \"{{ 'gs://' + $('get screenshots').first().json.results[1].mobile.replace('https://storage.googleapis.com/', '') }}\"\n          }\n        },\n        {\n          \"fileData\": {\n            \"mimeType\": \"image/png\",\n            \"fileUri\": \"{{ 'gs://' + $('get screenshots').first().json.results[2].desktop.replace('https://storage.googleapis.com/', '') }}\"\n          }\n        },\n        {\n          \"fileData\": {\n            \"mimeType\": \"image/png\",\n            \"fileUri\": \"{{ 'gs://' + $('get screenshots').first().json.results[2].mobile.replace('https://storage.googleapis.com/', '') }}\"\n          }\n        }\n      ]\n    }\n  ],\n  \"generationConfig\": {\n    \"temperature\": 0.2,\n    \"responseMimeType\": \"application/json\"\n  }\n}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.4,
+        "position": [
+          336,
+          -32
+        ],
+        "id": "8888a1fb-3d11-4b29-ace1-1226d4dfadb1",
+        "name": "review screenshots"
+      },
+      {
+        "parameters": {
+          "jsCode": "// n8n Code node: Parse Vertex JSON for pages[]\n\nconst raw =\n  $input.first().json?.candidates?.[0]?.content?.parts?.[0]?.text ??\n  $input.first().json?.text ??\n  '';\n\nlet text = String(raw).trim();\n\n// Strip code fences\ntext = text.replace(/```json/gi, '').replace(/```/g, '').trim();\n\n// Extract JSON object\nconst match = text.match(/\\{[\\s\\S]*\\}/);\nif (!match) {\n  return [{ json: { error: 'No JSON object found', raw_text: text } }];\n}\n\nlet obj;\ntry {\n  obj = JSON.parse(match[0].trim());\n} catch (e) {\n  const fixedStr = match[0].trim().replace(/,\\s*([}\\]])/g, '$1');\n  obj = JSON.parse(fixedStr);\n}\n\n// Make sure pages exists\nconst pages = Array.isArray(obj.pages) ? obj.pages : [];\n\n// Return one item per page\nreturn pages.map(page => ({\n  json: {\n    url: page.url ?? null,\n    verdict: page.verdict ?? null,\n    issues: Array.isArray(page.issues) ? page.issues : [],\n    quick_wins: Array.isArray(page.quick_wins) ? page.quick_wins : [],\n    copy_notes: Array.isArray(page.copy_notes) ? page.copy_notes : [],\n    ux_notes: Array.isArray(page.ux_notes) ? page.ux_notes : []\n  }\n}));"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          496,
+          -32
+        ],
+        "id": "1f851db7-0ae2-42a4-879a-ec3495340471",
+        "name": "parse json1"
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "=https://aiplatform.googleapis.com/v1/projects/{{ $('Edit Fields').first().json.project_id }}/locations/global/publishers/google/models/gemini-2.5-flash:generateContent",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "Authorization",
+                "value": "=Bearer {{ $('get auth 2 token').first().json.access_token }}"
+              },
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          },
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={\n  \"contents\": [\n    {\n      \"role\": \"user\",\n      \"parts\": [\n        {\n          \"text\": \"Review this website page by comparing the DESKTOP and MOBILE screenshots of the same URL.\\nReturn JSON ONLY.\\nOutput MUST be ONE JSON object with this shape:\\n{\\n  \\\"url\\\": \\\"...\\\",\\n  \\\"verdict\\\": \\\"...\\\",\\n  \\\"issues\\\": [],\\n  \\\"quick_wins\\\": [],\\n  \\\"copy_notes\\\": [],\\n  \\\"ux_notes\\\": []\\n}\\n\\nRules:\\n- Be blunt, specific, actionable.\\n- Each array should contain short bullet strings.\\n\\nURL: {{ $json.url }}\"\n        },\n        {\n          \"file_data\": {\n            \"mime_type\": \"image/png\",\n            \"file_uri\": \"{{ $('get screenshots').first().json.results[$itemIndex].desktop.replace('https://storage.googleapis.com/', 'gs://') }}\"\n          }\n        },\n        {\n          \"file_data\": {\n            \"mime_type\": \"image/png\",\n            \"file_uri\": \"{{ $('get screenshots').first().json.results[$itemIndex].mobile.replace('https://storage.googleapis.com/', 'gs://') }}\"\n          }\n        }\n      ]\n    }\n  ],\n  \"generationConfig\": {\n    \"temperature\": 0.2\n  }\n}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.4,
+        "position": [
+          704,
+          -32
+        ],
+        "id": "e96ceb7e-c895-47af-8fa9-c48fa7d78080",
+        "name": "compare the screenshots"
+      },
+      {
+        "parameters": {
+          "jsCode": "// n8n Code node: Final Variable Extractor\n\nconst raw =\n  $input.first().json?.candidates?.[0]?.content?.parts?.[0]?.text ??\n  $input.first().json?.text ??\n  '';\n\nlet text = String(raw).trim();\n\n// 1. Strip code fences\ntext = text.replace(/```json/gi, '').replace(/```/g, '').trim();\n\n// 2. Extract and Parse JSON\nconst match = text.match(/\\{[\\s\\S]*\\}/);\nif (!match) {\n  return [{ json: { error: 'No JSON object found', raw_text: text } }];\n}\n\nlet obj;\ntry {\n  obj = JSON.parse(match[0].trim());\n} catch (e) {\n  // Minor repair for trailing commas\n  const fixedStr = match[0].trim().replace(/,\\s*([}\\]])/g, '$1');\n  obj = JSON.parse(fixedStr);\n}\n\n// 3. Map variables directly (No more .answer wrapper)\nreturn [{\n  json: {\n    page: obj.page ?? null,\n    website_problem: obj.website_problem ?? null,\n    recognizable_reason: obj.recognizable_reason ?? null,\n    consequence_mechanics: obj.consequence_mechanics ?? null,\n    preview_asset_exists: typeof obj.preview_asset_exists === 'boolean' ? obj.preview_asset_exists : null,\n    review_time: Number.isFinite(obj.review_time) ? obj.review_time : null,\n    micro_yes: obj.micro_yes ?? null,\n    subject_label: obj.subject_label ?? null,\n    // Add sources if Gemini included groundingMetadata\n    sources: $input.first().json?.groundingMetadata?.webSearchQueries ?? []\n  }\n}];"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          912,
+          -32
+        ],
+        "id": "5e7c1a0d-6e2c-449f-ad6c-e8e382f9db0a",
+        "name": " parse json"
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "http://35.225.222.54:3333/screenshot",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          },
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={\n  \"urls\": [\n    \"{{ $json.url_1 }}\",\n    \"{{ $json.url_2 }}\",\n    \"{{ $json.url_3 }}\"\n  ]\n}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.4,
+        "position": [
+          656,
+          192
+        ],
+        "id": "1ffbfbee-23e0-4228-bd30-920464e28fc5",
+        "name": "get screenshots1",
+        "retryOnFail": true
+      },
+      {
+        "parameters": {},
+        "type": "n8n-nodes-base.limit",
+        "typeVersion": 1,
+        "position": [
+          -2784,
+          240
+        ],
+        "id": "45271cf0-0c1b-4002-ba54-3e3a35f4b154",
+        "name": "Limit"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "40eb5f7b-52ab-452e-b3d3-2df0eeca7284",
+                "name": "id",
+                "value": "={{ $('Get many rows').item.json.id }}",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          1168,
+          192
+        ],
+        "id": "4db7a2ee-1cde-41d3-86cd-adc9372c63e7",
+        "name": "Edit Fields1"
+      },
+      {
+        "parameters": {
+          "jsCode": "return [items[0]];"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1744,
+          192
+        ],
+        "id": "ead99fd3-5c1c-451a-8c7c-3d9d59a1ad8f",
+        "name": "Code in JavaScript2"
+      },
+      {
+        "parameters": {
+          "amount": 1,
+          "unit": "minutes"
+        },
+        "type": "n8n-nodes-base.wait",
+        "typeVersion": 1.1,
+        "position": [
+          2128,
+          192
+        ],
+        "id": "8fd6c88f-b7bb-4232-ae97-ee1d11e695c5",
+        "name": "Wait3",
+        "webhookId": "d8dee27f-92c7-475b-a19a-6fa387f6f384"
+      },
+      {
+        "parameters": {
+          "operation": "getAll",
+          "tableId": "leads",
+          "limit": 150
+        },
+        "type": "n8n-nodes-base.supabase",
+        "typeVersion": 1,
+        "position": [
+          -3200,
+          240
+        ],
+        "id": "155a5dee-cb29-45e3-b4bf-2761d5b6aec7",
+        "name": "Get many rows",
+        "credentials": {
+          "supabaseApi": {
+            "id": "4UcvDgBqf10SrNQ1",
+            "name": "Supabase account 2"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "update",
+          "tableId": "leads_emails",
+          "filters": {
+            "conditions": [
+              {
+                "keyName": "id",
+                "condition": "eq",
+                "keyValue": "={{ $('Edit Fields1').item.json.id }}"
+              }
+            ]
+          },
+          "fieldsUi": {
+            "fieldValues": [
+              {
+                "fieldId": "page",
+                "fieldValue": "={{ $json.page }}"
+              },
+              {
+                "fieldId": "website_problem",
+                "fieldValue": "={{ $json.website_problem }}"
+              },
+              {
+                "fieldId": "recognizable_reason",
+                "fieldValue": "={{ $json.recognizable_reason }}"
+              },
+              {
+                "fieldId": "consequence_mechanics",
+                "fieldValue": "={{ $json.consequence_mechanics }}"
+              },
+              {
+                "fieldId": "review",
+                "fieldValue": "={{ $json.review_time }}"
+              },
+              {
+                "fieldId": "micro_yes",
+                "fieldValue": "={{ $json.micro_yes }}"
+              },
+              {
+                "fieldId": "subject_label",
+                "fieldValue": "={{ $json.subject_label }}"
+              },
+              {
+                "fieldId": "research_done",
+                "fieldValue": "yes"
+              },
+              {
+                "fieldId": "issue_found",
+                "fieldValue": "yes"
+              }
+            ]
+          }
+        },
+        "type": "n8n-nodes-base.supabase",
+        "typeVersion": 1,
+        "position": [
+          1952,
+          192
+        ],
+        "id": "b342c404-8565-4978-bd84-993014b91097",
+        "name": "Update a row",
+        "credentials": {
+          "supabaseApi": {
+            "id": "4UcvDgBqf10SrNQ1",
+            "name": "Supabase account 2"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "update",
+          "tableId": "leads_emails",
+          "filters": {
+            "conditions": [
+              {
+                "keyName": "id",
+                "condition": "eq",
+                "keyValue": "={{ $('Edit Fields1').item.json.id }}"
+              }
+            ]
+          },
+          "fieldsUi": {
+            "fieldValues": [
+              {
+                "fieldId": "page",
+                "fieldValue": "={{ $json.page }}"
+              },
+              {
+                "fieldId": "website_problem",
+                "fieldValue": "={{ $json.website_problem }}"
+              },
+              {
+                "fieldId": "recognizable_reason",
+                "fieldValue": "={{ $json.recognizable_reason }}"
+              },
+              {
+                "fieldId": "consequence_mechanics",
+                "fieldValue": "={{ $json.consequence_mechanics }}"
+              },
+              {
+                "fieldId": "review",
+                "fieldValue": "={{ $json.review_time }}"
+              },
+              {
+                "fieldId": "micro_yes",
+                "fieldValue": "={{ $json.micro_yes }}"
+              },
+              {
+                "fieldId": "subject_label",
+                "fieldValue": "={{ $json.subject_label }}"
+              },
+              {
+                "fieldId": "research_done",
+                "fieldValue": "yes"
+              },
+              {
+                "fieldId": "issue_found",
+                "fieldValue": "yes"
+              }
+            ]
+          }
+        },
+        "type": "n8n-nodes-base.supabase",
+        "typeVersion": 1,
+        "position": [
+          1104,
+          -32
+        ],
+        "id": "9d7e23f2-2846-4983-b88d-5e5e1ee7cd8a",
+        "name": "Update a row1",
+        "credentials": {
+          "supabaseApi": {
+            "id": "4UcvDgBqf10SrNQ1",
+            "name": "Supabase account 2"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "update",
+          "tableId": "leads_emails",
+          "filters": {
+            "conditions": [
+              {
+                "keyName": "id",
+                "condition": "eq",
+                "keyValue": "={{ $('Edit Fields1').item.json.id }}"
+              }
+            ]
+          },
+          "fieldsUi": {
+            "fieldValues": [
+              {
+                "fieldId": "research_done",
+                "fieldValue": "yes"
+              },
+              {
+                "fieldId": "issue_found",
+                "fieldValue": "no"
+              }
+            ]
+          }
+        },
+        "type": "n8n-nodes-base.supabase",
+        "typeVersion": 1,
+        "position": [
+          -1760,
+          384
+        ],
+        "id": "29c89f70-1ba5-4cc5-b7fe-b56939ab36ed",
+        "name": "Update a row2",
+        "credentials": {
+          "supabaseApi": {
+            "id": "4UcvDgBqf10SrNQ1",
+            "name": "Supabase account 2"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "update",
+          "tableId": "leads_emails",
+          "filters": {
+            "conditions": [
+              {
+                "keyName": "id",
+                "condition": "eq",
+                "keyValue": "={{ $('Edit Fields1').item.json.id }}"
+              }
+            ]
+          },
+          "fieldsUi": {
+            "fieldValues": [
+              {
+                "fieldId": "research_done",
+                "fieldValue": "yes"
+              },
+              {
+                "fieldId": "issue_found",
+                "fieldValue": "no"
+              }
+            ]
+          }
+        },
+        "type": "n8n-nodes-base.supabase",
+        "typeVersion": 1,
+        "position": [
+          -1056,
+          416
+        ],
+        "id": "126896f2-6b2c-451f-ad33-eb12fb6eef9c",
+        "name": "Update a row4",
+        "credentials": {
+          "supabaseApi": {
+            "id": "4UcvDgBqf10SrNQ1",
+            "name": "Supabase account 2"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "update",
+          "tableId": "leads_emails",
+          "filters": {
+            "conditions": [
+              {
+                "keyName": "id",
+                "condition": "eq",
+                "keyValue": "={{ $('Edit Fields1').item.json.id }}"
+              }
+            ]
+          },
+          "fieldsUi": {
+            "fieldValues": [
+              {
+                "fieldId": "research_done",
+                "fieldValue": "yes"
+              },
+              {
+                "fieldId": "issue_found",
+                "fieldValue": "no"
+              }
+            ]
+          }
+        },
+        "type": "n8n-nodes-base.supabase",
+        "typeVersion": 1,
+        "position": [
+          96,
+          448
+        ],
+        "id": "0ed9c953-a7d4-469f-b85a-515ab76c0170",
+        "name": "Update a row3",
+        "credentials": {
+          "supabaseApi": {
+            "id": "4UcvDgBqf10SrNQ1",
+            "name": "Supabase account 2"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "path": "0e421f21-389d-4daa-b409-df2b62583ddb",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2.1,
+        "position": [
+          -3680,
+          512
+        ],
+        "id": "b29f9326-264e-4eb4-8b55-129edaf85d2f",
+        "name": "Webhook",
+        "webhookId": "0e421f21-389d-4daa-b409-df2b62583ddb"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 3
+            },
+            "conditions": [
+              {
+                "id": "51ed6e93-2481-4a9a-9baa-5e50344fcfeb",
+                "leftValue": "={{ $json.business_name.length }}",
+                "rightValue": 0,
+                "operator": {
+                  "type": "number",
+                  "operation": "gt"
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.3,
+        "position": [
+          -3024,
+          256
+        ],
+        "id": "69cbb993-de50-41a3-9184-6921930b8623",
+        "name": "If2"
+      },
+      {
+        "parameters": {
+          "url": "https://n8n.35.225.222.54.sslip.io/webhook/4a5ea893-7f17-4a67-b7be-2912bff72daa",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.4,
+        "position": [
+          -2960,
+          992
+        ],
+        "id": "93d2fbf1-8051-40f8-9515-e14440859aa2",
+        "name": "HTTP Request1"
+      }
+    ],
+    "connections": {
+      "When clicking ‘Execute workflow’": {
+        "main": [
+          [
+            {
+              "node": "Get many rows",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "If": {
+        "main": [
+          [
+            {
+              "node": "Code in JavaScript",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Wait",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Code in JavaScript": {
+        "main": [
+          [
+            {
+              "node": "HTTP Request",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "HTTP Request": {
+        "main": [
+          [
+            {
+              "node": "Code in JavaScript1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Code in JavaScript1": {
+        "main": [
+          [
+            {
+              "node": "If1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "If1": {
+        "main": [
+          [
+            {
+              "node": "parse json",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Wait1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Edit Fields": {
+        "main": [
+          [
+            {
+              "node": "get google token",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Switch": {
+        "main": [
+          [
+            {
+              "node": "get screenshots",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "HTTP Request3",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Wait2",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "HTTP Request3": {
+        "main": [
+          [
+            {
+              "node": "Code in JavaScript4",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Code in JavaScript4": {
+        "main": [
+          [
+            {
+              "node": "HTTP Request4",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "HTTP Request4": {
+        "main": [
+          [
+            {
+              "node": "Code in JavaScript5",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Code in JavaScript5": {
+        "main": [
+          [
+            {
+              "node": "get screenshots1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "HTTP Request6": {
+        "main": [
+          [
+            {
+              "node": "Code in JavaScript6",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Code in JavaScript6": {
+        "main": [
+          [
+            {
+              "node": "Edit Fields1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "HTTP Request7": {
+        "main": [
+          [
+            {
+              "node": "Code in JavaScript7",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Code in JavaScript7": {
+        "main": [
+          [
+            {
+              "node": "Code in JavaScript2",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Wait": {
+        "main": [
+          [
+            {
+              "node": "Update a row2",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Wait1": {
+        "main": [
+          [
+            {
+              "node": "Update a row4",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Wait2": {
+        "main": [
+          [
+            {
+              "node": "Update a row3",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "get auth 2 token": {
+        "main": [
+          [
+            {
+              "node": "Gemini",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "parse json": {
+        "main": [
+          [
+            {
+              "node": "Edit Fields",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "get google token": {
+        "main": [
+          [
+            {
+              "node": "get auth 2 token",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Gemini": {
+        "main": [
+          [
+            {
+              "node": "Parse json",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Parse json": {
+        "main": [
+          [
+            {
+              "node": "Switch",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "get screenshots": {
+        "main": [
+          [
+            {
+              "node": "review screenshots",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "review screenshots": {
+        "main": [
+          [
+            {
+              "node": "parse json1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "parse json1": {
+        "main": [
+          [
+            {
+              "node": "compare the screenshots",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "compare the screenshots": {
+        "main": [
+          [
+            {
+              "node": " parse json",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      " parse json": {
+        "main": [
+          [
+            {
+              "node": "Update a row1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "get screenshots1": {
+        "main": [
+          [
+            {
+              "node": "HTTP Request6",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Limit": {
+        "main": [
+          [
+            {
+              "node": "If",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Edit Fields1": {
+        "main": [
+          [
+            {
+              "node": "HTTP Request7",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Code in JavaScript2": {
+        "main": [
+          [
+            {
+              "node": "Update a row",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Wait3": {
+        "main": [
+          [
+            {
+              "node": "Get many rows",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get many rows": {
+        "main": [
+          [
+            {
+              "node": "If2",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Update a row": {
+        "main": [
+          [
+            {
+              "node": "Wait3",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Update a row1": {
+        "main": [
+          [
+            {
+              "node": "Get many rows",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Update a row2": {
+        "main": [
+          [
+            {
+              "node": "Get many rows",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Update a row4": {
+        "main": [
+          [
+            {
+              "node": "Get many rows",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Update a row3": {
+        "main": [
+          [
+            {
+              "node": "Get many rows",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Webhook": {
+        "main": [
+          [
+            {
+              "node": "Get many rows",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "If2": {
+        "main": [
+          [
+            {
+              "node": "Limit",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "HTTP Request1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "senul adeeth",
+    "name": "Version c3c0632b",
+    "description": "",
+    "autosaved": true
+  },
+  "tags": []
+}
