@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-24T17:24:38.524Z",
+  "updatedAt": "2026-06-25T23:01:09.414Z",
   "createdAt": "2026-06-18T15:22:59.531Z",
   "id": "suotbAwLf95OlE1f",
   "name": "10",
@@ -31,47 +31,6 @@
       "id": "d5d9da3c-fb9f-4d74-972a-a9fd6c2b2d95",
       "name": "Webhook",
       "webhookId": "77e4adf5-cd8f-4ef5-9862-18770879dbe6"
-    },
-    {
-      "parameters": {
-        "assignments": {
-          "assignments": [
-            {
-              "id": "00396bc4-b02c-47bf-a3cf-7406999f93fd",
-              "name": "SpreadSheet_Id_Hunter_outputs",
-              "value": "1WMpSYadz8bnoR70Sr2B8GnygmsGCMwzY2vlC9-I08Yo",
-              "type": "string"
-            },
-            {
-              "id": "97baa437-f018-40c0-9f65-467538ada272",
-              "name": "Sheet_name2",
-              "value": "Sheet3",
-              "type": "string"
-            },
-            {
-              "id": "c4bae51e-394f-421b-9c02-410cb05671fc",
-              "name": "SpreadSheet_id1_inputs",
-              "value": "1hRF3Ffnj1z4vWv1-FRG3IkMunm4uhs_jrDeZ8CCQOU0",
-              "type": "string"
-            },
-            {
-              "id": "3e8458b9-a0f0-4640-b9e0-141da3624eca",
-              "name": "Sheet_name1",
-              "value": "Final1",
-              "type": "string"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 3.4,
-      "position": [
-        -2736,
-        -496
-      ],
-      "id": "11a41f17-c9ee-4784-8f25-64b37f4feee3",
-      "name": "Edit Fields"
     },
     {
       "parameters": {
@@ -212,29 +171,6 @@
       ],
       "id": "d27bdd7d-a15e-41e8-92ca-d31184f1eef3",
       "name": "Aggregate2"
-    },
-    {
-      "parameters": {
-        "sendTo": "senuladeeth9@gmail.com",
-        "subject": "Hunter leads are completed",
-        "message": "Hunter leads are completed",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.gmail",
-      "typeVersion": 2.2,
-      "position": [
-        -1296,
-        -688
-      ],
-      "id": "e98bec08-4969-4c1f-afbc-7565d6a0e852",
-      "name": "Send a message",
-      "webhookId": "ab0d7eae-cce2-42b3-a332-76e0b34b94a5",
-      "credentials": {
-        "gmailOAuth2": {
-          "id": "E8cd6USpMe20YyZW",
-          "name": "Gmail account"
-        }
-      }
     },
     {
       "parameters": {
@@ -454,20 +390,9 @@
       "parameters": {
         "operation": "getAll",
         "tableId": "leads",
-        "limit": 100,
-        "filters": {
-          "conditions": [
-            {
-              "keyName": "found_email",
-              "condition": "is",
-              "keyValue": "NULL"
-            },
-            {
-              "keyName": "found_email",
-              "condition": "eq"
-            }
-          ]
-        }
+        "limit": 5,
+        "filterType": "string",
+        "filterString": "found_email.is.null"
       },
       "type": "n8n-nodes-base.supabase",
       "typeVersion": 1,
@@ -604,7 +529,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
       "position": [
-        -1088,
+        -1296,
         -688
       ],
       "id": "c41e0960-a762-4b99-9d7b-bed681176018",
@@ -739,7 +664,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"run_id\": \"{{ $json.run_id }}\",\n  \"stage\": \"Finding Contact Emails\",\n  \"updated_at\": \"{{ new Date().toISOString() }}\"\n}",
+        "jsonBody": "={\n  \"run_id\": \"{{ $json.body.run_id }}\",\n  \"stage\": \"Finding Contact Emails\",\n  \"updated_at\": \"{{ new Date().toISOString() }}\"\n}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
@@ -749,21 +674,11 @@
         -496
       ],
       "id": "47fc87c6-edfe-4a03-824d-645df1d2ad22",
-      "name": "HTTP Request1"
+      "name": "HTTP Request1",
+      "alwaysOutputData": true
     }
   ],
   "connections": {
-    "Edit Fields": {
-      "main": [
-        [
-          {
-            "node": "Get many rows",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Limit": {
       "main": [
         [
@@ -852,7 +767,7 @@
       "main": [
         [
           {
-            "node": "Send a message",
+            "node": "HTTP Request",
             "type": "main",
             "index": 0
           }
@@ -1009,17 +924,6 @@
         ]
       ]
     },
-    "Send a message": {
-      "main": [
-        [
-          {
-            "node": "HTTP Request",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Create a row": {
       "main": [
         [
@@ -1035,7 +939,7 @@
       "main": [
         [
           {
-            "node": "Edit Fields",
+            "node": "Get many rows",
             "type": "main",
             "index": 0
           }
@@ -1054,9 +958,892 @@
   "meta": {
     "templateCredsSetupCompleted": true
   },
-  "pinData": {},
-  "versionId": "1a3d3c1b-2458-4130-964d-8ffb5fbadf13",
-  "activeVersionId": "6f04ff61-dc46-47f2-b084-5216b0abd0db",
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "n8n.35.225.222.54.sslip.io",
+            "user-agent": "n8n",
+            "content-length": "49",
+            "accept": "application/json,text/html,application/xhtml+xml,application/xml,text/*;q=0.9, image/*;q=0.8, */*;q=0.7",
+            "accept-encoding": "gzip, compress, deflate, br",
+            "content-type": "application/json",
+            "x-forwarded-for": "35.225.222.54",
+            "x-forwarded-host": "n8n.35.225.222.54.sslip.io",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "4c5ca81a9b1e",
+            "x-real-ip": "35.225.222.54"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "run_id": "fd12cc31-2aa4-4876-aaf4-4b52c86dae66"
+          },
+          "webhookUrl": "https://n8n.35.225.222.54.sslip.io/webhook-test/77e4adf5-cd8f-4ef5-9862-18770879dbe6",
+          "executionMode": "test"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ],
+    "HTTP Request1": [
+      {
+        "json": {},
+        "pairedItem": [
+          {
+            "item": 0,
+            "input": 0
+          }
+        ]
+      }
+    ],
+    "Get many rows": [
+      {
+        "json": {
+          "id": "a05533a0-523d-4bc6-9dd6-885395d1ed45",
+          "business_name": "The Wolseley Piccadilly",
+          "niche": "restaurant",
+          "location": "london",
+          "address": "160 Piccadilly, London W1J 9EB, UK",
+          "phone": "020 7499 6996",
+          "website": "https://www.thewolseleypiccadilly.com/",
+          "google_place_id": "ChIJr_4cVy8FdkgRIrNbO93eUFM",
+          "rating": 4.4,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-15T16:35:53.561011+00:00",
+          "updated_at": "2026-06-23T16:39:35.677582+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": "NO",
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "03bdc5b1-396c-4ca1-a3cb-5720d08b9e67",
+          "business_name": "Gymkhana",
+          "niche": "restaurant",
+          "location": "london",
+          "address": "42 Albemarle St, London W1S 4JH, UK",
+          "phone": "020 3011 5900",
+          "website": "http://www.gymkhanarestaurants.com/",
+          "google_place_id": "ChIJtwn55ikFdkgRAvOuPIWeLM0",
+          "rating": 4.4,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-15T16:35:53.561011+00:00",
+          "updated_at": "2026-06-23T16:40:46.022886+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": "Not Found",
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "c76ebe9d-c4f3-40af-905d-bb71e8c810b5",
+          "business_name": "Brighten Up Teeth Whitening",
+          "niche": "dental",
+          "location": "london",
+          "address": "Golden Cross House, 8 Duncannon St, London WC2N 4JF, UK",
+          "phone": "020 7868 5360",
+          "website": "https://brightenupteeth.co.uk/treatments/laser-teeth-whitening",
+          "google_place_id": "ChIJi28N0Z4FdkgR8mmt9VTwuvA",
+          "rating": 4.9,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-24T16:58:13.5622+00:00",
+          "updated_at": "2026-06-25T15:56:14.472443+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": "Not Found",
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "dc94dfc3-16d8-4620-8587-9a85ab073cef",
+          "business_name": "ODL Dental Clinic - Affordable Braces London",
+          "niche": "dental",
+          "location": "london",
+          "address": "Unit 1, Salisbury House, 31 Finsbury Circus, London EC2M 5QQ, UK",
+          "phone": "020 7739 3345",
+          "website": "http://www.odldentalclinic.com/",
+          "google_place_id": "ChIJeXcm8rocdkgRyD9LO8MPZ_M",
+          "rating": 4.9,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-24T16:58:13.5622+00:00",
+          "updated_at": "2026-06-25T15:56:18.908232+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": "Not Found",
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "dcd1fbef-60a4-4a58-aebf-943843b38b65",
+          "business_name": "Hermes London Dental Clinic",
+          "niche": "dental",
+          "location": "london",
+          "address": "205 Vauxhall Bridge Rd, Pimlico, London SW1V 1ER, UK",
+          "phone": "020 7233 7660",
+          "website": "https://hermeslondondentalclinic.com/",
+          "google_place_id": "ChIJS7kCaeAEdkgRDXzHYmjXq_8",
+          "rating": 4.9,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-24T16:58:13.5622+00:00",
+          "updated_at": "2026-06-25T15:56:23.380021+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": "Not Found",
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ],
+    "Filter": [
+      {
+        "json": {
+          "id": "a05533a0-523d-4bc6-9dd6-885395d1ed45",
+          "business_name": "The Wolseley Piccadilly",
+          "niche": "restaurant",
+          "location": "london",
+          "address": "160 Piccadilly, London W1J 9EB, UK",
+          "phone": "020 7499 6996",
+          "website": "https://www.thewolseleypiccadilly.com/",
+          "google_place_id": "ChIJr_4cVy8FdkgRIrNbO93eUFM",
+          "rating": 4.4,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-15T16:35:53.561011+00:00",
+          "updated_at": "2026-06-23T16:39:35.677582+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": "NO",
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "03bdc5b1-396c-4ca1-a3cb-5720d08b9e67",
+          "business_name": "Gymkhana",
+          "niche": "restaurant",
+          "location": "london",
+          "address": "42 Albemarle St, London W1S 4JH, UK",
+          "phone": "020 3011 5900",
+          "website": "http://www.gymkhanarestaurants.com/",
+          "google_place_id": "ChIJtwn55ikFdkgRAvOuPIWeLM0",
+          "rating": 4.4,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-15T16:35:53.561011+00:00",
+          "updated_at": "2026-06-23T16:40:46.022886+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": "Not Found",
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 1
+        }
+      },
+      {
+        "json": {
+          "id": "c76ebe9d-c4f3-40af-905d-bb71e8c810b5",
+          "business_name": "Brighten Up Teeth Whitening",
+          "niche": "dental",
+          "location": "london",
+          "address": "Golden Cross House, 8 Duncannon St, London WC2N 4JF, UK",
+          "phone": "020 7868 5360",
+          "website": "https://brightenupteeth.co.uk/treatments/laser-teeth-whitening",
+          "google_place_id": "ChIJi28N0Z4FdkgR8mmt9VTwuvA",
+          "rating": 4.9,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-24T16:58:13.5622+00:00",
+          "updated_at": "2026-06-25T15:56:14.472443+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": "Not Found",
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 2
+        }
+      },
+      {
+        "json": {
+          "id": "dc94dfc3-16d8-4620-8587-9a85ab073cef",
+          "business_name": "ODL Dental Clinic - Affordable Braces London",
+          "niche": "dental",
+          "location": "london",
+          "address": "Unit 1, Salisbury House, 31 Finsbury Circus, London EC2M 5QQ, UK",
+          "phone": "020 7739 3345",
+          "website": "http://www.odldentalclinic.com/",
+          "google_place_id": "ChIJeXcm8rocdkgRyD9LO8MPZ_M",
+          "rating": 4.9,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-24T16:58:13.5622+00:00",
+          "updated_at": "2026-06-25T15:56:18.908232+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": "Not Found",
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 3
+        }
+      },
+      {
+        "json": {
+          "id": "dcd1fbef-60a4-4a58-aebf-943843b38b65",
+          "business_name": "Hermes London Dental Clinic",
+          "niche": "dental",
+          "location": "london",
+          "address": "205 Vauxhall Bridge Rd, Pimlico, London SW1V 1ER, UK",
+          "phone": "020 7233 7660",
+          "website": "https://hermeslondondentalclinic.com/",
+          "google_place_id": "ChIJS7kCaeAEdkgRDXzHYmjXq_8",
+          "rating": 4.9,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-24T16:58:13.5622+00:00",
+          "updated_at": "2026-06-25T15:56:23.380021+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": "Not Found",
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 4
+        }
+      }
+    ],
+    "Edit Fields3": [
+      {
+        "json": {
+          "id": "a05533a0-523d-4bc6-9dd6-885395d1ed45",
+          "business_name": "The Wolseley Piccadilly",
+          "niche": "restaurant",
+          "location": "london",
+          "address": "160 Piccadilly, London W1J 9EB, UK",
+          "phone": "020 7499 6996",
+          "website": "https://www.thewolseleypiccadilly.com/",
+          "google_place_id": "ChIJr_4cVy8FdkgRIrNbO93eUFM",
+          "rating": 4.4,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-15T16:35:53.561011+00:00",
+          "updated_at": "2026-06-23T16:39:35.677582+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": "NO",
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null,
+          "name": "The Wolseley Piccadilly",
+          "websiteUri": "https://www.thewolseleypiccadilly.com/"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "03bdc5b1-396c-4ca1-a3cb-5720d08b9e67",
+          "business_name": "Gymkhana",
+          "niche": "restaurant",
+          "location": "london",
+          "address": "42 Albemarle St, London W1S 4JH, UK",
+          "phone": "020 3011 5900",
+          "website": "http://www.gymkhanarestaurants.com/",
+          "google_place_id": "ChIJtwn55ikFdkgRAvOuPIWeLM0",
+          "rating": 4.4,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-15T16:35:53.561011+00:00",
+          "updated_at": "2026-06-23T16:40:46.022886+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": "Not Found",
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null,
+          "name": "Gymkhana",
+          "websiteUri": "http://www.gymkhanarestaurants.com/"
+        },
+        "pairedItem": {
+          "item": 1
+        }
+      },
+      {
+        "json": {
+          "id": "c76ebe9d-c4f3-40af-905d-bb71e8c810b5",
+          "business_name": "Brighten Up Teeth Whitening",
+          "niche": "dental",
+          "location": "london",
+          "address": "Golden Cross House, 8 Duncannon St, London WC2N 4JF, UK",
+          "phone": "020 7868 5360",
+          "website": "https://brightenupteeth.co.uk/treatments/laser-teeth-whitening",
+          "google_place_id": "ChIJi28N0Z4FdkgR8mmt9VTwuvA",
+          "rating": 4.9,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-24T16:58:13.5622+00:00",
+          "updated_at": "2026-06-25T15:56:14.472443+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": "Not Found",
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null,
+          "name": "Brighten Up Teeth Whitening",
+          "websiteUri": "https://brightenupteeth.co.uk/treatments/laser-teeth-whitening"
+        },
+        "pairedItem": {
+          "item": 2
+        }
+      },
+      {
+        "json": {
+          "id": "dc94dfc3-16d8-4620-8587-9a85ab073cef",
+          "business_name": "ODL Dental Clinic - Affordable Braces London",
+          "niche": "dental",
+          "location": "london",
+          "address": "Unit 1, Salisbury House, 31 Finsbury Circus, London EC2M 5QQ, UK",
+          "phone": "020 7739 3345",
+          "website": "http://www.odldentalclinic.com/",
+          "google_place_id": "ChIJeXcm8rocdkgRyD9LO8MPZ_M",
+          "rating": 4.9,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-24T16:58:13.5622+00:00",
+          "updated_at": "2026-06-25T15:56:18.908232+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": "Not Found",
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null,
+          "name": "ODL Dental Clinic - Affordable Braces London",
+          "websiteUri": "http://www.odldentalclinic.com/"
+        },
+        "pairedItem": {
+          "item": 3
+        }
+      },
+      {
+        "json": {
+          "id": "dcd1fbef-60a4-4a58-aebf-943843b38b65",
+          "business_name": "Hermes London Dental Clinic",
+          "niche": "dental",
+          "location": "london",
+          "address": "205 Vauxhall Bridge Rd, Pimlico, London SW1V 1ER, UK",
+          "phone": "020 7233 7660",
+          "website": "https://hermeslondondentalclinic.com/",
+          "google_place_id": "ChIJS7kCaeAEdkgRDXzHYmjXq_8",
+          "rating": 4.9,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-24T16:58:13.5622+00:00",
+          "updated_at": "2026-06-25T15:56:23.380021+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": "Not Found",
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null,
+          "name": "Hermes London Dental Clinic",
+          "websiteUri": "https://hermeslondondentalclinic.com/"
+        },
+        "pairedItem": {
+          "item": 4
+        }
+      }
+    ],
+    "Limit": [
+      {
+        "json": {
+          "id": "a05533a0-523d-4bc6-9dd6-885395d1ed45",
+          "business_name": "The Wolseley Piccadilly",
+          "niche": "restaurant",
+          "location": "london",
+          "address": "160 Piccadilly, London W1J 9EB, UK",
+          "phone": "020 7499 6996",
+          "website": "https://www.thewolseleypiccadilly.com/",
+          "google_place_id": "ChIJr_4cVy8FdkgRIrNbO93eUFM",
+          "rating": 4.4,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-15T16:35:53.561011+00:00",
+          "updated_at": "2026-06-23T16:39:35.677582+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": "NO",
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null,
+          "name": "The Wolseley Piccadilly",
+          "websiteUri": "https://www.thewolseleypiccadilly.com/"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": "03bdc5b1-396c-4ca1-a3cb-5720d08b9e67",
+          "business_name": "Gymkhana",
+          "niche": "restaurant",
+          "location": "london",
+          "address": "42 Albemarle St, London W1S 4JH, UK",
+          "phone": "020 3011 5900",
+          "website": "http://www.gymkhanarestaurants.com/",
+          "google_place_id": "ChIJtwn55ikFdkgRAvOuPIWeLM0",
+          "rating": 4.4,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-15T16:35:53.561011+00:00",
+          "updated_at": "2026-06-23T16:40:46.022886+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": "Not Found",
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null,
+          "name": "Gymkhana",
+          "websiteUri": "http://www.gymkhanarestaurants.com/"
+        },
+        "pairedItem": {
+          "item": 1
+        }
+      },
+      {
+        "json": {
+          "id": "c76ebe9d-c4f3-40af-905d-bb71e8c810b5",
+          "business_name": "Brighten Up Teeth Whitening",
+          "niche": "dental",
+          "location": "london",
+          "address": "Golden Cross House, 8 Duncannon St, London WC2N 4JF, UK",
+          "phone": "020 7868 5360",
+          "website": "https://brightenupteeth.co.uk/treatments/laser-teeth-whitening",
+          "google_place_id": "ChIJi28N0Z4FdkgR8mmt9VTwuvA",
+          "rating": 4.9,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-24T16:58:13.5622+00:00",
+          "updated_at": "2026-06-25T15:56:14.472443+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": "Not Found",
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null,
+          "name": "Brighten Up Teeth Whitening",
+          "websiteUri": "https://brightenupteeth.co.uk/treatments/laser-teeth-whitening"
+        },
+        "pairedItem": {
+          "item": 2
+        }
+      },
+      {
+        "json": {
+          "id": "dc94dfc3-16d8-4620-8587-9a85ab073cef",
+          "business_name": "ODL Dental Clinic - Affordable Braces London",
+          "niche": "dental",
+          "location": "london",
+          "address": "Unit 1, Salisbury House, 31 Finsbury Circus, London EC2M 5QQ, UK",
+          "phone": "020 7739 3345",
+          "website": "http://www.odldentalclinic.com/",
+          "google_place_id": "ChIJeXcm8rocdkgRyD9LO8MPZ_M",
+          "rating": 4.9,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-24T16:58:13.5622+00:00",
+          "updated_at": "2026-06-25T15:56:18.908232+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": "Not Found",
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null,
+          "name": "ODL Dental Clinic - Affordable Braces London",
+          "websiteUri": "http://www.odldentalclinic.com/"
+        },
+        "pairedItem": {
+          "item": 3
+        }
+      },
+      {
+        "json": {
+          "id": "dcd1fbef-60a4-4a58-aebf-943843b38b65",
+          "business_name": "Hermes London Dental Clinic",
+          "niche": "dental",
+          "location": "london",
+          "address": "205 Vauxhall Bridge Rd, Pimlico, London SW1V 1ER, UK",
+          "phone": "020 7233 7660",
+          "website": "https://hermeslondondentalclinic.com/",
+          "google_place_id": "ChIJS7kCaeAEdkgRDXzHYmjXq_8",
+          "rating": 4.9,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-24T16:58:13.5622+00:00",
+          "updated_at": "2026-06-25T15:56:23.380021+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": "Not Found",
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null,
+          "name": "Hermes London Dental Clinic",
+          "websiteUri": "https://hermeslondondentalclinic.com/"
+        },
+        "pairedItem": {
+          "item": 4
+        }
+      }
+    ],
+    "Hunter": [
+      {
+        "json": {
+          "domain": "thewolseleypiccadilly.com",
+          "disposable": false,
+          "webmail": false,
+          "accept_all": false,
+          "pattern": null,
+          "organization": null,
+          "linked_domains": [],
+          "emails": []
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ],
+    "Edit Fields2": [
+      {
+        "json": {
+          "id": "a05533a0-523d-4bc6-9dd6-885395d1ed45"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ],
+    "Wait1": [
+      {
+        "json": {
+          "id": "a05533a0-523d-4bc6-9dd6-885395d1ed45"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ],
+    "Update a row": [
+      {
+        "json": {
+          "id": "a05533a0-523d-4bc6-9dd6-885395d1ed45",
+          "business_name": "The Wolseley Piccadilly",
+          "niche": "restaurant",
+          "location": "london",
+          "address": "160 Piccadilly, London W1J 9EB, UK",
+          "phone": "020 7499 6996",
+          "website": "https://www.thewolseleypiccadilly.com/",
+          "google_place_id": "ChIJr_4cVy8FdkgRIrNbO93eUFM",
+          "rating": 4.4,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-15T16:35:53.561011+00:00",
+          "updated_at": "2026-06-25T22:59:04.617428+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": "Not Found",
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ],
+    "Replace Me": [
+      {
+        "json": {
+          "id": "a05533a0-523d-4bc6-9dd6-885395d1ed45",
+          "business_name": "The Wolseley Piccadilly",
+          "niche": "restaurant",
+          "location": "london",
+          "address": "160 Piccadilly, London W1J 9EB, UK",
+          "phone": "020 7499 6996",
+          "website": "https://www.thewolseleypiccadilly.com/",
+          "google_place_id": "ChIJr_4cVy8FdkgRIrNbO93eUFM",
+          "rating": 4.4,
+          "contact_name": null,
+          "email": null,
+          "email_source": null,
+          "email_verified": false,
+          "email_verification_status": null,
+          "status": "discovered",
+          "created_at": "2026-06-15T16:35:53.561011+00:00",
+          "updated_at": "2026-06-25T22:59:04.617428+00:00",
+          "run_id": null,
+          "outreach_status": null,
+          "last_contacted": null,
+          "notes": null,
+          "found_email": "Not Found",
+          "audit_score": null,
+          "audit_issues": null,
+          "audit_notes": null,
+          "audit_email_angle": null,
+          "audit_screenshot": null
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ],
+    "Aggregate2": [
+      {
+        "json": {
+          "value": []
+        },
+        "pairedItem": [
+          {
+            "item": 0
+          },
+          {
+            "item": 1
+          },
+          {
+            "item": 2
+          },
+          {
+            "item": 3
+          },
+          {
+            "item": 4
+          }
+        ]
+      }
+    ]
+  },
+  "versionId": "5307db2a-2c74-4480-80b8-1ba44901ad09",
+  "activeVersionId": "5307db2a-2c74-4480-80b8-1ba44901ad09",
   "triggerCount": 1,
   "shared": [
     {
@@ -1068,9 +1855,9 @@
     }
   ],
   "activeVersion": {
-    "updatedAt": "2026-06-24T16:49:45.000Z",
-    "createdAt": "2026-06-24T16:49:42.513Z",
-    "versionId": "6f04ff61-dc46-47f2-b084-5216b0abd0db",
+    "updatedAt": "2026-06-25T23:01:49.000Z",
+    "createdAt": "2026-06-25T23:01:09.416Z",
+    "versionId": "5307db2a-2c74-4480-80b8-1ba44901ad09",
     "workflowId": "suotbAwLf95OlE1f",
     "nodes": [
       {
@@ -1078,7 +1865,7 @@
         "type": "n8n-nodes-base.manualTrigger",
         "typeVersion": 1,
         "position": [
-          -3120,
+          -3184,
           -496
         ],
         "id": "547640c7-170a-49ec-b6c2-3739d96568ef",
@@ -1092,53 +1879,12 @@
         "type": "n8n-nodes-base.webhook",
         "typeVersion": 2.1,
         "position": [
-          -3152,
+          -3216,
           -272
         ],
         "id": "d5d9da3c-fb9f-4d74-972a-a9fd6c2b2d95",
         "name": "Webhook",
         "webhookId": "77e4adf5-cd8f-4ef5-9862-18770879dbe6"
-      },
-      {
-        "parameters": {
-          "assignments": {
-            "assignments": [
-              {
-                "id": "00396bc4-b02c-47bf-a3cf-7406999f93fd",
-                "name": "SpreadSheet_Id_Hunter_outputs",
-                "value": "1WMpSYadz8bnoR70Sr2B8GnygmsGCMwzY2vlC9-I08Yo",
-                "type": "string"
-              },
-              {
-                "id": "97baa437-f018-40c0-9f65-467538ada272",
-                "name": "Sheet_name2",
-                "value": "Sheet3",
-                "type": "string"
-              },
-              {
-                "id": "c4bae51e-394f-421b-9c02-410cb05671fc",
-                "name": "SpreadSheet_id1_inputs",
-                "value": "1hRF3Ffnj1z4vWv1-FRG3IkMunm4uhs_jrDeZ8CCQOU0",
-                "type": "string"
-              },
-              {
-                "id": "3e8458b9-a0f0-4640-b9e0-141da3624eca",
-                "name": "Sheet_name1",
-                "value": "Final1",
-                "type": "string"
-              }
-            ]
-          },
-          "options": {}
-        },
-        "type": "n8n-nodes-base.set",
-        "typeVersion": 3.4,
-        "position": [
-          -2816,
-          -496
-        ],
-        "id": "11a41f17-c9ee-4784-8f25-64b37f4feee3",
-        "name": "Edit Fields"
       },
       {
         "parameters": {
@@ -1279,29 +2025,6 @@
         ],
         "id": "d27bdd7d-a15e-41e8-92ca-d31184f1eef3",
         "name": "Aggregate2"
-      },
-      {
-        "parameters": {
-          "sendTo": "senuladeeth9@gmail.com",
-          "subject": "Hunter leads are completed",
-          "message": "Hunter leads are completed",
-          "options": {}
-        },
-        "type": "n8n-nodes-base.gmail",
-        "typeVersion": 2.2,
-        "position": [
-          -1296,
-          -688
-        ],
-        "id": "e98bec08-4969-4c1f-afbc-7565d6a0e852",
-        "name": "Send a message",
-        "webhookId": "ab0d7eae-cce2-42b3-a332-76e0b34b94a5",
-        "credentials": {
-          "gmailOAuth2": {
-            "id": "E8cd6USpMe20YyZW",
-            "name": "Gmail account"
-          }
-        }
       },
       {
         "parameters": {
@@ -1521,20 +2244,9 @@
         "parameters": {
           "operation": "getAll",
           "tableId": "leads",
-          "limit": 100,
-          "filters": {
-            "conditions": [
-              {
-                "keyName": "found_email",
-                "condition": "is",
-                "keyValue": "NULL"
-              },
-              {
-                "keyName": "found_email",
-                "condition": "eq"
-              }
-            ]
-          }
+          "limit": 5,
+          "filterType": "string",
+          "filterString": "found_email.is.null"
         },
         "type": "n8n-nodes-base.supabase",
         "typeVersion": 1,
@@ -1663,12 +2375,15 @@
       {
         "parameters": {
           "url": "https://n8n.35.225.222.54.sslip.io/webhook/0e421f21-389d-4daa-b409-df2b62583ddb",
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={ \"run_id\": \"{{ $json.body.run_id }}\" }",
           "options": {}
         },
         "type": "n8n-nodes-base.httpRequest",
         "typeVersion": 4.4,
         "position": [
-          -1088,
+          -1296,
           -688
         ],
         "id": "c41e0960-a762-4b99-9d7b-bed681176018",
@@ -1776,20 +2491,48 @@
             "name": "Supabase account 2"
           }
         }
+      },
+      {
+        "parameters": {
+          "url": "https://apdxwrqulwljzyhrixrv.supabase.co/rest/v1/run_status",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "apikey",
+                "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFwZHh3cnF1bHdsanp5aHJpeHJ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEzMjY0MjcsImV4cCI6MjA5NjkwMjQyN30.IrJtYGOPRUcXCmlMkbbk4nZG68guOFuvQ7XqLE9S-lg"
+              },
+              {
+                "name": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFwZHh3cnF1bHdsanp5aHJpeHJ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEzMjY0MjcsImV4cCI6MjA5NjkwMjQyN30.IrJtYGOPRUcXCmlMkbbk4nZG68guOFuvQ7XqLE9S-lg"
+              },
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "name": "Prefer",
+                "value": "resolution=merge-duplicates"
+              }
+            ]
+          },
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={\n  \"run_id\": \"{{ $json.body.run_id }}\",\n  \"stage\": \"Finding Contact Emails\",\n  \"updated_at\": \"{{ new Date().toISOString() }}\"\n}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.4,
+        "position": [
+          -2912,
+          -496
+        ],
+        "id": "47fc87c6-edfe-4a03-824d-645df1d2ad22",
+        "name": "HTTP Request1",
+        "alwaysOutputData": true
       }
     ],
     "connections": {
-      "Edit Fields": {
-        "main": [
-          [
-            {
-              "node": "Get many rows",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
       "Limit": {
         "main": [
           [
@@ -1878,7 +2621,7 @@
         "main": [
           [
             {
-              "node": "Send a message",
+              "node": "HTTP Request",
               "type": "main",
               "index": 0
             }
@@ -1973,7 +2716,7 @@
         "main": [
           [
             {
-              "node": "Edit Fields",
+              "node": "HTTP Request1",
               "type": "main",
               "index": 0
             }
@@ -1984,7 +2727,7 @@
         "main": [
           [
             {
-              "node": "Edit Fields",
+              "node": "HTTP Request1",
               "type": "main",
               "index": 0
             }
@@ -2035,17 +2778,6 @@
           ]
         ]
       },
-      "Send a message": {
-        "main": [
-          [
-            {
-              "node": "HTTP Request",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
       "Create a row": {
         "main": [
           [
@@ -2056,10 +2788,21 @@
             }
           ]
         ]
+      },
+      "HTTP Request1": {
+        "main": [
+          [
+            {
+              "node": "Get many rows",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
       }
     },
     "authors": "senul adeeth",
-    "name": "Version 6f04ff61",
+    "name": "Version 5307db2a",
     "description": "",
     "autosaved": true
   },
