@@ -1677,7 +1677,7 @@
   },
   "pinData": {},
   "versionId": "9846442c-dcba-46cf-807b-b3b7aff0353f",
-  "activeVersionId": "c3c0632b-24ed-492a-bfe2-14057b17c311",
+  "activeVersionId": "9846442c-dcba-46cf-807b-b3b7aff0353f",
   "triggerCount": 1,
   "shared": [
     {
@@ -1689,9 +1689,9 @@
     }
   ],
   "activeVersion": {
-    "updatedAt": "2026-06-24T16:50:22.000Z",
-    "createdAt": "2026-06-24T16:50:09.377Z",
-    "versionId": "c3c0632b-24ed-492a-bfe2-14057b17c311",
+    "updatedAt": "2026-06-25T16:22:28.000Z",
+    "createdAt": "2026-06-24T17:25:00.306Z",
+    "versionId": "9846442c-dcba-46cf-807b-b3b7aff0353f",
     "workflowId": "e9hWjxTrQU2YwWUd",
     "nodes": [
       {
@@ -1699,7 +1699,7 @@
         "type": "n8n-nodes-base.manualTrigger",
         "typeVersion": 1,
         "position": [
-          -3648,
+          -3936,
           240
         ],
         "id": "8a545eb3-980e-48b9-808e-0483a2f252ea",
@@ -2465,7 +2465,7 @@
         "type": "n8n-nodes-base.supabase",
         "typeVersion": 1,
         "position": [
-          -3200,
+          -3360,
           240
         ],
         "id": "155a5dee-cb29-45e3-b4bf-2761d5b6aec7",
@@ -2746,8 +2746,8 @@
         "type": "n8n-nodes-base.webhook",
         "typeVersion": 2.1,
         "position": [
-          -3680,
-          512
+          -3968,
+          528
         ],
         "id": "b29f9326-264e-4eb4-8b55-129edaf85d2f",
         "name": "Webhook",
@@ -2780,8 +2780,8 @@
         "type": "n8n-nodes-base.if",
         "typeVersion": 2.3,
         "position": [
-          -3024,
-          256
+          -3040,
+          240
         ],
         "id": "69cbb993-de50-41a3-9184-6921930b8623",
         "name": "If2"
@@ -2789,6 +2789,9 @@
       {
         "parameters": {
           "url": "https://n8n.35.225.222.54.sslip.io/webhook/4a5ea893-7f17-4a67-b7be-2912bff72daa",
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={ \"run_id\": \"{{ $json.body.run_id }}\" }",
           "options": {}
         },
         "type": "n8n-nodes-base.httpRequest",
@@ -2799,6 +2802,44 @@
         ],
         "id": "93d2fbf1-8051-40f8-9515-e14440859aa2",
         "name": "HTTP Request1"
+      },
+      {
+        "parameters": {
+          "url": "https://apdxwrqulwljzyhrixrv.supabase.co/rest/v1/run_status",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "apikey",
+                "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFwZHh3cnF1bHdsanp5aHJpeHJ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEzMjY0MjcsImV4cCI6MjA5NjkwMjQyN30.IrJtYGOPRUcXCmlMkbbk4nZG68guOFuvQ7XqLE9S-lg"
+              },
+              {
+                "name": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFwZHh3cnF1bHdsanp5aHJpeHJ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEzMjY0MjcsImV4cCI6MjA5NjkwMjQyN30.IrJtYGOPRUcXCmlMkbbk4nZG68guOFuvQ7XqLE9S-lg"
+              },
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "name": "Prefer",
+                "value": "resolution=merge-duplicates"
+              }
+            ]
+          },
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={\n  \"run_id\": \"{{ $json.run_id }}\",\n  \"stage\": \"Auditing Websites\",\n  \"updated_at\": \"{{ new Date().toISOString() }}\"\n}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.4,
+        "position": [
+          -3568,
+          240
+        ],
+        "id": "4e0f6773-076d-4b8b-9c42-0efd90eef2ca",
+        "name": "HTTP Request2"
       }
     ],
     "connections": {
@@ -2806,7 +2847,7 @@
         "main": [
           [
             {
-              "node": "Get many rows",
+              "node": "HTTP Request2",
               "type": "main",
               "index": 0
             }
@@ -3274,7 +3315,7 @@
         "main": [
           [
             {
-              "node": "Get many rows",
+              "node": "HTTP Request2",
               "type": "main",
               "index": 0
             }
@@ -3298,10 +3339,21 @@
             }
           ]
         ]
+      },
+      "HTTP Request2": {
+        "main": [
+          [
+            {
+              "node": "Get many rows",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
       }
     },
     "authors": "senul adeeth",
-    "name": "Version c3c0632b",
+    "name": "Version 9846442c",
     "description": "",
     "autosaved": true
   },
