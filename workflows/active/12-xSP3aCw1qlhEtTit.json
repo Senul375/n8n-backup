@@ -1653,7 +1653,7 @@
     ]
   },
   "versionId": "96304b97-f8bc-4269-b907-3de6210e9f64",
-  "activeVersionId": "b5827640-ac6a-47c0-9c09-6adc98abd921",
+  "activeVersionId": "96304b97-f8bc-4269-b907-3de6210e9f64",
   "triggerCount": 1,
   "shared": [
     {
@@ -1665,9 +1665,9 @@
     }
   ],
   "activeVersion": {
-    "updatedAt": "2026-06-24T16:51:16.000Z",
-    "createdAt": "2026-06-23T16:47:03.248Z",
-    "versionId": "b5827640-ac6a-47c0-9c09-6adc98abd921",
+    "updatedAt": "2026-06-25T16:22:17.000Z",
+    "createdAt": "2026-06-24T17:29:16.247Z",
+    "versionId": "96304b97-f8bc-4269-b907-3de6210e9f64",
     "workflowId": "xSP3aCw1qlhEtTit",
     "nodes": [
       {
@@ -1675,8 +1675,8 @@
         "type": "n8n-nodes-base.manualTrigger",
         "typeVersion": 1,
         "position": [
-          -640,
-          -112
+          -944,
+          -176
         ],
         "id": "53bd1697-ce6e-4ab0-8798-de415f86952c",
         "name": "When clicking ‘Execute workflow’"
@@ -1752,7 +1752,7 @@
         "type": "n8n-nodes-base.set",
         "typeVersion": 3.4,
         "position": [
-          352,
+          768,
           -96
         ],
         "id": "eb499c1f-5a9f-4f43-80db-b4dc8449273d",
@@ -1780,7 +1780,7 @@
         "type": "@n8n/n8n-nodes-langchain.googleGemini",
         "typeVersion": 1.1,
         "position": [
-          1360,
+          1776,
           -96
         ],
         "id": "b107515c-5639-45bc-bcb5-4633a98941fd",
@@ -1816,7 +1816,7 @@
         "type": "@n8n/n8n-nodes-langchain.googleGemini",
         "typeVersion": 1.1,
         "position": [
-          2000,
+          2416,
           -96
         ],
         "id": "24566564-403d-4cc8-9051-008d01769b57",
@@ -1837,7 +1837,7 @@
         "type": "n8n-nodes-base.wait",
         "typeVersion": 1.1,
         "position": [
-          560,
+          976,
           -96
         ],
         "id": "bc67795c-dd51-414c-8846-ed283049c15a",
@@ -1852,7 +1852,7 @@
         "type": "n8n-nodes-base.wait",
         "typeVersion": 1.1,
         "position": [
-          1216,
+          1632,
           -96
         ],
         "id": "288464b6-a4cf-4359-8333-8a7116db06a7",
@@ -1867,7 +1867,7 @@
         "type": "n8n-nodes-base.wait",
         "typeVersion": 1.1,
         "position": [
-          1840,
+          2256,
           -96
         ],
         "id": "3ffdcdde-a3d1-4bbc-9ced-59713c11ab4f",
@@ -1882,7 +1882,7 @@
         "type": "n8n-nodes-base.wait",
         "typeVersion": 1.1,
         "position": [
-          2448,
+          2864,
           -96
         ],
         "id": "e9ac41ab-f15c-4a40-8514-25ee69da0176",
@@ -1897,7 +1897,7 @@
         "type": "n8n-nodes-base.wait",
         "typeVersion": 1.1,
         "position": [
-          3008,
+          3424,
           -96
         ],
         "id": "9b20fd4d-6e78-440c-992d-f957c6cfafd7",
@@ -2484,7 +2484,7 @@
         "type": "n8n-nodes-base.googleSheets",
         "typeVersion": 4.7,
         "position": [
-          3376,
+          3792,
           -96
         ],
         "id": "a003139b-7d48-49f1-a4cd-98913b6349cf",
@@ -2520,7 +2520,7 @@
         "type": "@n8n/n8n-nodes-langchain.googleGemini",
         "typeVersion": 1.1,
         "position": [
-          784,
+          1200,
           -96
         ],
         "id": "9f16b074-0ad2-428c-897c-c199c013dc8f",
@@ -2559,7 +2559,7 @@
         "type": "@n8n/n8n-nodes-langchain.googleGemini",
         "typeVersion": 1.1,
         "position": [
-          2592,
+          3008,
           -96
         ],
         "id": "4a71c5d0-83bf-457b-829d-e76a5568ee28",
@@ -2581,7 +2581,7 @@
         "type": "n8n-nodes-base.code",
         "typeVersion": 2,
         "position": [
-          1056,
+          1472,
           -96
         ],
         "id": "fe7dad9f-f501-4794-81f5-0c25c9ad8d92",
@@ -2594,7 +2594,7 @@
         "type": "n8n-nodes-base.code",
         "typeVersion": 2,
         "position": [
-          1664,
+          2080,
           -96
         ],
         "id": "faa7aca0-49f5-4cf2-8be9-249be7bc317b",
@@ -2607,7 +2607,7 @@
         "type": "n8n-nodes-base.code",
         "typeVersion": 2,
         "position": [
-          2288,
+          2704,
           -96
         ],
         "id": "18192e72-ad43-42ba-8027-f9a7a14c65be",
@@ -2620,7 +2620,7 @@
         "type": "n8n-nodes-base.code",
         "typeVersion": 2,
         "position": [
-          2864,
+          3280,
           -96
         ],
         "id": "8f06ea63-2086-4cf2-82f7-896768e3b172",
@@ -2631,7 +2631,7 @@
         "type": "n8n-nodes-base.limit",
         "typeVersion": 1,
         "position": [
-          112,
+          528,
           -96
         ],
         "id": "6523a8b0-72ea-4c35-ab8a-e894f5a0c786",
@@ -2645,7 +2645,7 @@
         "type": "n8n-nodes-base.wait",
         "typeVersion": 1.1,
         "position": [
-          3536,
+          3952,
           -96
         ],
         "id": "af4cbfbf-a615-41ed-a6a7-2c625600a446",
@@ -2710,7 +2710,7 @@
         "type": "n8n-nodes-base.filter",
         "typeVersion": 2.3,
         "position": [
-          -96,
+          320,
           -96
         ],
         "id": "5a88cdf5-c63b-4f9f-ac5d-66619f7af2ad",
@@ -2724,8 +2724,8 @@
         "type": "n8n-nodes-base.webhook",
         "typeVersion": 2.1,
         "position": [
-          -672,
-          176
+          -992,
+          160
         ],
         "id": "dc2fc88c-1648-44e4-8569-359072eb7cde",
         "name": "Webhook",
@@ -2740,8 +2740,8 @@
         "type": "n8n-nodes-base.supabase",
         "typeVersion": 1,
         "position": [
-          -320,
-          -96
+          -432,
+          -64
         ],
         "id": "f46a4fe0-7c89-450e-a703-8f5df36d55b8",
         "name": "Get many rows",
@@ -2777,7 +2777,7 @@
         "type": "n8n-nodes-base.supabase",
         "typeVersion": 1,
         "position": [
-          3216,
+          3632,
           -96
         ],
         "id": "cf35380d-b9a8-47fa-8cf2-f3e1dfa9c414",
@@ -2788,6 +2788,94 @@
             "name": "Supabase account 2"
           }
         }
+      },
+      {
+        "parameters": {
+          "url": "https://apdxwrqulwljzyhrixrv.supabase.co/rest/v1/run_status",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "apikey",
+                "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFwZHh3cnF1bHdsanp5aHJpeHJ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEzMjY0MjcsImV4cCI6MjA5NjkwMjQyN30.IrJtYGOPRUcXCmlMkbbk4nZG68guOFuvQ7XqLE9S-lg"
+              },
+              {
+                "name": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFwZHh3cnF1bHdsanp5aHJpeHJ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEzMjY0MjcsImV4cCI6MjA5NjkwMjQyN30.IrJtYGOPRUcXCmlMkbbk4nZG68guOFuvQ7XqLE9S-lg"
+              },
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "name": "Prefer",
+                "value": "resolution=merge-duplicates"
+              }
+            ]
+          },
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={\n  \"run_id\": \"{{ $json.run_id }}\",\n  \"stage\": \"Crafting Outreach Email\",\n  \"updated_at\": \"{{ new Date().toISOString() }}\"\n}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.4,
+        "position": [
+          -688,
+          -64
+        ],
+        "id": "efb3d6ee-a60c-426b-beb3-891b8e911a2a",
+        "name": "HTTP Request1"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 3
+            },
+            "conditions": [
+              {
+                "id": "fe52cde4-0e57-4f8c-9046-3a3ee497b902",
+                "leftValue": "={{ $json.business_name.length }}",
+                "rightValue": 0,
+                "operator": {
+                  "type": "number",
+                  "operation": "gt"
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.3,
+        "position": [
+          -224,
+          -64
+        ],
+        "id": "fe232a50-929d-47f0-a323-589d31e69635",
+        "name": "If"
+      },
+      {
+        "parameters": {
+          "url": "https://n8n.35.225.222.54.sslip.io/webhook/4a5ea893-7f17-4a67-b7be-2912bff72daa",
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={\n  \"run_id\": \"{{ $json.body.run_id }}\",\n  \"stage\": \"done\",\n  \"updated_at\": \"{{ new Date().toISOString() }}\"\n}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.4,
+        "position": [
+          -16,
+          144
+        ],
+        "id": "445877b5-ed05-40f3-b2e7-8844d2097329",
+        "name": "HTTP Request"
       }
     ],
     "connections": {
@@ -2795,7 +2883,7 @@
         "main": [
           [
             {
-              "node": "Get many rows",
+              "node": "HTTP Request1",
               "type": "main",
               "index": 0
             }
@@ -3004,7 +3092,7 @@
         "main": [
           [
             {
-              "node": "Get many rows",
+              "node": "HTTP Request1",
               "type": "main",
               "index": 0
             }
@@ -3015,7 +3103,7 @@
         "main": [
           [
             {
-              "node": "Filter",
+              "node": "If",
               "type": "main",
               "index": 0
             }
@@ -3032,10 +3120,39 @@
             }
           ]
         ]
+      },
+      "HTTP Request1": {
+        "main": [
+          [
+            {
+              "node": "Get many rows",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "If": {
+        "main": [
+          [
+            {
+              "node": "Filter",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "HTTP Request",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
       }
     },
     "authors": "senul adeeth",
-    "name": "Version b5827640",
+    "name": "Version 96304b97",
     "description": "",
     "autosaved": true
   },
