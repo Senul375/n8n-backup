@@ -1,0 +1,73 @@
+{
+  "updatedAt": "2026-06-25T22:16:52.826Z",
+  "createdAt": "2026-06-25T22:07:56.097Z",
+  "id": "nMLX3zGnxC9FfcXk",
+  "name": "My workflow 9",
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "1315c62c-199e-4e0e-a2f6-f6dae4a40675",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://n8n.35.225.222.54.sslip.io/webhook-test/aa258b23-0b4e-48d7-aab9-de7f3d20538e",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"headers\": {\n    \"host\": \"n8n.35.225.222.54.sslip.io\",\n    \"user-agent\": \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36\",\n    \"content-length\": \"0\",\n    \"accept\": \"*/*\",\n    \"accept-encoding\": \"gzip, deflate, br, zstd\",\n    \"accept-language\": \"en-US,en;q=0.9\",\n    \"origin\": \"null\",\n    \"priority\": \"u=1, i\",\n    \"sec-ch-ua\": \"\\\"Google Chrome\\\";v=\\\"149\\\", \\\"Chromium\\\";v=\\\"149\\\", \\\"Not)A;Brand\\\";v=\\\"24\\\"\",\n    \"sec-ch-ua-mobile\": \"?0\",\n    \"sec-ch-ua-platform\": \"\\\"Windows\\\"\",\n    \"sec-fetch-dest\": \"empty\",\n    \"sec-fetch-mode\": \"no-cors\",\n    \"sec-fetch-site\": \"cross-site\",\n    \"x-forwarded-for\": \"109.150.29.238\",\n    \"x-forwarded-host\": \"n8n.35.225.222.54.sslip.io\",\n    \"x-forwarded-port\": \"443\",\n    \"x-forwarded-proto\": \"https\",\n    \"x-forwarded-server\": \"4c5ca81a9b1e\",\n    \"x-real-ip\": \"109.150.29.238\"\n  },\n  \"params\": {},\n  \"query\": {\n    \"run_id\": \"f6a2eb57-1fc1-467a-bfad-159d754c5512\",\n    \"niche\": \"resturents\",\n    \"location\": \"london\"\n  },\n  \"body\": {},\n  \"webhookUrl\": \"https://n8n.35.225.222.54.sslip.io/webhook/aa258b23-0b4e-48d7-aab9-de7f3d20538e\",\n  \"executionMode\": \"production\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        208,
+        0
+      ],
+      "id": "d6b3bbeb-0a52-4573-8503-82c1946013a8",
+      "name": "HTTP Request"
+    }
+  ],
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": {},
+  "versionId": "b73102c8-a25e-4c1f-b0de-f2f227340c99",
+  "activeVersionId": null,
+  "triggerCount": 0,
+  "shared": [
+    {
+      "updatedAt": "2026-06-25T22:07:56.099Z",
+      "createdAt": "2026-06-25T22:07:56.099Z",
+      "role": "workflow:owner",
+      "workflowId": "nMLX3zGnxC9FfcXk",
+      "projectId": "5GBCFFrIrIkPnjdc"
+    }
+  ],
+  "activeVersion": null,
+  "tags": []
+}
